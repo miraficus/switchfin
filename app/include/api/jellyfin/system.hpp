@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <nlohmann/json.hpp>
+#include "utils/json.hpp"
 
 namespace jellyfin {
 

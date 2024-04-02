@@ -86,7 +86,8 @@ void MediaCollection::loadFilter() {
                 MediaFilter::selectedSort = i;
             }
         }
-    } catch (...) {
+    } catch (const std::exception& ex) {
+        brls::Logger::warning("MediaCollection loadFilter: {}", ex.what());
     }
 }
 

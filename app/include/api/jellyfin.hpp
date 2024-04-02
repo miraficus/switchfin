@@ -4,10 +4,10 @@
 
 #pragma once
 
-#include <nlohmann/json.hpp>
 #include <borealis/core/logger.hpp>
 #include <borealis/core/thread.hpp>
 #include "http.hpp"
+#include "utils/json.hpp"
 #include "utils/config.hpp"
 
 namespace jellyfin {
