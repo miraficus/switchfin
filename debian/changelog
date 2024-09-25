@@ -1,0 +1,8 @@
+switchfin (0.5.2-1) unstable; urgency=medium
+
+  * disable update notify when user caneled
+  * fixed decode danmaku failed
+  * fixed filter missing when sync option off
+  * auto selected external subtitles
+
+ -- dragonflylee <dragonflylee@outlook.com>  Sun, 11 Apr 2021 22:34:40 -0400

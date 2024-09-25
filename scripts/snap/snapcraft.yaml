@@ -105,13 +105,21 @@ parts:
 
   libplacebo:
     plugin: meson
-    source: https://code.videolan.org/videolan/libplacebo/-/archive/v7.349.0/libplacebo-v7.349.0.tar.gz
-    source-type: tar
+    source: https://code.videolan.org/videolan/libplacebo.git
+    source-type: git
+    source-tag: v7.349.0
+    source-depth: 1
+    source-submodules:
+      - 3rdparty/glad
+      - 3rdparty/jinja
+      - 3rdparty/markupsafe
+      - 3rdparty/Vulkan-Headers
+      - 3rdparty/fast_float
     meson-parameters:
       - --prefix=/usr
       - --buildtype=release
       - --strip
-      - -DDopengl=disabled
+      - -Dopengl=disabled
       - -Dgl-proc-addr=disabled
       - -Dd3d11=disabled
       - -Dglslang=disabled
@@ -136,10 +144,6 @@ parts:
       - --strip
       - -Denable_tools=false
       - -Denable_tests=false
-    build-packages:
-      - libxxhash-dev
-    stage-packages:
-      - libxxhash0
     prime:
       - -usr/include
       - -usr/lib/$SNAPCRAFT_ARCH_TRIPLET/pkgconfig
