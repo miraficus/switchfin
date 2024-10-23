@@ -3,7 +3,11 @@
 # Contributor: Cpasjuste <cpasjuste@gmail.com>
 
 pkgbasename=libmpv
-pkgname=switch-${pkgbasename}
+pkgname=(
+  switch-${pkgbasename}
+  switch-${pkgbasename}-deko3d
+)
+provides=(switch-${pkgbasename})
 pkgver=0.36.0
 pkgrel=5
 pkgdesc='Command line video player (library only)'
@@ -13,11 +17,11 @@ license=('GPL')
 options=(!strip libtool staticlibs)
 source=(
   "${pkgbasename}-${pkgver}.tar.gz::https://github.com/mpv-player/mpv/archive/v${pkgver}.tar.gz" 
-  "hos-audio.patch" "lavfi-channel.patch"
+  "hos-audio.patch" "lavfi-channel.patch" "deko3d.patch"
 )
 sha256sums=(
   '29abc44f8ebee013bb2f9fe14d80b30db19b534c679056e4851ceadf5a5e8bf6'
-  'SKIP' 'SKIP'
+  'SKIP' 'SKIP' 'SKIP'
 )
 makedepends=("dkp-toolchain-vars" "dkp-meson-scripts")
 depends=('switch-ffmpeg' 'switch-mesa' 'switch-liblua51')
@@ -27,22 +31,30 @@ prepare() {
   cd mpv-$pkgver
   patch -Np1 -i "$srcdir/hos-audio.patch"
   patch -Np1 -i "$srcdir/lavfi-channel.patch"
+  patch -Np1 -i "$srcdir/deko3d.patch"
 }
 
 build() {
-  cd mpv-$pkgver
-
-  /opt/devkitpro/meson-cross.sh switch ../crossfile.txt \
-    -Dlibmpv=true -Dcplayer=false -Dtests=false \
-    -Dplain-gl=enabled -Degl=disabled -Dsdl2=disabled \
-    -Dlibarchive=disabled -Dlua=enabled -Djpeg=disabled \
-    -Diconv=disabled -Dhos-audio=enabled build
-
-  meson compile -C build
+  /opt/devkitpro/meson-cross.sh switch crossfile.txt build-deko3d mpv-$pkgver \
+    -Dlibmpv=true -Dcplayer=false -Dtests=false -Dlua=enabled -Dhos-audio=enabled \
+    -Dgl=disabled -Degl=disabled -Dsdl2=disabled -Dlibarchive=disabled -Ddeko3d=enabled \
+    -Dlibplacebo=disabled -Dlibavdevice=disabled -Djpeg=disabled -Diconv=disabled
+  
+  /opt/devkitpro/meson-cross.sh switch crossfile.txt build-gl mpv-$pkgver \
+    -Dlibmpv=true -Dcplayer=false -Dtests=false -Dlua=enabled -Dhos-audio=enabled \
+    -Dplain-gl=enabled -Degl=disabled -Dsdl2=disabled -Dlibarchive=disabled -Ddeko3d=disabled \
+    -Dlibplacebo=disabled -Dlibavdevice=disabled -Djpeg=disabled -Diconv=disabled
 }
 
-package() {
-  cd mpv-$pkgver
+package_switch-libmpv() {
+  conflicts=(switch-${pkgbasename}-deko3d)
+  meson compile -C build-gl
+  DESTDIR="$pkgdir" meson install -C build-gl
+}
 
-  DESTDIR="$pkgdir" meson install -C build
+package_switch-libmpv-deko3d() {
+  depends=('switch-ffmpeg' 'deko3d' 'libuam' 'switch-liblua51')
+  conflicts=(switch-${pkgbasename})
+  meson compile -C build-deko3d
+  DESTDIR="$pkgdir" meson install -C build-deko3d
 }

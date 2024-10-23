@@ -24,7 +24,7 @@ layout:
 
 parts:
   libmpv:
-    source: https://github.com/mpv-player/mpv/archive/v0.36.0.tar.gz
+    source: https://github.com/mpv-player/mpv/archive/v0.39.0.tar.gz
     source-type: tar
     plugin: meson
     meson-parameters:
@@ -54,6 +54,7 @@ parts:
     after:
       - ffmpeg
       - libass
+      - libplacebo
 
   ffmpeg:
     source: https://ffmpeg.org/releases/ffmpeg-7.1.tar.xz
@@ -98,6 +99,29 @@ parts:
     prime:
       - -etc
       - -usr/bin
+      - -usr/include
+      - -usr/lib/$SNAPCRAFT_ARCH_TRIPLET/pkgconfig
+      - -usr/share
+
+  libplacebo:
+    plugin: meson
+    source: https://code.videolan.org/videolan/libplacebo/-/archive/v7.349.0/libplacebo-v7.349.0.tar.gz
+    source-type: tar
+    meson-parameters:
+      - --prefix=/usr
+      - --buildtype=release
+      - --strip
+      - -DDopengl=disabled
+      - -Dgl-proc-addr=disabled
+      - -Dd3d11=disabled
+      - -Dglslang=disabled
+      - -Dshaderc=disabled
+      - -Ddovi=enabled
+      - -Dlcms=disabled
+      - -Dvulkan=disabled
+      - -Ddemos=false
+      - -Dtests=false
+    prime:
       - -usr/include
       - -usr/lib/$SNAPCRAFT_ARCH_TRIPLET/pkgconfig
       - -usr/share
@@ -179,7 +203,7 @@ parts:
       - -usr/share
 
   curl:
-    source: https://curl.se/download/curl-8.7.1.tar.xz
+    source: https://curl.se/download/curl-8.10.1.tar.xz
     source-type: tar
     plugin: cmake
     cmake-parameters:
@@ -193,6 +217,7 @@ parts:
       - -DBUILD_CURL_EXE=OFF
       - -DBUILD_TESTING=OFF
       - -DBUILD_LIBCURL_DOCS=OFF
+      - -DUSE_NGHTTP2=OFF
       - -DUSE_LIBIDN2=OFF
       - -DCURL_USE_LIBSSH2=OFF
       - -DCURL_USE_LIBPSL=OFF

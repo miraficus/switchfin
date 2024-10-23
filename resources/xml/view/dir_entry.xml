@@ -18,6 +18,7 @@
 
     <brls:Label
         id="file/misc"
+        width="100"
         fontSize="18"
         textColor="@theme/font/grey" />
 

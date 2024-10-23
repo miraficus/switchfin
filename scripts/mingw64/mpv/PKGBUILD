@@ -3,7 +3,11 @@
 
 _realname=mpv
 pkgbase="mingw-w64-${_realname}"
-pkgname="${MINGW_PACKAGE_PREFIX}-${_realname}"
+pkgname=(
+  "${MINGW_PACKAGE_PREFIX}-${_realname}"
+  "${MINGW_PACKAGE_PREFIX}-${_realname}-gl"
+)
+provides=("${MINGW_PACKAGE_PREFIX}-${_realname}")
 pkgver=0.36.0
 pkgrel=4
 pkgdesc="Video player based on MPlayer/mplayer2 (mingw-w64)"
@@ -18,7 +22,6 @@ makedepends=(
   "${MINGW_PACKAGE_PREFIX}-pkgconf"
   "${MINGW_PACKAGE_PREFIX}-ffmpeg"
   "${MINGW_PACKAGE_PREFIX}-libass"
-  "${MINGW_PACKAGE_PREFIX}-lua51"
   "${MINGW_PACKAGE_PREFIX}-shaderc"
   "${MINGW_PACKAGE_PREFIX}-spirv-cross"
 )
@@ -53,18 +56,54 @@ build() {
       -Dtests=false \
       -Dgl-win32=disabled \
       -Degl-angle-lib=disabled \
-      -Dd3d11=enabled \
+      -Dshaderc=disabled \
+      -Dspirv-cross=disabled \
+      -Dvulkan=disabled \
       -Dlibarchive=disabled \
-      -Dlua=enabled \
+      "build-${MSYSTEM}-gl" \
+      "${srcdir}/${_realname}-${pkgver}"
+  meson compile -C "build-${MSYSTEM}-gl"
+
+  MSYS2_ARG_CONV_EXCL="--prefix=" \
+    meson setup \
+      --prefix="${MINGW_PREFIX}" \
+      --buildtype=release \
+      --default-library=shared \
+      --prefer-static \
+      -Dlibmpv=true \
+      -Dcplayer=false \
+      -Dtests=false \
+      -Dgl-win32=disabled \
+      -Degl-angle-lib=disabled \
+      -Dd3d11=enabled \
+      -Dvulkan=disabled \
+      -Dlibarchive=disabled \
       "build-${MSYSTEM}" \
       "${srcdir}/${_realname}-${pkgver}"
-
   meson compile -C "build-${MSYSTEM}"
 }
 
-package() {
+package_mpv() {
+  conflicts=("${MINGW_PACKAGE_PREFIX}-${_realname}-gl")
   meson install -C "build-${MSYSTEM}" --destdir "${pkgdir}"
-
   sed -s "/private/d" -i ${pkgdir}${MINGW_PREFIX}/lib/pkgconfig/mpv.pc
   sed -s "s|$(cygpath -am ${MINGW_PREFIX})|${MINGW_PREFIX}|g" -i ${pkgdir}${MINGW_PREFIX}/lib/pkgconfig/mpv.pc
 }
+
+package_mpv-gl() {
+  conflicts=("${MINGW_PACKAGE_PREFIX}-${_realname}")
+  meson install -C "build-${MSYSTEM}-gl" --destdir "${pkgdir}"
+  sed -s "/private/d" -i ${pkgdir}${MINGW_PREFIX}/lib/pkgconfig/mpv.pc
+  sed -s "s|$(cygpath -am ${MINGW_PREFIX})|${MINGW_PREFIX}|g" -i ${pkgdir}${MINGW_PREFIX}/lib/pkgconfig/mpv.pc
+}
+
+# template start; name=mingw-w64-mpv-wrappers; version=1.0;
+# vim: set ft=bash :
+
+# generate wrappers
+for _name in "${pkgname[@]}"; do
+  _short="package_${_name#${MINGW_PACKAGE_PREFIX}-}"
+  _func="$(declare -f "${_short}")"
+  eval "${_func/#${_short}/package_${_name}}"
+done
+# template end;

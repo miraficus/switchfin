@@ -101,7 +101,7 @@ if (USE_SYSTEM_CURL)
 else ()
     include(FetchContent)
     FetchContent_Declare(curl
-        URL https://curl.se/download/curl-8.7.1.tar.xz
+        URL https://curl.se/download/curl-8.10.1.tar.xz
         DOWNLOAD_EXTRACT_TIMESTAMP TRUE
     )
     if (WIN32)
@@ -117,6 +117,7 @@ else ()
     set(BUILD_TESTING OFF)
     set(BUILD_SHARED_LIBS OFF)
     set(BUILD_LIBCURL_DOCS OFF)
+    set(USE_NGHTTP2 OFF)
     set(USE_LIBIDN2 OFF)
     set(CURL_USE_LIBSSH2 OFF)
     set(CURL_USE_LIBPSL OFF)

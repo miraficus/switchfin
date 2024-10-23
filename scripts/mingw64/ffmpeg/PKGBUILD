@@ -7,7 +7,7 @@ _realname=ffmpeg
 pkgbase="mingw-w64-${_realname}"
 pkgname="${MINGW_PACKAGE_PREFIX}-${_realname}"
 pkgver=7.1
-pkgrel=1
+pkgrel=2
 pkgdesc="Complete solution to record, convert and stream audio and video (mingw-w64)"
 arch=('any')
 mingw_arch=('mingw32' 'mingw64' 'clangarm64')
@@ -19,7 +19,7 @@ depends=(
   "${MINGW_PACKAGE_PREFIX}-freetype"
   "${MINGW_PACKAGE_PREFIX}-dav1d"
   "${MINGW_PACKAGE_PREFIX}-libass"
-  "${MINGW_PACKAGE_PREFIX}-mbedtls"
+  "${MINGW_PACKAGE_PREFIX}-openssl"
   "${MINGW_PACKAGE_PREFIX}-zlib"
 )
 makedepends=(
@@ -44,6 +44,7 @@ build() {
     --cxx=${CXX} \
     --disable-shared \
     --enable-static \
+    --pkg-config-flags=-static \
     --enable-runtime-cpudetect \
     --enable-pic \
     --disable-programs \
@@ -67,9 +68,8 @@ build() {
     --enable-libdav1d \
     --enable-libfreetype \
     --enable-libfribidi \
-    --enable-mbedtls \
-    --enable-gpl \
-    --enable-version3 \
+    --enable-nonfree \
+    --enable-openssl \
     $( [[ "${MINGW_PACKAGE_PREFIX}" != *clang-aarch64* ]] \
       && echo "--enable-nvdec")
 
