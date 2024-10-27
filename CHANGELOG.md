@@ -1,15 +1,16 @@
 # Changelog
 
-## [next]
+## [0.5.3]
 
 ### Add
 
 * save windows state when exit
-* support touch input on linux
-* support paste text to search input
+* support touch input on linux (@xfangfang)
+* support paste text to search input (@xfangfang)
 * new option low quality
 * new option subtitle fallback
 * support custom user-agent in webdav browser
+* http server support for remote
 
 ### Fixed
 

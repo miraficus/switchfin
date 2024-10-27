@@ -16,6 +16,9 @@ private:
     CURLcode code;
 };
 
+static std::string user_agent =
+    fmt::format("{}/{} ({})", AppVersion::getPackageName(), AppVersion::getVersion(), AppVersion::getPlatform());
+
 /// @brief curl context
 
 HTTP::HTTP() : chunk(nullptr) {
@@ -32,6 +35,7 @@ HTTP::HTTP() : chunk(nullptr) {
 
     this->easy = curl_easy_init();
 
+    curl_easy_setopt(this->easy, CURLOPT_USERAGENT, user_agent.c_str());
     curl_easy_setopt(this->easy, CURLOPT_FOLLOWLOCATION, 1L);
     // enable all supported built-in compressions
     curl_easy_setopt(this->easy, CURLOPT_ACCEPT_ENCODING, "");
@@ -109,8 +113,7 @@ void HTTP::set_option(const Cookies& cookies) {
     curl_easy_setopt(this->easy, CURLOPT_COOKIE, ss.str().c_str());
 }
 
-void HTTP::set_basic_auth(const std::string& user, const std::string& passwd)
-{
+void HTTP::set_basic_auth(const std::string& user, const std::string& passwd) {
     curl_easy_setopt(this->easy, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
     curl_easy_setopt(this->easy, CURLOPT_USERNAME, user.c_str());
     curl_easy_setopt(this->easy, CURLOPT_PASSWORD, passwd.c_str());
