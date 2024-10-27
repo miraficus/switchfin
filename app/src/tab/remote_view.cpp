@@ -86,12 +86,12 @@ public:
             for (auto& it : list) {
                 if (it.type == remote::EntryType::SUBTITLE) {
                     if (!it.name.rfind(name, 0)) {
-                        this->subtitles.insert(std::make_pair(it.name.substr(pos), it.url.empty() ? it.path : it.url));
+                        this->subtitles.insert(std::make_pair(it.name.substr(pos), it.url()));
                     }
                 }
             }
             MPVCore::instance().reset();
-            MPVCore::instance().setUrl(it.path, c->extraOption());
+            MPVCore::instance().setUrl(it.url(), c->extraOption());
             view->setTitie(name);
             return true;
         });
@@ -179,17 +179,17 @@ class FileDataSource : public RecyclingGridDataSource {
 public:
     FileDataSource(const DirList& r, RemoteView::Client c, bool root) : list(std::move(r)), client(c) {
         if (this->list.size() > 1) {
-            std::sort(this->list.begin() + 1, this->list.end(), [](auto i, auto j) { 
+            std::sort(this->list.begin() + 1, this->list.end(), [](auto i, auto j) {
                 if (i.type == remote::EntryType::UP) {
                     return true;
                 }
                 if (i.type == j.type) {
-                    return i.name < j.name; 
+                    return i.name < j.name;
                 }
                 if (i.type == remote::EntryType::DIR) {
-                    return true; 
+                    return true;
                 }
-                return i.name < j.name; 
+                return i.name < j.name;
             });
         }
 
@@ -249,7 +249,7 @@ public:
 
         if (item.type == remote::EntryType::PLAYLIST) {
             RemotePlayer* view = new RemotePlayer(item);
-            MPVCore::instance().setUrl(item.url.empty() ? item.path : item.url, client->extraOption());
+            MPVCore::instance().setUrl(item.url(), client->extraOption());
             brls::Application::pushActivity(new brls::Activity(view), brls::TransitionAnimation::NONE);
         }
     }

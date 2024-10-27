@@ -547,7 +547,7 @@ void MPVCore::reset() {
 }
 
 void MPVCore::setUrl(const std::string &url, const std::string &extra, const std::string &method, uint64_t userdata) {
-    brls::Logger::debug("{} Url: {}, extra: {}", method, url, extra);
+    brls::Logger::debug("MPVCore {} ({}) extra: ({})", method, url, extra);
     if (mpv_client_api_version() >= MPV_MAKE_VERSION(2, 3)) {
         const char *cmd[] = {"loadfile", url.c_str(), method.c_str(), "0", extra.c_str(), nullptr};
         mpv_command_async(this->mpv, userdata, cmd);

@@ -52,17 +52,27 @@ Switchfin is third-party PC player for Jellyfin that provides a native user inte
 {
   "remotes": [
     {
+      "name": "local",
+      "url": "file:///switch"
+    },
+    {
       "name": "xiaoya",
       "passwd": "guest_Api789",
       "url": "webdav://192.168.1.5:5678/dav",
       "user": "guest"
     },
     {
-      "name": "local",
-      "url": "file:///switch"
+      "name": "rclone",
+      "url": "http://192.168.1.5:8000"
     }
   ]
 }
+```
+
+* using [rClone](https://rclone.org/downloads/) setup HTTP server
+
+```bash
+rclone serve http --addr :8000 --read-only /media/downloads
 ```
 
 ## TODO list

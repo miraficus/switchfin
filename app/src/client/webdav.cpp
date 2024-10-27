@@ -8,11 +8,6 @@ namespace remote {
 Webdav::Webdav(const std::string& url, const AppRemote& conf) {
     HTTP::Header h{"Accept-Charset: utf-8", "Depth: 1"};
     HTTP::set_option(this->c, HTTP::Timeout{}, h);
-    auto pos = url.find("/", url.find("://") + 3);
-    if (pos != std::string::npos) {
-        this->host = url.substr(0, pos);
-        this->root = url + "/";
-    }
     std::stringstream ssextra;
     ssextra << fmt::format("network-timeout={}", HTTP::TIMEOUT / 100);
     if (HTTP::PROXY_STATUS) {
@@ -28,6 +23,11 @@ Webdav::Webdav(const std::string& url, const AppRemote& conf) {
         this->c.set_user_agent(conf.user_agent);
     }
     this->extra = ssextra.str();
+
+    this->root = url;
+    if (this->root.back() != '/') this->root.push_back('/');
+    this->host = this->root.substr(0, this->root.find("/", this->root.find("://") + 3));
+    brls::Logger::debug("remote::Webdav host {} root {}", this->host, this->root);
 }
 
 static std::string getNamespacePrefix(tinyxml2::XMLElement* root, const std::string& nsURI) {

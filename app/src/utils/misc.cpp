@@ -149,12 +149,9 @@ std::string misc::sec2Time(int64_t t) {
 }
 
 std::string misc::formatSize(uint64_t s) {
-    if (s < (1 << 20)) {
-        return fmt::format("{}KB", s / 1024);
-    }
-    if (s < (1 << 30)) {
-        return fmt::format("{:.2f}MB", (s >> 10) / 1024.0f);
-    }
+    if (s == 0) return "-";
+    if (s < (1 << 20)) return fmt::format("{}KB", s / 1024);
+    if (s < (1 << 30)) return fmt::format("{:.2f}MB", (s >> 10) / 1024.0f);
     return fmt::format("{:.2f}GB", (s >> 20) / 1024.0f);
 }
 

@@ -19,10 +19,11 @@ enum class EntryType {
 struct DirEntry {
     std::string name;
     std::string path;
-    std::string url;
     uint64_t fileSize;
     EntryType type;
     std::tm modified;
+
+    const std::string& url() const { return this->path; }
 };
 
 class Client {
