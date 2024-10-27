@@ -2,6 +2,7 @@
 
 #include "utils/config.hpp"
 #include "utils/thread.hpp"
+#include "api/analytics.hpp"
 
 #include "view/svg_image.hpp"
 #include "view/custom_button.hpp"
@@ -116,6 +117,13 @@ int main(int argc, char* argv[]) {
         //brls::View* view = new VideoView(itemId);
         //brls::sync([view]() { brls::Application::giveFocus(view); });
     }
+
+    GA("open_app",
+        {
+            {"version", AppVersion::getVersion()},
+            {"language", brls::Application::getLocale()},
+            {"resolution", fmt::format("{}x{}", brls::Application::windowWidth, brls::Application::windowHeight)},
+        })
 
     std::string v = conf.getItem(AppConfig::APP_UPDATE, std::string("NaN"));
     if (AppVersion::getVersion().compare(v)) AppVersion::checkUpdate();

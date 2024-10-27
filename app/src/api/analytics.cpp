@@ -25,8 +25,6 @@ public:
     Package() {
         user_properties = {
             {"platform", {AppVersion::getPlatform()}},
-            {"version", {AppVersion::getVersion()}},
-            {"commit", {AppVersion::getCommit()}},
         };
     }
 };
@@ -47,6 +45,8 @@ void Analytics::report(const std::string& event, nlohmann::json params) {
     // https://developers.google.com/analytics/devguides/collection/protocol/ga4/sending-events?client_type=gtag#optional_parameters_for_reports
     params["engagement_time_msec"] = 100;
     params["session_id"] = this->client_id;
+    params["git"] = AppVersion::getCommit();
+    params["os"] = AppVersion::getPlatform();
 
     events_mutex.lock();
     events.push_back(Event{.name = event, .params = params});
