@@ -142,7 +142,8 @@
         "czech": "Czech",
         "english": "English",
         "german": "Deutsch",
-        "ukrainian": "Українська"
+        "ukrainian": "Українська",
+        "vietnam": "Tiếng việt"
       },
       "keymap": {
         "header": "Keymap style",
