@@ -19,7 +19,7 @@ depends=(
   "${MINGW_PACKAGE_PREFIX}-freetype"
   "${MINGW_PACKAGE_PREFIX}-dav1d"
   "${MINGW_PACKAGE_PREFIX}-libass"
-  "${MINGW_PACKAGE_PREFIX}-openssl"
+  "${MINGW_PACKAGE_PREFIX}-mbedtls"
   "${MINGW_PACKAGE_PREFIX}-zlib"
 )
 makedepends=(
@@ -68,8 +68,9 @@ build() {
     --enable-libdav1d \
     --enable-libfreetype \
     --enable-libfribidi \
-    --enable-nonfree \
-    --enable-openssl \
+    --enable-mbedtls \
+    --enable-gpl \
+    --enable-version3 \
     $( [[ "${MINGW_PACKAGE_PREFIX}" != *clang-aarch64* ]] \
       && echo "--enable-nvdec")
 
