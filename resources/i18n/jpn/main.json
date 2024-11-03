@@ -30,13 +30,13 @@
     "speed_up": "現在の速度 {}"
   },
   "danmaku": {
-    "header": "段幕セッティング",
+    "header": "字幕の設定",
     "performance": {
       "header": "性能",
       "render": "レンダリング品質"
     },
     "style": {
-      "header": "段幕スタイル",
+      "header": "字幕のスタイル",
       "font": "ストロークスタイル",
       "font_stroke": "ストローク",
       "font_incline": "傾斜",
