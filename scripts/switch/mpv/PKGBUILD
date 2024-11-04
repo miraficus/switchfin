@@ -36,13 +36,13 @@ prepare() {
 
 build() {
   /opt/devkitpro/meson-cross.sh switch crossfile.txt build-deko3d mpv-$pkgver \
-    -Dlibmpv=true -Dcplayer=false -Dtests=false -Dlua=enabled -Dhos-audio=enabled \
-    -Dgl=disabled -Degl=disabled -Dsdl2=disabled -Dlibarchive=disabled -Ddeko3d=enabled \
+    -Dlibmpv=true -Dcplayer=false -Dtests=false -Dlua=enabled -Ddeko3d=enabled \
+    -Dgl=disabled -Degl=disabled -Dsdl2=disabled -Dlibarchive=disabled  \
     -Dlibplacebo=disabled -Dlibavdevice=disabled -Djpeg=disabled -Diconv=disabled
   
   /opt/devkitpro/meson-cross.sh switch crossfile.txt build-gl mpv-$pkgver \
-    -Dlibmpv=true -Dcplayer=false -Dtests=false -Dlua=enabled -Dhos-audio=enabled \
-    -Dplain-gl=enabled -Degl=disabled -Dsdl2=disabled -Dlibarchive=disabled -Ddeko3d=disabled \
+    -Dlibmpv=true -Dcplayer=false -Dtests=false -Dlua=enabled -Ddeko3d=disabled \
+    -Dplain-gl=enabled -Degl=disabled -Dsdl2=disabled -Dlibarchive=disabled \
     -Dlibplacebo=disabled -Dlibavdevice=disabled -Djpeg=disabled -Diconv=disabled
 }
 

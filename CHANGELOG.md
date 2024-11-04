@@ -1,5 +1,12 @@
 # Changelog
 
+## [next]
+
+### Add
+
+* add japanese localization (@yyoossk)
+* add vietnamese localization (@tlover-code)
+
 ## [0.5.3]
 
 ### Add
@@ -52,7 +59,8 @@
 * video equalizer setting
 * add episode selector on player view
 * add new option `Always on top` for desktop platform
-* Czech localization
+* add Ukrainian localization (@skylegend509)
+* add Czech localization (@miraficus)
 
 ### Fixed
 

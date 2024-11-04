@@ -1,24 +1,23 @@
-From bd7c196e51e2ea4db40e0bce8855e4c52ba39a3c Mon Sep 17 00:00:00 2001
+From 094d01925bb44aff2bc1f9d53c7fdbab33d9edbc Mon Sep 17 00:00:00 2001
 From: averne <averne381@gmail.com>
 Date: Sun, 22 Aug 2021 21:49:16 +0200
 Subject: [PATCH] Implement switch specific audio backend
 
 ---
  audio/out/ao.c          |   4 +
- audio/out/ao_hos.c      | 296 ++++++++++++++++++++++++++++++++++++++++
- meson.build             |  21 ++-
- meson_options.txt       |   1 +
+ audio/out/ao_hos.c      | 298 ++++++++++++++++++++++++++++++++++++++++
+ meson.build             |  22 ++-
  osdep/io.c              |   2 +-
  osdep/io.h              |   2 +-
  osdep/switch/sys/mman.h |  15 ++
  sub/filter_regex.c      |   2 +-
  sub/osd.c               |   4 +-
- sub/sd_ass.c            |  29 ++++
+ sub/sd_ass.c            |  27 ++++
  video/mp_image.c        |   2 +-
  video/mp_image.h        |   2 +-
  wscript                 |   9 ++
  wscript_build.py        |   4 +-
- 14 files changed, 382 insertions(+), 11 deletions(-)
+ 13 files changed, 382 insertions(+), 11 deletions(-)
  create mode 100644 audio/out/ao_hos.c
  create mode 100644 osdep/switch/sys/mman.h
 
@@ -46,13 +45,13 @@ index a5aa3a9402..6dd0ba6eb2 100644
  #if HAVE_COREAUDIO
 diff --git a/audio/out/ao_hos.c b/audio/out/ao_hos.c
 new file mode 100644
-index 0000000000..42b22ab9ed
+index 0000000000..83bd03de7d
 --- /dev/null
 +++ b/audio/out/ao_hos.c
-@@ -0,0 +1,296 @@
+@@ -0,0 +1,298 @@
 +/*
 + * audio output driver for Horizon OS using audren
-+ * Copyright (c) 2023 averne <averne381@gmail.com>
++ * Copyright (c) 2024 averne <averne381@gmail.com>
 + *
 + * This file is part of mpv.
 + *
@@ -276,7 +275,9 @@ index 0000000000..42b22ab9ed
 +
 +    state->queued_samples = priv->total_queued_samples -
 +        audrvVoiceGetPlayedSampleCount(&priv->driver, 0);
++
 +    state->delay = (double)state->queued_samples / ao->samplerate;
++
 +    state->playing = audrvVoiceIsPlaying(&priv->driver, 0);
 +}
 +
@@ -347,7 +348,7 @@ index 0000000000..42b22ab9ed
 +    .options_prefix   = "ao-hos",
 +};
 diff --git a/meson.build b/meson.build
-index f9fe4e7263..c3d695c32a 100644
+index f9fe4e7263..1d64ae6315 100644
 --- a/meson.build
 +++ b/meson.build
 @@ -294,7 +294,8 @@ endif
@@ -360,7 +361,7 @@ index f9fe4e7263..c3d695c32a 100644
  
  features += {'darwin': darwin}
  features += {'posix': posix}
-@@ -419,6 +420,18 @@ if darwin
+@@ -419,6 +420,17 @@ if darwin
  
  endif
  
@@ -372,38 +373,34 @@ index f9fe4e7263..c3d695c32a 100644
 +                     'osdep/main-fn-unix.c',
 +                     'osdep/language-posix.c',
 +                     'input/ipc-dummy.c',
-+                     'osdep/polldev.c',
 +                     'sub/filter_regex.c')
 +endif
 +
  if posix and not darwin
      sources += files('osdep/path-unix.c',
                       'osdep/timer-linux.c')
-@@ -870,6 +883,12 @@ if features['wasapi']
-                      'audio/out/ao_wasapi_utils.c')
+@@ -720,6 +732,8 @@ if features['sdl2-gamepad']
+     sources += files('input/sdl_gamepad.c')
  endif
  
-+hos_audio = cc.has_header_symbol('switch.h', 'AudioDriver', required: get_option('hos-audio'))
-+features += {'hos-audio': hos_audio}
++libnx = cc.find_library('nx', required: false)
++
+ stdatomic_dep = cc.find_library('atomic', required: false)
+ features += {'stdatomic': cc.has_header_symbol('stdatomic.h', 'atomic_int', dependencies: stdatomic_dep,
+                                                required: get_option('stdatomic'))}
+@@ -855,6 +869,12 @@ if features['sdl2-audio']
+     sources += files('audio/out/ao_sdl.c')
+ endif
+ 
++features += {'hos-audio': hos and libnx.found()}
 +if features['hos-audio']
 +    sources += files('audio/out/ao_hos.c')
++    dependencies += libnx
 +endif
 +
- 
- # video output dependencies
- caca_opt = get_option('caca').require(
-diff --git a/meson_options.txt b/meson_options.txt
-index 5f2d31df3d..d56868ae8e 100644
---- a/meson_options.txt
-+++ b/meson_options.txt
-@@ -52,6 +52,7 @@ option('pulse', type: 'feature', value: 'auto', description: 'PulseAudio audio o
- option('sdl2-audio', type: 'feature', value: 'auto', description: 'SDL2 audio output')
- option('sndio', type: 'feature', value: 'auto', description: 'sndio audio output')
- option('wasapi', type: 'feature', value: 'auto', description: 'WASAPI audio output')
-+option('hos-audio', type: 'feature', value: 'auto', description: 'Audren audio output')
- 
- # video output features
- option('caca', type: 'feature', value: 'auto', description: 'CACA')
+ sndio = dependency('sndio', required: get_option('sndio'))
+ features += {'sndio': sndio.found()}
+ if features['sndio']
 diff --git a/osdep/io.c b/osdep/io.c
 index 8cd6dede85..1304c8f12f 100644
 --- a/osdep/io.c
@@ -485,7 +482,7 @@ index 811b6c821b..1db7db8444 100644
          .color = {255, 255, 255, 255},
          .border_color = {0, 0, 0, 255},
 diff --git a/sub/sd_ass.c b/sub/sd_ass.c
-index e4e5652875..978d8703f9 100644
+index e4e5652875..5ea2ba5cdc 100644
 --- a/sub/sd_ass.c
 +++ b/sub/sd_ass.c
 @@ -21,6 +21,10 @@
@@ -499,7 +496,7 @@ index e4e5652875..978d8703f9 100644
  #include <libavutil/common.h>
  #include <ass/ass.h>
  
-@@ -198,6 +202,31 @@ static void enable_output(struct sd *sd, bool enable)
+@@ -198,6 +202,29 @@ static void enable_output(struct sd *sd, bool enable)
      } else {
          ctx->ass_renderer = ass_renderer_init(ctx->ass_library);
  
@@ -507,10 +504,8 @@ index e4e5652875..978d8703f9 100644
 +        static char * const pl_font_names[] = {
 +            [PlSharedFontType_Standard]             = "nintendo_udsg-r_std_003",
 +            [PlSharedFontType_ChineseSimplified]    = "nintendo_udsg-r_org_zh-cn_003",
-+            [PlSharedFontType_ExtChineseSimplified] = "nintendo_udsg-r_ext_zh-cn_003",
 +            [PlSharedFontType_ChineseTraditional]   = "nintendo_udjxh-db_zh-tw_003",
 +            [PlSharedFontType_KO]                   = "nintendo_udsg-r_ko_003",
-+            [PlSharedFontType_NintendoExt]          = "NintendoExt003",
 +        };
 +
 +        Result rc = plInitialize(PlServiceType_User);

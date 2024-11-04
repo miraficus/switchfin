@@ -51,6 +51,7 @@ build() {
       -Dglslang_SOURCE_DIR=$(cygpath -m "${MINGW_PREFIX}/include/glslang") \
       -DSHADERC_SKIP_TESTS=ON \
       -DSHADERC_SKIP_EXAMPLES=ON \
+      -DPython_EXECUTABLE="${MINGW_PREFIX}/bin/python.exe" \
       "${srcdir}/${_realname}-${pkgver}"
 
   ${MINGW_PREFIX}/bin/cmake.exe --build "build-${MSYSTEM}"
