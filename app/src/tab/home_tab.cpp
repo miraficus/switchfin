@@ -147,6 +147,8 @@ void HomeTab::doNextup() {
     std::string query = HTTP::encode_form({
         {"userId", AppConfig::instance().getUser().id},
         {"fields", "BasicSyncInfo,Chapters"},
+        {"enableResumable", "false"},
+        {"enableRewatching", "false"},
         {"limit", std::to_string(this->pageSize)},
         {"startIndex", std::to_string(this->startNextup)},
     });
