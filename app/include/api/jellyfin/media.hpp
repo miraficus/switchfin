@@ -135,7 +135,7 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(
 struct Source {
     std::string Id;
     std::string Name;
-    std::string Container;
+    std::string Path;
     std::string Protocol;
     int DefaultAudioStreamIndex;
     int DefaultSubtitleStreamIndex;
@@ -147,7 +147,7 @@ struct Source {
     std::vector<Stream> MediaStreams;
     std::vector<Attachment> MediaAttachments;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(Source, Id, Name, Container, DefaultAudioStreamIndex,
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(Source, Id, Name, Path, DefaultAudioStreamIndex,
     DefaultSubtitleStreamIndex, SupportsDirectPlay, SupportsTranscoding, DirectStreamUrl, TranscodingUrl, ETag,
     MediaStreams, MediaAttachments, Protocol);
 
