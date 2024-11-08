@@ -313,6 +313,7 @@ void VideoView::setList(const std::vector<std::string>& values, int index) {
         index + 1 < (int)values.size() ? brls::Visibility::VISIBLE : brls::Visibility::GONE);
 
     this->playIndexEvent.subscribe([this, values](int index) {
+        this->showLoading();
         this->btnBackward->setVisibility(index > 0 ? brls::Visibility::VISIBLE : brls::Visibility::GONE);
         this->btnForward->setVisibility(
             index + 1 < (int)values.size() ? brls::Visibility::VISIBLE : brls::Visibility::GONE);

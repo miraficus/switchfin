@@ -539,6 +539,7 @@ void MPVCore::eventMainLoop() {
 void MPVCore::reset() {
     brls::Logger::debug("MPVCore::reset");
     mpvCoreEvent.fire(MpvEventEnum::RESET);
+    this->stop();
     this->video_stopped = true;
     this->duration = 0;     // second
     this->cache_speed = 0;  // Bps

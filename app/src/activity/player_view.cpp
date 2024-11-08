@@ -25,7 +25,6 @@ PlayerView::PlayerView(const jellyfin::Item& item) : itemId(item.Id) {
 
     auto& mpv = MPVCore::instance();
     // 停止正在播放的音乐
-    mpv.stop();
     mpv.reset();
 
     brls::Application::pushActivity(new brls::Activity(this), brls::TransitionAnimation::NONE);
