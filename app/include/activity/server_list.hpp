@@ -28,7 +28,6 @@ private:
     BRLS_BIND(brls::Box, serverDetail, "server/detail");
     BRLS_BIND(RecyclingGrid, recyclerUsers, "user/recycler");
     BRLS_BIND(brls::DetailCell, serverVersion, "server/version");
-    BRLS_BIND(brls::DetailCell, serverOS, "server/os");
     BRLS_BIND(brls::SelectorCell, selectorUrl, "selector/server/urls");
     BRLS_BIND(brls::Button, btnSignin, "btn/server/signin");
     BRLS_BIND(brls::AppletFrame, mainframe, "server/frame");

@@ -200,13 +200,11 @@ void ServerList::willAppear(bool resetState) {
 
 void ServerList::onSelect(const AppServer& s) {
     this->serverVersion->setDetailText(s.version.empty() ? "-" : s.version);
-    this->serverOS->setDetailText(s.os.empty() ? "-" : s.os);
     this->selectorUrl->init("main/setting/url"_i18n, s.urls, 0, [this, s](size_t selected) {
         AppConfig::instance().addServer({
             .name = s.name,
             .id = s.id,
             .version = s.version,
-            .os = s.os,
             .urls = {s.urls[selected]},
         });
         brls::sync([this]() { this->willAppear(); });

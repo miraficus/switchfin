@@ -391,8 +391,16 @@ bool AppConfig::checkLogin() {
     for (auto& u : this->users) {
         if (u.id == this->user_id) {
             HTTP::Header header = {this->getDevice(u.access_token)};
+            std::string uri = this->server_url + jellyfin::apiInfo;
             try {
-                HTTP::get(this->server_url + jellyfin::apiInfo, header, HTTP::Timeout{});
+                std::string resp = HTTP::get(uri, header, HTTP::Timeout{});
+                jellyfin::PublicSystemInfo info = nlohmann::json::parse(resp);
+                this->addServer(AppServer{
+                    .name = info.ServerName,
+                    .id = info.Id,
+                    .version = info.Version,
+                });
+
                 this->user = u;
                 return true;
             } catch (const std::exception& ex) {
@@ -493,13 +501,14 @@ int AppConfig::getValueIndex(const Item item, int default_index) const {
 }
 
 bool AppConfig::addServer(const AppServer& s) {
-    this->server_url = s.urls.front();
+    if (s.urls.size() > 0) {
+        this->server_url = s.urls.front();
+    }
 
     for (auto& o : this->servers) {
         if (s.id == o.id) {
             o.name = s.name;
             o.version = s.version;
-            o.os = s.os;
             // remove old url
             for (auto it = o.urls.begin(); it != o.urls.end(); ++it) {
                 if (it->compare(this->server_url) == 0) {

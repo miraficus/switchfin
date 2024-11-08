@@ -28,9 +28,8 @@ struct PublicSystemInfo {
     std::string Id;
     std::string ServerName;
     std::string Version;
-    std::string OperatingSystem;
 };
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(PublicSystemInfo, Id, ServerName, Version, OperatingSystem);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(PublicSystemInfo, Id, ServerName, Version);
 
 struct UserResult {
     std::string Id;

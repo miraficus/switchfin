@@ -88,12 +88,6 @@
                                 focusable="false"
                                 id="server/version" />
 
-                            <brls:DetailCell
-                                height="auto"
-                                title="@i18n/main/setting/os"
-                                focusable="false"
-                                id="server/os" />
-
                         </brls:Box>
 
                         <brls:Box

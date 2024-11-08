@@ -44,7 +44,6 @@ bool ServerAdd::onConnect() {
                 .name = info.ServerName,
                 .id = info.Id,
                 .version = info.Version,
-                .os = info.OperatingSystem,
                 .urls = {baseUrl},
             };
             brls::sync([ASYNC_TOKEN, s]() {
