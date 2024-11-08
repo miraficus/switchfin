@@ -77,7 +77,7 @@
                             height="auto"
                             axis="column">
 
-                            <brls:SelectorCell
+                            <brls:InputCell
                                 height="auto"
                                 title="@i18n/main/setting/url"
                                 id="selector/server/urls" />

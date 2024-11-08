@@ -6,6 +6,12 @@
 
 * add japanese localization (@yyoossk)
 * add vietnamese localization (@tlover-code)
+* support modify server url
+
+### Fixed
+
+* loading osd when change episode
+* update server info when check login
 
 ## [0.5.3]
 

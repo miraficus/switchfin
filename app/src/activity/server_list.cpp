@@ -125,7 +125,7 @@ ServerList::ServerList() { brls::Logger::debug("ServerList: create"); }
 ServerList::~ServerList() { brls::Logger::debug("ServerList Activity: delete"); }
 
 void ServerList::onContentAvailable() {
-    this->selectorUrl->detail->setSingleLine(true);
+    this->inputUrl->detail->setSingleLine(true);
 
     this->btnServerAdd->registerClickAction([](brls::View* view) {
         view->present(new ServerAdd());
@@ -138,11 +138,10 @@ void ServerList::onContentAvailable() {
         if (tab) tab->setVisibility(brls::Visibility::GONE);
     }
 
-    this->sidebarServers->registerAction(
-        "main/setting/server/connect_new"_i18n, brls::BUTTON_Y, [](brls::View* view) {
-            view->present(new ServerAdd());
-            return true;
-        });
+    this->sidebarServers->registerAction("main/setting/server/connect_new"_i18n, brls::BUTTON_Y, [](brls::View* view) {
+        view->present(new ServerAdd());
+        return true;
+    });
 
     this->recyclerUsers->registerCell("Cell", [this]() {
         UserCell* cell = new UserCell();
@@ -200,14 +199,22 @@ void ServerList::willAppear(bool resetState) {
 
 void ServerList::onSelect(const AppServer& s) {
     this->serverVersion->setDetailText(s.version.empty() ? "-" : s.version);
-    this->selectorUrl->init("main/setting/url"_i18n, s.urls, 0, [this, s](size_t selected) {
+    this->inputUrl->init("main/setting/url"_i18n, s.urls.front(), [this, s](const std::string& text) {
         AppConfig::instance().addServer({
-            .name = s.name,
             .id = s.id,
-            .version = s.version,
-            .urls = {s.urls[selected]},
+            .urls = {text},
         });
-        brls::sync([this]() { this->willAppear(); });
+    });
+    this->inputUrl->registerAction("hints/preset"_i18n, brls::BUTTON_X, [this, s](...) {
+        brls::Dropdown* dropdown = new brls::Dropdown("main/setting/url"_i18n, s.urls, [this, s](int selected) {
+            AppConfig::instance().addServer({
+                .id = s.id,
+                .urls = {s.urls[selected]},
+            });
+            brls::sync([this]() { this->willAppear(); });
+        });
+        brls::Application::pushActivity(new brls::Activity(dropdown));
+        return true;
     });
 
     if (s.users.empty()) {
@@ -218,7 +225,7 @@ void ServerList::onSelect(const AppServer& s) {
     }
 }
 
-std::string ServerList::getUrl() { return this->selectorUrl->detail->getFullText(); }
+std::string ServerList::getUrl() { return this->inputUrl->detail->getFullText(); }
 
 void ServerList::setActive(brls::View* active) {
     for (auto item : this->sidebarServers->getChildren()) {

@@ -507,8 +507,8 @@ bool AppConfig::addServer(const AppServer& s) {
 
     for (auto& o : this->servers) {
         if (s.id == o.id) {
-            o.name = s.name;
-            o.version = s.version;
+            if (!s.name.empty()) o.name = s.name;
+            if (!s.version.empty()) o.version = s.version;
             // remove old url
             for (auto it = o.urls.begin(); it != o.urls.end(); ++it) {
                 if (it->compare(this->server_url) == 0) {
