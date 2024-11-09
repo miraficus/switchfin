@@ -74,6 +74,7 @@ public:
             if (index < 0 || index >= (int)urls.size()) {
                 return VideoView::close();
             }
+            MPVCore::instance().reset();
             auto& it = urls.at(index);
 
             std::string name = it.name;
@@ -90,7 +91,6 @@ public:
                     }
                 }
             }
-            MPVCore::instance().reset();
             MPVCore::instance().setUrl(it.url(), c->extraOption());
             view->setTitie(name);
             return true;
@@ -113,6 +113,7 @@ public:
             if (index < 0 || index >= (int)titles.size()) {
                 return VideoView::close();
             }
+            MPVCore::instance().reset();
             view->setTitie(titles.at(index));
             mpv.command("playlist-play-index", std::to_string(index).c_str());
             return true;
@@ -173,6 +174,7 @@ private:
 static std::set<std::string> videoExt = {".mp4", ".mkv", ".avi", ".flv", ".mov", ".wmv", ".webm"};
 static std::set<std::string> audioExt = {".mp3", ".flac", ".wav", ".ogg", ".m4a"};
 static std::set<std::string> imageExt = {".jpg", ".jpeg", ".png", ".bmp", ".gif"};
+static std::set<std::string> playlistExt = {".m3u", ".m3u8"};
 static std::set<std::string> subtitleExt = {".srt", ".ass", ".ssa", ".sub", ".smi"};
 
 class FileDataSource : public RecyclingGridDataSource {
@@ -208,7 +210,7 @@ public:
                 it.type = remote::EntryType::IMAGE;
             } else if (subtitleExt.count(ext)) {
                 it.type = remote::EntryType::SUBTITLE;
-            } else if (ext == ".m3u") {
+            } else if (playlistExt.count(ext)) {
                 it.type = remote::EntryType::PLAYLIST;
             }
         }
