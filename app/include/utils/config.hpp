@@ -96,8 +96,7 @@ public:
         REQUEST_THREADS,
         REQUEST_TIMEOUT,
         HTTP_PROXY_STATUS,
-        HTTP_PROXY_HOST,
-        HTTP_PROXY_PORT,
+        HTTP_PROXY,
     };
 
     AppConfig() = default;

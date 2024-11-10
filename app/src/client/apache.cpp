@@ -7,9 +7,8 @@ namespace remote {
 Apache::Apache(const AppRemote &conf) {
     std::stringstream ssextra;
     ssextra << fmt::format("network-timeout={}", HTTP::TIMEOUT / 100);
-    if (HTTP::PROXY_STATUS) {
-        ssextra << ",http-proxy=\"http://" << HTTP::PROXY_HOST << ":" << HTTP::PROXY_PORT << "\"";
-    }
+    if (HTTP::PROXY_STATUS) ssextra << ",http-proxy=\"" << HTTP::PROXY << "\"";
+
     if (conf.user.size() > 0 || conf.passwd.size() > 0) {
         std::string auth = base64::encode(fmt::format("{}:{}", conf.user, conf.passwd));
         ssextra << fmt::format(",http-header-fields=\"Authorization: Basic {}\"", auth);

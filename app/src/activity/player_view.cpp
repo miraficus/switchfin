@@ -250,7 +250,7 @@ void PlayerView::playMedia(const uint64_t seekTicks) {
 #endif
                 ssextra << fmt::format("network-timeout={}", HTTP::TIMEOUT / 100);
                 if (HTTP::PROXY_STATUS) {
-                    ssextra << ",http-proxy=\"http://" << HTTP::PROXY_HOST << ":" << HTTP::PROXY_PORT << "\"";
+                    ssextra << ",http-proxy=\"" << HTTP::PROXY << "\"";
                 }
                 if (seekTicks > 0) {
                     ssextra << ",start=" << misc::sec2Time(seekTicks / jellyfin::PLAYTICKS);

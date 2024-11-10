@@ -44,8 +44,7 @@ HTTP::HTTP() : chunk(nullptr) {
     curl_easy_setopt(this->easy, CURLOPT_SSL_VERIFYHOST, 0L);
 
     if (PROXY_STATUS) {
-        std::string value = fmt::format("{}:{}", PROXY_HOST, PROXY_PORT);
-        curl_easy_setopt(this->easy, CURLOPT_PROXY, value.c_str());
+        curl_easy_setopt(this->easy, CURLOPT_PROXY, PROXY.c_str());
     }
 }
 

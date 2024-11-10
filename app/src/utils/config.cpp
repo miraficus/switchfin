@@ -107,8 +107,7 @@ std::unordered_map<AppConfig::Item, AppConfig::Option> AppConfig::settingMap = {
     {REQUEST_THREADS, {"request_threads", {"1", "2", "4", "8"}, {1, 2, 4, 8}}},
     {REQUEST_TIMEOUT, {"request_timeout", {"1000", "2000", "3000", "5000"}, {1000, 2000, 3000, 5000}}},
     {HTTP_PROXY_STATUS, {"http_proxy_status"}},
-    {HTTP_PROXY_HOST, {"http_proxy_host"}},
-    {HTTP_PROXY_PORT, {"http_proxy_port"}},
+    {HTTP_PROXY, {"http_proxy"}},
 };
 
 static std::string generateDeviceId() {
@@ -205,8 +204,7 @@ bool AppConfig::init() {
 
     HTTP::TIMEOUT = this->getItem(REQUEST_TIMEOUT, 3000L);
     HTTP::PROXY_STATUS = this->getItem(HTTP_PROXY_STATUS, false);
-    HTTP::PROXY_HOST = this->getItem(HTTP_PROXY_HOST, HTTP::PROXY_HOST);
-    HTTP::PROXY_PORT = this->getItem(HTTP_PROXY_PORT, HTTP::PROXY_PORT);
+    HTTP::PROXY = this->getItem(HTTP_PROXY, std::string("http://192.168.1.1:1080"));
 
     // 初始化是否全屏，必须在创建窗口前设置此值
     VideoContext::FULLSCREEN = this->getItem(FULLSCREEN, false);

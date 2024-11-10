@@ -329,24 +329,17 @@ void SettingTab::onCreate() {
             AppConfig::instance().setItem(AppConfig::REQUEST_TIMEOUT, HTTP::TIMEOUT);
         });
 
-    bool proxyStatus = conf.getItem(AppConfig::HTTP_PROXY_STATUS, HTTP::PROXY_STATUS);
-    btnProxy->init("main/setting/network/proxy"_i18n, proxyStatus, [this](bool value) {
-        inputProxyHost->setVisibility(value ? brls::Visibility::VISIBLE : brls::Visibility::GONE);
-        inputProxyPort->setVisibility(value ? brls::Visibility::VISIBLE : brls::Visibility::GONE);
+    btnProxy->init("main/setting/network/proxy"_i18n, HTTP::PROXY_STATUS, [this](bool value) {
+        inputProxy->setVisibility(value ? brls::Visibility::VISIBLE : brls::Visibility::GONE);
         HTTP::PROXY_STATUS = value;
         AppConfig::instance().setItem(AppConfig::HTTP_PROXY_STATUS, value);
     });
 
-    inputProxyHost->init("main/setting/network/host"_i18n, HTTP::PROXY_HOST, [](std::string value) {
-        HTTP::PROXY_HOST = value;
-        AppConfig::instance().setItem(AppConfig::HTTP_PROXY_HOST, value);
+    inputProxy->init("main/setting/network/host"_i18n, HTTP::PROXY, [](std::string value) {
+        HTTP::PROXY = value;
+        AppConfig::instance().setItem(AppConfig::HTTP_PROXY, value);
     });
-    inputProxyHost->setVisibility(proxyStatus ? brls::Visibility::VISIBLE : brls::Visibility::GONE);
-    inputProxyPort->init("main/setting/network/port"_i18n, HTTP::PROXY_PORT, [](long value) {
-        HTTP::PROXY_PORT = value;
-        AppConfig::instance().setItem(AppConfig::HTTP_PROXY_PORT, value);
-    });
-    inputProxyPort->setVisibility(proxyStatus ? brls::Visibility::VISIBLE : brls::Visibility::GONE);
+    inputProxy->setVisibility(HTTP::PROXY_STATUS ? brls::Visibility::VISIBLE : brls::Visibility::GONE);
 
     btnSync->init("main/setting/others/sync"_i18n, AppConfig::SYNC, [](bool value) {
         AppConfig::SYNC = value;

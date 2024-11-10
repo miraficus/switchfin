@@ -83,12 +83,16 @@
                 <brls:SelectorCell
                     id="setting/network/timeout" />
                 <brls:BooleanCell
-                    id="setting/network/proxy" />
+                    id="setting/network/proxy_status" />
                 <brls:InputCell
-                    id="setting/network/proxy_host"
+                    id="setting/network/proxy"
                     visibility="gone" />
-                <brls:InputNumericCell
-                    id="setting/network/proxy_port"
+                <brls:InputCell
+                    id="setting/network/proxy_user"
+                    visibility="gone" />
+                <brls:InputCell
+                    id="setting/network/proxy_passwd"
+                    type="password"
                     visibility="gone" />
             </brls:Box>
 

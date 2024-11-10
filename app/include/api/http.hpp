@@ -24,8 +24,7 @@ public:
     using Progress = brls::Event<curl_off_t, curl_off_t>;
 
     inline static bool PROXY_STATUS = false;
-    inline static std::string PROXY_HOST = "192.168.1.1";
-    inline static int PROXY_PORT = 1080;
+    inline static std::string PROXY;
 
     struct Range {
         int start = 0;
