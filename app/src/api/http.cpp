@@ -149,11 +149,12 @@ std::string HTTP::encode_form(const Form& form) {
     return ss.str();
 }
 
-void HTTP::_get(const std::string& url, std::ostream* out) {
+void HTTP::_get(const std::string& url, std::ostream* out, char **ct) {
     curl_easy_setopt(this->easy, CURLOPT_URL, url.c_str());
     curl_easy_setopt(this->easy, CURLOPT_HTTPGET, 1L);
     int code = this->perform(out);
     if (code >= 400) throw std::runtime_error(fmt::format("http status {}", code));
+    if (ct) curl_easy_getinfo(this->easy, CURLINFO_CONTENT_TYPE, ct);
 }
 
 int HTTP::propfind(const std::string& url, std::ostream* out, bool self) {

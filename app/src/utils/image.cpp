@@ -4,9 +4,8 @@
 #include <borealis/core/cache_helper.hpp>
 #ifdef USE_WEBP
 #include <webp/decode.h>
-#else
-#include <stb_image.h>
 #endif
+#include <stb_image.h>
 
 Image::Image() : image(nullptr) {
     this->isCancel = std::make_shared<std::atomic_bool>(false);
@@ -61,15 +60,24 @@ void Image::doRequest() {
         return;
     }
     try {
-        std::string data = HTTP::get(this->url, this->isCancel);
+        HTTP s;
+        std::ostringstream body;
+        char* ct = nullptr;
+        HTTP::set_option(s, this->isCancel, HTTP::Timeout{});
+        s._get(url, &body, &ct);
+
+        std::string data = body.str();
         uint8_t* imageData = nullptr;
         int imageW = 0, imageH = 0;
 #ifdef USE_WEBP
-        imageData = WebPDecodeRGBA((const uint8_t*)data.c_str(), data.size(), &imageW, &imageH);
-#else
-        int n;
-        imageData = stbi_load_from_memory((unsigned char*)data.c_str(), data.size(), &imageW, &imageH, &n, 4);
+        if (ct && strcmp(ct, "image/webp") == 0) {
+            imageData = WebPDecodeRGBA((const uint8_t*)data.c_str(), data.size(), &imageW, &imageH);
+        } else
 #endif
+        {
+            int n;
+            imageData = stbi_load_from_memory((unsigned char*)data.c_str(), data.size(), &imageW, &imageH, &n, 4);
+        }
         brls::Logger::verbose("request Image {} size {}", this->url, data.size());
         brls::sync([this, imageData, imageW, imageH] {
             if (!this->isCancel->load()) {
