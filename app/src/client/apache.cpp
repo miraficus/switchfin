@@ -1,25 +1,11 @@
 #include "client/apache.hpp"
-#include <utils/misc.hpp>
 #include <curl/curl.h>
 
 namespace remote {
 
 Apache::Apache(const AppRemote &conf) {
-    std::stringstream ssextra;
-    ssextra << fmt::format("network-timeout={}", HTTP::TIMEOUT / 100);
-    if (HTTP::PROXY_STATUS) ssextra << ",http-proxy=\"" << HTTP::PROXY << "\"";
-
-    if (conf.user.size() > 0 || conf.passwd.size() > 0) {
-        std::string auth = base64::encode(fmt::format("{}:{}", conf.user, conf.passwd));
-        ssextra << fmt::format(",http-header-fields=\"Authorization: Basic {}\"", auth);
-        this->c.set_basic_auth(conf.user, conf.passwd);
-    }
-    if (conf.user_agent.size() > 0) {
-        ssextra << fmt::format(",user_agent=\"{}\"", conf.user_agent);
-        this->c.set_user_agent(conf.user_agent);
-    }
-    this->extra = ssextra.str();
     HTTP::set_option(this->c, HTTP::Timeout{});
+    this->init(conf, this->c);
 
     this->root = conf.url;
     if (this->root.back() != '/') this->root.push_back('/');

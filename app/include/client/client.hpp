@@ -1,6 +1,7 @@
 #pragma once
 
 #include <utils/config.hpp>
+#include <api/http.hpp>
 
 namespace remote {
 
@@ -37,6 +38,8 @@ public:
 protected:
     std::string root;
     std::string extra;
+
+    void init(const AppRemote &conf, HTTP& cilent);
 };
 
 std::shared_ptr<Client> create(const AppRemote& c);
