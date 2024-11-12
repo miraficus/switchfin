@@ -12,6 +12,7 @@
 
 * loading osd when change episode
 * update server info when check login
+* audio load failed when proxy enabled
 
 ## [0.5.3]
 

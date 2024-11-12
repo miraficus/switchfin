@@ -149,10 +149,15 @@ void MusicView::play(const jellyfin::Item& item) {
         {"static", "true"},
         {"PlaySessionId", std::to_string(playSession)},
     });
+    std::stringstream ssextra;
     std::string url = fmt::format(fmt::runtime(jellyfin::apiAudio), item.Id, query);
-    std::string extra = fmt::format("http-header-fields='X-Emby-Token: {}'", conf.getUser().access_token);
+    ssextra << fmt::format("network-timeout={}", HTTP::TIMEOUT / 100);
+    if (HTTP::PROXY_STATUS) {
+        ssextra << ",http-proxy=\"" << HTTP::PROXY << "\"";
+    }
+    ssextra << fmt::format(",http-header-fields='X-Emby-Token: {}'", conf.getUser().access_token);
     mpv.stop();
-    mpv.setUrl(conf.getUrl() + url, extra);
+    mpv.setUrl(conf.getUrl() + url, ssextra.str());
 
     this->playTitle->setText(item.Name);
 }

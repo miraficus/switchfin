@@ -598,7 +598,7 @@ void VideoView::registerMpvEvent() {
             break;
         case MpvEventEnum::MPV_FILE_ERROR: {
             auto dialog = new brls::Dialog("main/player/error"_i18n);
-            dialog->addButton("hints/back"_i18n, close);
+            dialog->addButton("hints/back"_i18n, []() { VideoView::close(); });
             dialog->addButton("hints/cancel"_i18n, []() {});
             dialog->open();
             break;
