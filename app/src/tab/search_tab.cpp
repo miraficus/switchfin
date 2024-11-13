@@ -157,7 +157,7 @@ SearchTab::SearchTab() {
                 this->currentSearch = text;
                 this->updateInput();
             },
-            "main/search/tv/hint"_i18n, "", 32, this->currentSearch, 0);
+            "main/search/hint"_i18n, "", 32, this->currentSearch, 0);
         return true;
     });
     this->searchBox->addGestureRecognizer(new brls::TapGestureRecognizer(this->searchBox));
@@ -175,7 +175,7 @@ SearchTab::SearchTab() {
     HistoryDataSource* history = new HistoryDataSource();
     this->searchHistory->registerCell("Card", SearchCard::create);
     this->searchHistory->setDataSource(history);
-    this->searchHistory->registerAction("main/search/tv/clear"_i18n, brls::BUTTON_X, [this](brls::View* view) {
+    this->searchHistory->registerAction("main/search/clear"_i18n, brls::BUTTON_X, [this](brls::View* view) {
         Dialog::cancelable("main/search/clear_history"_i18n, [this]() {
             this->searchHistory->setEmpty();
             brls::sync([this]() { brls::Application::giveFocus(this->searchBox); });
@@ -283,7 +283,7 @@ void SearchTab::doSearch(const std::string& searchTerm) {
 
 void SearchTab::updateInput() {
     if (this->currentSearch.empty()) {
-        this->inputLabel->setText("main/search/tv/hint"_i18n);
+        this->inputLabel->setText("main/search/hint"_i18n);
         this->inputLabel->setTextColor(brls::Application::getTheme().getColor("font/grey"));
         if (this->historyBox->getVisibility() == brls::Visibility::GONE) {
             this->historyBox->setVisibility(brls::Visibility::VISIBLE);

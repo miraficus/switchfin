@@ -97,7 +97,7 @@ MediaFolders::MediaFolders() {
     // Inflate the tab from the XML file
     this->inflateFromXMLRes("xml/tabs/media_folder.xml");
     brls::Logger::debug("MediaFolders: create");
-    this->recyclerFolders->registerCell("Cell", MediaFolderCell::create);
+    this->recycler->registerCell("Cell", MediaFolderCell::create);
 }
 
 MediaFolders::~MediaFolders() { brls::Logger::debug("MediaFolders: deleted"); }
@@ -119,13 +119,18 @@ void MediaFolders::doRequest() {
         [ASYNC_TOKEN](const jellyfin::Result<jellyfin::Collection>& r) {
             ASYNC_RELEASE
             if (r.Items.empty())
-                this->recyclerFolders->setEmpty();
+                this->recycler->setEmpty();
             else
-                this->recyclerFolders->setDataSource(new MediaFolderDataSource(r.Items));
+                this->recycler->setDataSource(new MediaFolderDataSource(r.Items));
         },
-        [ASYNC_TOKEN](const std::string& ex) {
+        [ASYNC_TOKEN](const std::string& error) {
             ASYNC_RELEASE
-            this->recyclerFolders->setError(ex);
+            this->recycler->setError(error);
+
+            auto dialog = new brls::Dialog(error);
+            dialog->addButton("hints/retry"_i18n, [this]() { brls::sync([this]() { this->doRequest(); }); });
+            dialog->addButton("hints/cancel"_i18n, []() {});
+            dialog->open();
         },
         jellyfin::apiUserViews, AppConfig::instance().getUser().id);
 }

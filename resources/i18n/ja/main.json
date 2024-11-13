@@ -1,6 +1,7 @@
 {
   "tabs": {
     "home": "ホーム",
+    "search": "検索",
     "setting": "設定"
   },
   "home": {
@@ -76,15 +77,12 @@
     "unplayed": "未再生"
   },
   "search": {
-    "tv": {
-      "hint": "サポートキーワードとその頭文字",
-      "clear": "クリア",
-      "delete": "削除",
-      "paste": "貼り付け",
-      "search": "検索",
-      "history": "履歴",
-      "suggest": "提案"
-    },
+    "hint": "サポートキーワードとその頭文字",
+    "clear": "クリア",
+    "delete": "削除",
+    "paste": "貼り付け",
+    "history": "履歴",
+    "suggest": "提案",
     "clear_history": "検索履歴を消去しますか?",
     "genres": {
       "movie": "動画",

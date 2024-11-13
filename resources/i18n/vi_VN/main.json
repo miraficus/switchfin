@@ -1,6 +1,7 @@
 {
   "tabs": {
     "home": "Nhà",
+    "search": "Tìm",
     "setting": "Cài đặt"
   },
   "home": {
@@ -76,15 +77,12 @@
     "unplayed": "Chưa phát"
   },
   "search": {
-    "tv": {
-      "hint": "Từ khóa hỗ trợ và chữ cái đầu của chúng",
-      "clear": "Xoá tất cả",
-      "delete": "Xoá",
-      "paste": "Dán",
-      "search": "Tìm",
-      "history": "Lịch sử",
-      "suggest": "Gợi ý"
-    },
+    "hint": "Từ khóa hỗ trợ và chữ cái đầu của chúng",
+    "clear": "Xoá tất cả",
+    "delete": "Xoá",
+    "paste": "Dán",
+    "history": "Lịch sử",
+    "suggest": "Gợi ý",
     "clear_history": "Bạn có muốn xoá lịch sử?",
     "genres": {
       "movie": "Phim",

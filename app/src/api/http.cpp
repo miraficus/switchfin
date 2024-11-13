@@ -45,9 +45,6 @@ HTTP::HTTP() : chunk(nullptr) {
 #if LIBCURL_VERSION_NUM >= 0x071900 && !defined(__PS4__)
     curl_easy_setopt(this->easy, CURLOPT_TCP_KEEPALIVE, 1L);
 #endif
-    if (PROXY_STATUS) {
-        curl_easy_setopt(this->easy, CURLOPT_PROXY, PROXY.c_str());
-    }
 }
 
 HTTP::~HTTP() {
@@ -130,6 +127,7 @@ size_t HTTP::easy_write_cb(char* ptr, size_t size, size_t nmemb, void* userdata)
 int HTTP::perform(std::ostream* body) {
     curl_easy_setopt(this->easy, CURLOPT_WRITEFUNCTION, easy_write_cb);
     curl_easy_setopt(this->easy, CURLOPT_WRITEDATA, body);
+    curl_easy_setopt(this->easy, CURLOPT_PROXY, PROXY_STATUS ? PROXY.c_str() : nullptr);
 
     CURLcode res = curl_easy_perform(this->easy);
     if (res != CURLE_OK) throw curl_error(res);
@@ -151,7 +149,7 @@ std::string HTTP::encode_form(const Form& form) {
     return ss.str();
 }
 
-void HTTP::_get(const std::string& url, std::ostream* out, char **ct) {
+void HTTP::_get(const std::string& url, std::ostream* out, char** ct) {
     curl_easy_setopt(this->easy, CURLOPT_URL, url.c_str());
     curl_easy_setopt(this->easy, CURLOPT_HTTPGET, 1L);
     int code = this->perform(out);

@@ -14,7 +14,7 @@
   "current": "当前",
   "success": "成功",
   "password": "显示/隐藏",
-  "failed": "失败",
+  "retry": "重试",
   "exit_hint": "退出应用？",
   "loading": "加载中",
   "refresh": "刷新",

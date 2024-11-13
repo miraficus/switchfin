@@ -1,6 +1,7 @@
 {
   "tabs": {
     "home": "首頁",
+    "search": "搜尋",
     "setting": "設定"
   },
   "home": {
@@ -80,15 +81,12 @@
     "unplayed": "未播放"
   },
   "search": {
-    "tv": {
-      "hint": "支持關鍵字及關鍵字首字母",
-      "clear": "清空",
-      "delete": "删除",
-      "paste": "貼上",
-      "search": "搜尋",
-      "history": "歷史記錄",
-      "suggest": "猜你想搜"
-    },
+    "hint": "支持關鍵字及關鍵字首字母",
+    "clear": "清空",
+    "delete": "删除",
+    "paste": "貼上",
+    "history": "歷史記錄",
+    "suggest": "猜你想搜",
     "clear_history": "確認清空搜索記錄？",
     "genres": {
       "movie": "電影",

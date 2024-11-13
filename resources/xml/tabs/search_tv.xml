@@ -41,7 +41,7 @@
                 margin="10"
                 height="30"
                 cornerRadius="4"
-                text="@i18n/main/search/tv/clear" />
+                text="@i18n/main/search/clear" />
             <brls:Label
                 id="tv/search/delete"
                 grow="1"
@@ -51,7 +51,7 @@
                 marginTop="10"
                 height="30"
                 cornerRadius="4"
-                text="@i18n/main/search/tv/delete" />
+                text="@i18n/main/search/delete" />
             <brls:Label
                 id="tv/search/label"
                 grow="1"
@@ -62,7 +62,7 @@
                 marginLeft="10"
                 height="30"
                 cornerRadius="4"
-                text="@i18n/main/search/tv/search" />
+                text="@i18n/main/tab/search" />
         </brls:Box>
 
         <brls:Box
@@ -87,7 +87,7 @@
         <brls:Label
             horizontalAlign="center"
             fontSize="24"
-            text="@i18n/main/search/tv/suggest" />
+            text="@i18n/main/search/suggest" />
         <RecyclingGrid
             id="tv/search/suggest"
             grow="1"
@@ -103,7 +103,7 @@
         <brls:Label
             horizontalAlign="center"
             fontSize="24"
-            text="@i18n/main/search/tv/history" />
+            text="@i18n/main/search/history" />
         <RecyclingGrid
             id="tv/search/history"
             grow="1"

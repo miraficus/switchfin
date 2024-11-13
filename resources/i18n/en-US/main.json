@@ -1,6 +1,7 @@
 {
   "tabs": {
     "home": "Home",
+    "search": "Search",
     "setting": "Setting"
   },
   "home": {
@@ -76,15 +77,12 @@
     "unplayed": "Unplayed"
   },
   "search": {
-    "tv": {
-      "hint": "Support keywords and their initial letters",
-      "clear": "Clear",
-      "delete": "Delete",
-      "paste": "Paste",
-      "search": "Search",
-      "history": "History",
-      "suggest": "Suggest"
-    },
+    "hint": "Support keywords and their initial letters",
+    "clear": "Clear",
+    "delete": "Delete",
+    "paste": "Paste",
+    "history": "History",
+    "suggest": "Suggest",
     "clear_history": "Confirm to clear search histroy?",
     "genres": {
       "movie": "Movie",

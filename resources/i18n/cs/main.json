@@ -1,6 +1,7 @@
 {
   "tabs": {
     "home": "Domů",
+    "search": "Vyhledat",
     "setting": "Nastavení"
   },
   "home": {
@@ -47,14 +48,11 @@
     "unplayed": "Nepřehrané"
   },
   "search": {
-    "tv": {
-      "hint": "Podpora klíčových slov a jejich počátečních písmen",
-      "clear": "Vyčistit",
-      "delete": "Smazat",
-      "search": "Vyhledat",
-      "history": "Historie",
-      "suggest": "Návrh"
-    },
+    "hint": "Podpora klíčových slov a jejich počátečních písmen",
+    "clear": "Vyčistit",
+    "delete": "Smazat",
+    "history": "Historie",
+    "suggest": "Návrh",
     "clear_history": "Potvrzením vymazat historii vyhledávání?",
     "genres": {
       "movie": "Film",

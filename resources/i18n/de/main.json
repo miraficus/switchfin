@@ -1,6 +1,7 @@
 {
   "tabs": {
     "home": "Home",
+    "search": "Suche",
     "setting": "Einstellungen"
   },
   "home": {
@@ -24,15 +25,12 @@
     "toggle": "Wiedergabe/Pause"
   },
   "search": {
-    "tv": {
-      "hint": "Support keywords and their initial letters",
-      "clear": "klären",
-      "delete": "löschen",
-      "paste": "Paste",
-      "search": "Suche",
-      "history": "Geschichte",
-      "suggest": "Vorschläge"
-    },
+    "hint": "Support keywords and their initial letters",
+    "clear": "klären",
+    "delete": "löschen",
+    "paste": "Paste",
+    "history": "Geschichte",
+    "suggest": "Vorschläge",
     "genres": {
       "movie": "Filme",
       "series": "Serie",

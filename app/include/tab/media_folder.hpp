@@ -18,7 +18,7 @@ public:
     static brls::View* create();
 
 private:
-    BRLS_BIND(RecyclingGrid, recyclerFolders, "media/folders");
+    BRLS_BIND(RecyclingGrid, recycler, "media/folders");
 
     void doRequest();
 };

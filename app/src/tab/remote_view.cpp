@@ -321,6 +321,11 @@ void RemoteView::load() {
             brls::sync([ASYNC_TOKEN, error]() {
                 ASYNC_RELEASE
                 this->recycler->setError(error);
+
+                auto dialog = new brls::Dialog(error);
+                dialog->addButton("hints/retry"_i18n, [this]() { brls::sync([this]() { this->load(); }); });
+                dialog->addButton("hints/cancel"_i18n, []() {});
+                dialog->open();
             });
         }
     });
