@@ -199,12 +199,8 @@ void ServerList::willAppear(bool resetState) {
 
 void ServerList::onSelect(const AppServer& s) {
     this->serverVersion->setDetailText(s.version.empty() ? "-" : s.version);
-    this->inputUrl->init("main/setting/url"_i18n, s.urls.front(), [this, s](const std::string& text) {
-        AppConfig::instance().addServer({
-            .id = s.id,
-            .urls = {text},
-        });
-    });
+    this->inputUrl->init("main/setting/url"_i18n, s.urls.front(),
+        [s](const std::string& text) { AppConfig::instance().addServer({.id = s.id, .urls = {text}}); });
     this->inputUrl->registerAction("hints/preset"_i18n, brls::BUTTON_X, [this, s](...) {
         brls::Dropdown* dropdown = new brls::Dropdown("main/setting/url"_i18n, s.urls, [this, s](int selected) {
             AppConfig::instance().addServer({
