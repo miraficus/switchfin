@@ -44,6 +44,9 @@ int main(int argc, char* argv[]) {
             brls::Logger::setLogOutput(std::fopen(path, "w+"));
         } else if (std::strcmp(argv[i], "-i") == 0) {
             if (i + 1 < argc) itemId = argv[++i];
+        } else if (std::strcmp(argv[i], "-version") == 0) {
+            brls::Logger::info("{} {}", AppVersion::getDeviceName(), AppVersion::getCommit());
+            return 0;
         }
     }
 

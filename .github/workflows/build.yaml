@@ -287,6 +287,7 @@ jobs:
         mkdir -p dist
         mv build/Switchfin.app dist/
         cp README.md dist
+        dist/Switchfin.app/Contents/MacOS/Switchfin -version
         create-dmg --window-pos 200 120 --window-size 800 400 \
           --icon-size 100 --icon "Switchfin.app" 200 190 \
           --icon "README.md" 400 100 --hide-extension "Switchfin.app" \
