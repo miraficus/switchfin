@@ -305,8 +305,8 @@ jobs:
       fail-fast: false
       matrix:
         include:
-        - { arch: x64, msystem: MINGW64, cmake: "-DUSE_D3D11=ON" }
-        - { arch: x86, msystem: MINGW32, cmake: "-DUSE_GL2=ON", shuffix: "-gl" }
+        - { arch: x64, msystem: MINGW64 }
+        - { arch: x86, msystem: MINGW32 }
         arch: [ x64, x86 ]
     runs-on: windows-latest
     env:
@@ -321,7 +321,7 @@ jobs:
         submodules: recursive
     - name: Install dependency
       run: |
-        for pkg in glfw-3.5.0-1 curl-8.10.1-1 mpv${{ matrix.shuffix }}-0.39.0-4 libwebp-1.4.0-1; do
+        for pkg in glfw-3.5.0-1 curl-8.11.0-1 mpv-0.39.0-4 libwebp-1.4.0-1; do
           curl -sLO https://github.com/dragonflylee/switchfin/releases/download/mingw-packages/${MINGW_PACKAGE_PREFIX}-${pkg}-any.pkg.tar.zst
         done
         pacman -U --noconfirm *.pkg.tar.zst
@@ -346,8 +346,9 @@ jobs:
           -DWIN32_TERMINAL=OFF \
           -DZLIB_USE_STATIC_LIBS=ON \
           -DUSE_SYSTEM_GLFW=ON \
+          -DUSE_D3D11=ON \
           -DUSE_LIBROMFS=ON \
-          -DVERSION_BUILD=${{ github.run_number }} ${{ matrix.cmake }}
+          -DVERSION_BUILD=${{ github.run_number }}
         cmake --build build
         cv2pdb64 build/Switchfin.exe
         cp -a README.md ${MINGW_PREFIX}/bin/libmpv-2.dll build

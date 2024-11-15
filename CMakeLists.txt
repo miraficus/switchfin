@@ -126,13 +126,6 @@ else ()
 endif ()
 list(APPEND APP_PLATFORM_LIB CURL::libcurl)
 
-find_package(WebP)
-if (WebP_FOUND)
-    list(APPEND APP_PLATFORM_OPTION -DUSE_WEBP)
-    list(APPEND APP_PLATFORM_INCLUDE ${WebP_INCLUDE_DIRS})
-    list(APPEND APP_PLATFORM_LIB ${WebP_LIBRARY})
-endif ()
-
 find_package(Threads REQUIRED)
 list(APPEND APP_PLATFORM_LIB ${CMAKE_THREAD_LIBS_INIT})
 
@@ -148,6 +141,13 @@ if (PLATFORM_DESKTOP)
     find_package(MPV REQUIRED)
     list(APPEND APP_PLATFORM_INCLUDE ${MPV_INCLUDE_DIR})
     list(APPEND APP_PLATFORM_LIB ${MPV_LIBRARY})
+
+    find_package(WebP)
+    if (WebP_FOUND)
+        list(APPEND APP_PLATFORM_OPTION -DUSE_WEBP)
+        list(APPEND APP_PLATFORM_INCLUDE ${WebP_INCLUDE_DIRS})
+        list(APPEND APP_PLATFORM_LIB ${WebP_LIBRARY})
+    endif ()
 else ()
     # Used for Cross Compile such as NintendoSwitch
     # If dependent files cannot be found, environment variables can be set before executing the cmake command:
@@ -156,8 +156,17 @@ else ()
 
     pkg_search_module(MPV REQUIRED mpv)
     list(APPEND APP_PLATFORM_INCLUDE ${MPV_INCLUDE_DIRS})
-    list(APPEND APP_PLATFORM_LIB ${MPV_STATIC_LIBRARIES} )
-    list(APPEND APP_PLATFORM_LINK_OPTION -L${MPV_LIBRARY_DIRS})
+    list(APPEND APP_PLATFORM_LIB ${MPV_STATIC_LIBRARIES})
+    link_directories(${MPV_LIBRARY_DIRS})
+
+    pkg_search_module(LIBWEBP QUIET libwebp)
+    if (LIBWEBP_FOUND)
+        message(STATUS "Found libwebp: ${LIBWEBP_INCLUDE_DIRS} ${LIBWEBP_LIBRARIES}")
+        list(APPEND APP_PLATFORM_INCLUDE ${LIBWEBP_INCLUDE_DIRS})
+        list(APPEND APP_PLATFORM_LIB ${LIBWEBP_LIBRARIES})
+        list(APPEND APP_PLATFORM_OPTION -DUSE_WEBP)
+        link_directories(${LIBWEBP_LIBRARY_DIRS})
+    endif ()
 endif()
 
 if (BUILTIN_NSP)
@@ -166,17 +175,12 @@ if (BUILTIN_NSP)
     add_subdirectory(scripts/forwarder)
 endif ()
 
-if (USE_DEKO3D)
-    gen_dksh("${PROJECT_RESOURCES}/shaders")
-endif ()
-
 # building target
 program_target(${PROJECT_NAME} "${MAIN_SRC}")
 set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 17)
 target_include_directories(${PROJECT_NAME} PRIVATE app/include ${APP_PLATFORM_INCLUDE})
 target_compile_options(${PROJECT_NAME} PRIVATE -ffunction-sections -fdata-sections -Wunused-variable ${APP_PLATFORM_OPTION})
 target_link_libraries(${PROJECT_NAME} PRIVATE borealis lunasvg ${APP_PLATFORM_LIB})
-target_link_options(${PROJECT_NAME} PRIVATE ${APP_PLATFORM_LINK_OPTION})
 target_compile_definitions(${PROJECT_NAME} PRIVATE
     APP_VERSION=${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_ALTER}
     APP_BUILD=${VERSION_BUILD}
@@ -234,6 +238,9 @@ if (PLATFORM_DESKTOP)
 elseif(PLATFORM_SWITCH)
     if (BUILTIN_NSP)
         add_dependencies(${PROJECT_NAME} forwarder.nsp)
+    endif ()
+    if (USE_DEKO3D)
+        gen_dksh("${PROJECT_RESOURCES}/shaders")
     endif ()
     add_custom_target(${PROJECT_NAME}.nro DEPENDS ${PROJECT_NAME}
         COMMAND ${NX_NACPTOOL_EXE} --create "${PROJECT_NAME}" "${PROJECT_AUTHOR}" "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_ALTER}" ${PROJECT_NAME}.nacp

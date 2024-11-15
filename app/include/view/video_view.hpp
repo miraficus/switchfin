@@ -60,7 +60,7 @@ public:
     void hideVideoProgressSlider();
     void hideVideoQuality();
 
-     void showOSD(bool autoHide = true);
+    void showOSD(bool autoHide = true);
 
     static bool close();
 
