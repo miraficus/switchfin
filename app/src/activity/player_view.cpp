@@ -249,18 +249,15 @@ void PlayerView::playMedia(const uint64_t seekTicks) {
                 }
 #endif
                 ssextra << fmt::format("network-timeout={}", HTTP::TIMEOUT / 100);
-                if (HTTP::PROXY_STATUS) {
-                    ssextra << ",http-proxy=\"" << HTTP::PROXY << "\"";
-                }
-                if (seekTicks > 0) {
-                    ssextra << ",start=" << misc::sec2Time(seekTicks / jellyfin::PLAYTICKS);
-                }
+                if (seekTicks > 0) ssextra << ",start=" << misc::sec2Time(seekTicks / jellyfin::PLAYTICKS);
 
                 if (item.Protocol == "Http") {
                     mpv.setUrl(item.Path, ssextra.str());
                     this->stream = std::move(item);
                     return;
                 }
+
+                if (HTTP::PROXY_STATUS) ssextra << ",http-proxy=\"" << HTTP::PROXY << "\"";
 
                 if (item.SupportsDirectPlay || MPVCore::FORCE_DIRECTPLAY) {
                     std::string url = fmt::format(fmt::runtime(jellyfin::apiStream), this->itemId,

@@ -336,6 +336,7 @@ void SettingTab::onCreate() {
     });
 
     inputProxy->init("main/setting/network/host"_i18n, HTTP::PROXY, [](std::string value) {
+        if (value.find_first_of("://") == std::string::npos) value = "http://" + value;
         HTTP::PROXY = value;
         AppConfig::instance().setItem(AppConfig::HTTP_PROXY, value);
     });

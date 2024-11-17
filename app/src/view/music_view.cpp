@@ -152,10 +152,9 @@ void MusicView::play(const jellyfin::Item& item) {
     std::stringstream ssextra;
     std::string url = fmt::format(fmt::runtime(jellyfin::apiAudio), item.Id, query);
     ssextra << fmt::format("network-timeout={}", HTTP::TIMEOUT / 100);
-    if (HTTP::PROXY_STATUS) {
-        ssextra << ",http-proxy=\"" << HTTP::PROXY << "\"";
-    }
+    if (HTTP::PROXY_STATUS) ssextra << ",http-proxy=\"" << HTTP::PROXY << "\"";
     ssextra << fmt::format(",http-header-fields='X-Emby-Token: {}'", conf.getUser().access_token);
+
     mpv.stop();
     mpv.setUrl(conf.getUrl() + url, ssextra.str());
 
@@ -165,7 +164,10 @@ void MusicView::play(const jellyfin::Item& item) {
 void MusicView::load(const std::vector<jellyfin::Track>& items, size_t index) {
     auto& conf = AppConfig::instance();
     auto& mpv = MPVCore::instance();
-    std::string extra = fmt::format("http-header-fields='X-Emby-Token: {}'", conf.getUser().access_token);
+    std::stringstream ssextra;
+    ssextra << fmt::format("network-timeout={}", HTTP::TIMEOUT / 100);
+    if (HTTP::PROXY_STATUS) ssextra << ",http-proxy=\"" << HTTP::PROXY << "\"";
+    ssextra << fmt::format(",http-header-fields='X-Emby-Token: {}'", conf.getUser().access_token);
 
     if (!this->playSession) this->registerMpvEvent();
 
@@ -182,7 +184,7 @@ void MusicView::load(const std::vector<jellyfin::Track>& items, size_t index) {
     for (auto& item : items) {
         uint64_t userdata = reinterpret_cast<uint64_t>(&item);
         std::string url = fmt::format(fmt::runtime(jellyfin::apiAudio), item.Id, query);
-        mpv.setUrl(conf.getUrl() + url, extra, "append", userdata);
+        mpv.setUrl(conf.getUrl() + url, ssextra.str(), "append", userdata);
     }
 
     mpv.command("playlist-play-index", std::to_string(index).c_str());
