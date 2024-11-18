@@ -17,6 +17,7 @@ jobs:
         - tag: Silicon
           arch: arm64
           target: "11.0"
+          ffmpeg: "--disable-x86asm"
           meson: --cross-file $GITHUB_WORKSPACE/scripts/macos/macos_arm64.txt
         - tag: Intel
           arch: x86_64
@@ -25,9 +26,6 @@ jobs:
         tag: [ Silicon, Intel ]
     runs-on: macos-12
     env:
-      CMAKE_OSX_ARCHITECTURES: ${{ matrix.arch }}
-      MACOSX_DEPLOYMENT_TARGET: ${{ matrix.target }}
-      CMAKE_BUILD_TYPE: Release
       CMAKE_PREFIX_PATH: /tmp
       PKG_CONFIG_LIBDIR: /tmp/lib/pkgconfig
     steps:
@@ -39,13 +37,20 @@ jobs:
         find /usr/local/bin -lname '*/Library/Frameworks/Python.framework/*' -delete -print
         brew unlink python && brew link --overwrite python
     - name: Install dependency
-      run: brew install python
+      run: brew reinstall ninja nasm meson
     - name: Build glfw
       run: |
         curl -sSL https://github.com/dragonflylee/glfw/archive/switchfin.tar.gz | tar zxf - -C ${{ runner.temp }}
+        cmake -P ${{ runner.temp }}/glfw-switchfin/CMake/GenerateMappings.cmake \
+          ${{ runner.temp }}/glfw-switchfin/src/mappings.h.in \
+          ${{ runner.temp }}/glfw-switchfin/src/mappings.h
+
         cmake -B build-glfw -G Ninja ${{ runner.temp }}/glfw-switchfin \
           -DCMAKE_INSTALL_PREFIX=$CMAKE_PREFIX_PATH \
           -DCMAKE_INSTALL_NAME_DIR=$CMAKE_PREFIX_PATH/lib \
+          -DCMAKE_OSX_ARCHITECTURES=${{ matrix.arch }} \
+          -DCMAKE_OSX_DEPLOYMENT_TARGET=${{ matrix.target }} \
+          -DCMAKE_BUILD_TYPE=Release \
           -DBUILD_SHARED_LIBS=ON \
           -DGLFW_BUILD_EXAMPLES=OFF \
           -DGLFW_BUILD_TESTS=OFF \
@@ -81,7 +86,7 @@ jobs:
       run: |
         curl -sSL https://github.com/libass/libass/releases/download/0.17.3/libass-0.17.3.tar.xz | tar Jxf - -C ${{ runner.temp }}
         meson setup build-libass ${{ runner.temp }}/libass-0.17.3 ${{ matrix.meson }} \
-          --prefix=$CMAKE_PREFIX_PATH --buildtype=release --default-library=shared -Dasm=disabled
+          --prefix=$CMAKE_PREFIX_PATH --buildtype=release --default-library=shared
         meson compile -C build-libass
         meson install -C build-libass
     - name: Build dav1d
@@ -98,6 +103,9 @@ jobs:
         cmake -B build-libwebp -G Ninja ${{ runner.temp }}/libwebp-1.4.0 \
           -DCMAKE_INSTALL_PREFIX=$CMAKE_PREFIX_PATH \
           -DCMAKE_INSTALL_NAME_DIR=$CMAKE_PREFIX_PATH/lib \
+          -DCMAKE_OSX_ARCHITECTURES=${{ matrix.arch }} \
+          -DCMAKE_OSX_DEPLOYMENT_TARGET=${{ matrix.target }} \
+          -DCMAKE_BUILD_TYPE=Release \
           -DBUILD_SHARED_LIBS=ON \
           -DWEBP_BUILD_EXTRAS=OFF \
           -DWEBP_BUILD_ANIM_UTILS=OFF \
@@ -121,7 +129,7 @@ jobs:
           --extra-cflags='-arch ${{ matrix.arch }} -mmacosx-version-min=${{ matrix.target }}' \
           --extra-cxxflags='-arch ${{ matrix.arch }} -mmacosx-version-min=${{ matrix.target }}' \
           --extra-ldflags='-arch ${{ matrix.arch }} -mmacosx-version-min=${{ matrix.target }}' \
-          --disable-autodetect --disable-encoders --enable-pic --disable-asm \
+          --disable-autodetect --disable-encoders --enable-pic ${{ matrix.ffmpeg }} \
           --disable-programs --disable-doc --disable-debug --disable-avdevice \
           --disable-filters --enable-filter=hflip,vflip,transpose --disable-muxers \
           --disable-protocols --enable-protocol=file,http,tcp,udp,hls,https,tls,httpproxy \

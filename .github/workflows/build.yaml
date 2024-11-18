@@ -9,7 +9,7 @@ on:
     paths-ignore:
     - scripts/mingw64/*/*
     - scripts/switch/*/*
-    - scripts/l4t/*
+    - debian/*
     - images/*
     - CHANGELOG.md
     - README.md
@@ -122,15 +122,18 @@ jobs:
         done
     - name: Build nro
       run: |
-        cmake -B build_switch -DCMAKE_BUILD_TYPE=Release -DPLATFORM_SWITCH=ON -DBUILTIN_NSP=ON -DVERSION_BUILD=${{ github.run_number }} ${{ matrix.cmake }}
-        make -C build_switch Switchfin.nro -j$(nproc)
+        cmake -B build ${{ matrix.cmake }} \
+          -DCMAKE_BUILD_TYPE=Release \
+          -DPLATFORM_SWITCH=ON -DBUILTIN_NSP=ON \
+          -DVERSION_BUILD=${{ github.run_number }}
+        make -C build Switchfin.nro -j$(nproc)
     - name: Upload Assets
       uses: actions/upload-artifact@v4
       with:
         name: Switchfin-NintendoSwitch${{ matrix.shuffix }}
         path: |
-          build_switch/Switchfin.nro
-          build_switch/Switchfin.elf
+          build/Switchfin.nro
+          build/Switchfin.elf
 
   build-ps4:
     runs-on: ubuntu-latest
@@ -142,15 +145,15 @@ jobs:
     - name: Build
       run: |
         docker run --rm -v $(pwd):/src -u $(id -u):$(id -g) xfangfang/wiliwili_ps4_builder \
-            "cmake -B build_ps4 -DPLATFORM_PS4=ON -DVERSION_BUILD=${{ github.run_number }} && \
-             make -C build_ps4 -j$(nproc)"
+            "cmake -B build -DPLATFORM_PS4=ON -DVERSION_BUILD=${{ github.run_number }} && \
+             make -C build -j$(nproc)"
     - name: Upload Assets
       uses: actions/upload-artifact@v4
       with:
         name: Switchfin-PS4
         path: |
-          build_ps4/Switchfin.oelf
-          build_ps4/*.pkg
+          build/Switchfin.oelf
+          build/*.pkg
 
   build-flatpak:
     runs-on: ubuntu-latest
@@ -164,20 +167,20 @@ jobs:
     if: ${{ inputs.arm_flatpak || github.event_name != 'workflow_dispatch' }}
     steps:
     - uses: actions/checkout@v4
-      if: ${{ matrix.arch == 'x86_64' || (matrix.arch == 'aarch64' && inputs.arm_flatpak) }}
+      if: ${{ matrix.arch == 'x86_64' || inputs.arm_flatpak || startsWith(github.ref, 'refs/tags/') }}
       with:
         submodules: recursive
     - name: Install docker
-      if: ${{ matrix.arch == 'aarch64' && inputs.arm_flatpak }}
+      if: ${{ matrix.arch == 'aarch64' && (inputs.arm_flatpak || startsWith(github.ref, 'refs/tags/')) }}
       run: dnf -y install docker
     - name: Set up QEMU
-      if: ${{ matrix.arch == 'aarch64' && inputs.arm_flatpak }}
+      if: ${{ matrix.arch == 'aarch64' && (inputs.arm_flatpak || startsWith(github.ref, 'refs/tags/')) }}
       uses: docker/setup-qemu-action@v3
     - name: Set workspace permissions
       run: git config --system --add safe.directory '*'
     - name: Build flatpak
       uses: flatpak/flatpak-github-actions/flatpak-builder@master
-      if: ${{ matrix.arch == 'x86_64' || (matrix.arch == 'aarch64' && inputs.arm_flatpak) }}
+      if: ${{ matrix.arch == 'x86_64' || inputs.arm_flatpak || startsWith(github.ref, 'refs/tags/') }}
       with:
         bundle: Switchfin-Linux.flatpak
         manifest-path: scripts/flatpak.yaml
@@ -186,7 +189,7 @@ jobs:
         arch: ${{ matrix.arch }}
     - name: Upload Assets
       uses: actions/upload-artifact@v4
-      if: ${{ matrix.arch == 'x86_64' || (matrix.arch == 'aarch64' && inputs.arm_flatpak) }}
+      if: ${{ matrix.arch == 'x86_64' || inputs.arm_flatpak || startsWith(github.ref, 'refs/tags/') }}
       with:
         name: Switchfin-Flatpak-${{ matrix.arch }}
         path: Switchfin-*.flatpak

@@ -62,7 +62,7 @@
                 marginLeft="10"
                 height="30"
                 cornerRadius="4"
-                text="@i18n/main/tab/search" />
+                text="@i18n/main/tabs/search" />
         </brls:Box>
 
         <brls:Box
