@@ -93,10 +93,10 @@ index b7bcb1b0ba..9397988cb5 100644
      # Allow projects to build with libmpv by cloning into ./subprojects/mpv
 diff --git a/video/out/d3d11/libmpv_d3d11.c b/video/out/d3d11/libmpv_d3d11.c
 new file mode 100644
-index 0000000000..9059834745
+index 0000000000..cf6f6bae44
 --- /dev/null
 +++ b/video/out/d3d11/libmpv_d3d11.c
-@@ -0,0 +1,87 @@
+@@ -0,0 +1,90 @@
 +#include "common/msg.h"
 +#include "ra_d3d11.h"
 +#include "libmpv/render_dxgi.h"
@@ -171,10 +171,13 @@ index 0000000000..9059834745
 +static void destroy(struct libmpv_gpu_context *ctx)
 +{
 +    struct priv *p = ctx->priv;
-+    if (ctx->ra_ctx->ra)
-+        ra_tex_free(ctx->ra_ctx->ra, &p->tex);
++    struct ra_ctx *ra_ctx = ctx->ra_ctx;
++    if (ra_ctx->ra)
++        ra_tex_free(ra_ctx->ra, &p->tex);
 +    SAFE_RELEASE(p->swapchain);
 +    SAFE_RELEASE(p->device);
++    if (ra_ctx->ra)
++        ra_ctx->ra->fns->destroy(ra_ctx->ra);
 +}
 +
 +const struct libmpv_gpu_context_fns libmpv_gpu_context_d3d11 = {
