@@ -1,17 +1,5 @@
 #include "view/h_recycling.hpp"
 
-class HRecyclerContentBox : public brls::Box {
-public:
-    HRecyclerContentBox(HRecyclerFrame* recycler) : Box(brls::Axis::ROW), recycler(recycler) {}
-
-    brls::View* getNextFocus(brls::FocusDirection direction, brls::View* currentView) override {
-        return this->recycler->getNextCellFocus(direction, currentView);
-    }
-
-private:
-    HRecyclerFrame* recycler;
-};
-
 brls::View* HRecyclerFrame::getNextCellFocus(brls::FocusDirection direction, brls::View* currentView) {
     void* parentUserData = currentView->getParentUserData();
 
@@ -62,7 +50,7 @@ HRecyclerFrame::HRecyclerFrame() {
     this->setScrollingBehavior(brls::ScrollingBehavior::CENTERED);
 
     // Create content box
-    this->contentBox = new HRecyclerContentBox(this);
+    this->contentBox = new RecyclingGridContentBox(this);
     this->setContentView(this->contentBox);
 
     this->registerFloatXMLAttribute("itemWidth", [this](float value) {
@@ -102,7 +90,7 @@ void HRecyclerFrame::reloadData() {
     auto children = this->contentBox->getChildren();
     for (auto const& child : children) {
         queueReusableCell((RecyclingGridItem*)child);
-        this->contentBox->removeView(child, false);
+        this->removeCell(child);
     }
 
     visibleMin = UINT_MAX;
@@ -173,7 +161,7 @@ void HRecyclerFrame::cellsRecyclingLoop() {
         renderedFrame.size.width -= cellWidth + estimatedRowSpace;
 
         queueReusableCell(minCell);
-        this->contentBox->removeView(minCell, false);
+        this->removeCell(minCell);
 
         brls::Logger::verbose("HRecyclerFrame Cell #{} - destroyed", visibleMin);
 
@@ -193,7 +181,7 @@ void HRecyclerFrame::cellsRecyclingLoop() {
         renderedFrame.size.width -= cellWidth + estimatedRowSpace;
 
         queueReusableCell(maxCell);
-        this->contentBox->removeView(maxCell, false);
+        this->removeCell(maxCell);
 
         brls::Logger::verbose("HRecyclerFrame Cell #{} - destroyed", visibleMax);
 

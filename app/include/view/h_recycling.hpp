@@ -9,7 +9,7 @@ public:
     HRecyclerFrame();
     ~HRecyclerFrame();
 
-    View* getNextCellFocus(brls::FocusDirection direction, View* currentView);
+    View* getNextCellFocus(brls::FocusDirection direction, View* currentView) override;
     void onChildFocusLost(View* directChild, View* focusedView) override;
     void draw(NVGcontext* vg, float x, float y, float width, float height, brls::Style style,
         brls::FrameContext* ctx) override;
@@ -55,7 +55,6 @@ private:
     bool requestNextPage = false;
     std::function<void()> nextPageCallback = nullptr;
 
-    HRecyclerContentBox* contentBox = nullptr;
     brls::Rect renderedFrame;
 
     // 回收列表项

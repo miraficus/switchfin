@@ -70,9 +70,13 @@ public:
     virtual void clearData() = 0;
 };
 
+class RecyclingGridContentBox;
+
 class RecyclingView {
 public:
     virtual ~RecyclingView() = default;
+
+    virtual brls::View* getNextCellFocus(brls::FocusDirection direction, brls::View* currentView) = 0;
 
     void registerCell(std::string identifier, std::function<RecyclingGridItem*()> allocation);
 
@@ -84,13 +88,14 @@ protected:
     // 回收列表项
     void queueReusableCell(RecyclingGridItem* cell);
 
+    void removeCell(brls::View* view);
+
     RecyclingGridDataSource* dataSource = nullptr;
+    RecyclingGridContentBox* contentBox = nullptr;
 
     std::map<std::string, std::vector<RecyclingGridItem*>*> queueMap;
     std::map<std::string, std::function<RecyclingGridItem*(void)>> allocationMap;
 };
-
-class RecyclingGridContentBox;
 
 class RecyclingGrid : public brls::ScrollingFrame, public RecyclingView {
 public:
@@ -129,7 +134,7 @@ public:
     // 计算从start元素的顶点到index (不包含index) 元素顶点的距离
     float getHeightByCellIndex(size_t index, size_t start = 0);
 
-    View* getNextCellFocus(brls::FocusDirection direction, View* currentView);
+    View* getNextCellFocus(brls::FocusDirection direction, View* currentView) override;
 
     void forceRequestNextPage();
 
@@ -191,7 +196,6 @@ private:
 
     std::function<void()> nextPageCallback = nullptr;
 
-    RecyclingGridContentBox* contentBox = nullptr;
     brls::Image* hintImage;
     brls::Label* hintLabel;
     brls::Rect renderedFrame;
@@ -214,11 +218,11 @@ private:
 
 class RecyclingGridContentBox : public brls::Box {
 public:
-    RecyclingGridContentBox(RecyclingGrid* recycler);
+    RecyclingGridContentBox(RecyclingView* recycler);
     brls::View* getNextFocus(brls::FocusDirection direction, brls::View* currentView) override;
 
 private:
-    RecyclingGrid* recycler;
+    RecyclingView* recycler;
 };
 
 class SkeletonCell : public RecyclingGridItem {

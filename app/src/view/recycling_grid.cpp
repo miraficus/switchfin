@@ -101,6 +101,28 @@ void RecyclingView::queueReusableCell(RecyclingGridItem* cell) {
     cell->cacheForReuse();
 }
 
+void RecyclingView::removeCell(brls::View* view) {
+    if (!view) return;
+    // Find the index of the view
+    size_t index;
+    bool found = false;
+    auto& children = this->contentBox->getChildren();
+    for (size_t i = 0; i < children.size(); i++) {
+        brls::View* child = children[i];
+        if (child == view) {
+            found = true;
+            index = i;
+            break;
+        }
+    }
+    if (!found) return;
+    // Remove it
+    children.erase(children.begin() + index);
+    view->willDisappear(true);
+    this->contentBox->invalidate();
+}
+
+
 RecyclingGridDataSource* RecyclingView::getDataSource() const { return this->dataSource; }
 
 /// RecyclingGrid
@@ -279,7 +301,7 @@ void RecyclingGrid::reloadData() {
     auto children = this->contentBox->getChildren();
     for (auto const& child : children) {
         queueReusableCell((RecyclingGridItem*)child);
-        this->contentBox->removeView(child, false);
+        this->removeCell(child);
     }
 
     visibleMin = UINT_MAX;
@@ -420,7 +442,7 @@ void RecyclingGrid::itemsRecyclingLoop() {
         renderedFrame.size.height -= minCell->getIndex() % spanCount == 0 ? cellHeight + estimatedRowSpace : 0;
 
         queueReusableCell(minCell);
-        this->contentBox->removeView(minCell, false);
+        this->removeCell(minCell);
 
         brls::Logger::verbose("Cell #{} - destroyed", visibleMin);
 
@@ -446,7 +468,7 @@ void RecyclingGrid::itemsRecyclingLoop() {
         renderedFrame.size.height -= maxCell->getIndex() % spanCount == 0 ? cellHeight + estimatedRowSpace : 0;
 
         queueReusableCell(maxCell);
-        this->contentBox->removeView(maxCell, false);
+        this->removeCell(maxCell);
 
         brls::Logger::verbose("Cell #{} - destroyed", visibleMax);
 
@@ -678,7 +700,7 @@ brls::View* RecyclingGrid::create() { return new RecyclingGrid(); }
 
 /// RecyclingGridContentBox
 
-RecyclingGridContentBox::RecyclingGridContentBox(RecyclingGrid* recycler) : Box(brls::Axis::ROW), recycler(recycler) {}
+RecyclingGridContentBox::RecyclingGridContentBox(RecyclingView* recycler) : Box(brls::Axis::ROW), recycler(recycler) {}
 
 brls::View* RecyclingGridContentBox::getNextFocus(brls::FocusDirection direction, brls::View* currentView) {
     return this->recycler->getNextCellFocus(direction, currentView);
