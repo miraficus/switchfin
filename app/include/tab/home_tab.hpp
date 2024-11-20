@@ -18,6 +18,8 @@ public:
 
     void doRequest() override;
 
+    brls::View* getDefaultFocus() override;
+
     static brls::View* create();
 
 private:

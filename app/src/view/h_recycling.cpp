@@ -38,11 +38,6 @@ brls::View* HRecyclerFrame::getNextCellFocus(brls::FocusDirection direction, brl
     return currentFocus;
 }
 
-void HRecyclerFrame::onChildFocusLost(View* directChild, View* focusedView) {
-    HScrollingFrame::onChildFocusLost(directChild, focusedView);
-    Box::onChildFocusLost(directChild, focusedView);
-}
-
 HRecyclerFrame::HRecyclerFrame() {
     brls::Logger::debug("View HRecyclerFrame: create");
 

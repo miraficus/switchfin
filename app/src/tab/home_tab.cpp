@@ -30,6 +30,8 @@ HomeTab::HomeTab() {
 
 HomeTab::~HomeTab() { brls::Logger::debug("View HomeTab: delete"); }
 
+brls::View* HomeTab::getDefaultFocus() { return this->videoLatest; }
+
 void HomeTab::doRequest() {
     this->startNextup = 0;
     this->startResume = 0;
