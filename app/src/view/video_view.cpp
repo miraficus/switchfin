@@ -32,6 +32,11 @@ VideoView::VideoView() {
     this->setHideHighlightBackground(true);
     this->setHideClickAnimation(true);
 
+    auto& mpv = MPVCore::instance();
+    // 停止正在播放的音乐
+    mpv.reset();
+    mpv.enableVO(true);
+
     this->input = brls::Application::getPlatform()->getInputManager();
 
     this->registerAction(

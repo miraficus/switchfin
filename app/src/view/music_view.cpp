@@ -156,6 +156,7 @@ void MusicView::play(const jellyfin::Item& item) {
     ssextra << fmt::format(",http-header-fields='X-Emby-Token: {}'", conf.getUser().access_token);
 
     mpv.stop();
+    mpv.enableVO(false);
     mpv.setUrl(conf.getUrl() + url, ssextra.str());
 
     this->playTitle->setText(item.Name);
@@ -172,6 +173,7 @@ void MusicView::load(const std::vector<jellyfin::Track>& items, size_t index) {
     if (!this->playSession) this->registerMpvEvent();
 
     mpv.stop();
+    mpv.enableVO(false);
     mpv.command("playlist-clear");
     this->playList.clear();
     this->btnSuffle->setBorderThickness(0);

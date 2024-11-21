@@ -67,6 +67,9 @@ public:
 
     void setSpeed(double value);
 
+    // 是否开启视频渲染
+    void enableVO(bool value);
+
     /**
      * 强制设置视频比例
      * @param value auto 为自动, 可设置 16:9 或 1.333 这两种形式的字符串

@@ -582,6 +582,8 @@ void MPVCore::setSpeed(double value) {
     this->command("set", "speed", speed.c_str());
 }
 
+void MPVCore::enableVO(bool value) { mpv_set_option_string(mpv, "vo", value ? "libmpv" : "null"); }
+
 void MPVCore::setAspect(const std::string &value) {
     if (value == "auto") {
         this->command("set", "keepaspect", "yes");
