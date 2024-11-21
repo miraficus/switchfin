@@ -32,7 +32,6 @@ struct AppServer {
     std::string id;
     std::string version;
     std::vector<std::string> urls;
-    std::vector<AppUser> users;
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(AppServer, id, name, version, urls);
 
@@ -149,7 +148,8 @@ public:
     const AppUser& getUser() const { return this->user; }
     const std::string& getUrl() const { return this->server_url; }
     const std::vector<AppRemote>& getRemotes() const { return this->remotes; }
-    const std::vector<AppServer> getServers() const;
+    const std::vector<AppServer>& getServers() const { return this->servers; }
+    const std::vector<AppUser> getUsers(const std::string& id) const;
 
     NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(
         AppConfig, user_id, server_url, device, users, servers, setting, remotes);

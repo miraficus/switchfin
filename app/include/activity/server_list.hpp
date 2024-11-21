@@ -18,8 +18,8 @@ public:
     ~ServerList();
 
     void onContentAvailable() override;
-    void onSelect(const AppServer &s);
     std::string getUrl();
+    void onUser(const std::string& id);
     void willAppear(bool resetState = false) override;
 
 private:
@@ -32,5 +32,7 @@ private:
     BRLS_BIND(brls::Button, btnSignin, "btn/server/signin");
     BRLS_BIND(brls::AppletFrame, mainframe, "server/frame");
 
+    void onServer(const AppServer &s);
     void setActive(brls::View *active);
+    void getActive();
 };

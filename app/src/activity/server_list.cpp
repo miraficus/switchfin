@@ -32,7 +32,6 @@ public:
         this->serverId = s.id;
         this->labelName->setText(s.name.empty() ? "-" : s.name);
         this->labelUrl->setText(s.urls.front());
-        this->labelUsers->setText(brls::getStr("main/setting/server/users", s.users.size()));
     }
 
     void setActive(bool active) {
@@ -40,13 +39,13 @@ public:
         if (active) {
             this->accent->setVisibility(brls::Visibility::VISIBLE);
             this->labelName->setTextColor(theme["brls/sidebar/active_item"]);
-            this->labelUsers->setTextColor(theme["brls/sidebar/active_item"]);
         } else {
             this->accent->setVisibility(brls::Visibility::INVISIBLE);
             this->labelName->setTextColor(theme["brls/text"]);
-            this->labelUsers->setTextColor(theme["brls/text"]);
         }
     }
+
+    bool getActive() { return this->accent->getVisibility() == brls::Visibility::VISIBLE; }
 
     std::string serverId;
 
@@ -54,7 +53,6 @@ private:
     BRLS_BIND(brls::Rectangle, accent, "brls/sidebar/item_accent");
     BRLS_BIND(brls::Label, labelName, "server/name");
     BRLS_BIND(brls::Label, labelUrl, "server/url");
-    BRLS_BIND(brls::Label, labelUsers, "server/users");
 };
 
 class UserCell : public RecyclingGridItem {
@@ -68,8 +66,6 @@ public:
 
     BRLS_BIND(brls::Label, labelName, "user/name");
     BRLS_BIND(brls::Image, picture, "user/avatar");
-
-    std::string userId;
 };
 
 class ServerUserDataSource : public RecyclingGridDataSource {
@@ -81,8 +77,15 @@ public:
     RecyclingGridItem* cellForRow(RecyclingView* recycler, size_t index) override {
         UserCell* cell = dynamic_cast<UserCell*>(recycler->dequeueReusableCell("Cell"));
         auto& u = this->list.at(index);
-        cell->userId = u.id;
         cell->labelName->setText(u.name);
+
+        cell->registerAction("hints/delete"_i18n, brls::BUTTON_X, [this, u](brls::View* view) {
+            Dialog::cancelable("main/setting/server/delete"_i18n, [this, u]() {
+                AppConfig::instance().removeUser(u.id);
+                this->parent->onUser(u.server_id);
+            });
+            return true;
+        });
 
         std::string url = fmt::format(fmt::runtime(jellyfin::apiUserImage), u.id, "");
         Image::with(cell->picture, this->parent->getUrl() + url);
@@ -143,18 +146,7 @@ void ServerList::onContentAvailable() {
         return true;
     });
 
-    this->recyclerUsers->registerCell("Cell", [this]() {
-        UserCell* cell = new UserCell();
-        cell->registerAction("hints/delete"_i18n, brls::BUTTON_X, [this, cell](brls::View* view) {
-            Dialog::cancelable("main/setting/server/delete"_i18n, [this, cell]() {
-                if (AppConfig::instance().removeUser(cell->userId)) {
-                    brls::sync([this]() { this->willAppear(); });
-                }
-            });
-            return true;
-        });
-        return cell;
-    });
+    this->recyclerUsers->registerCell("Cell", [this]() { return new UserCell(); });
 
     this->btnSignin->registerClickAction([this](brls::View* view) {
         view->present(new ServerLogin("", this->getUrl()));
@@ -176,13 +168,16 @@ void ServerList::willAppear(bool resetState) {
         ServerCell* item = new ServerCell(s);
         item->getFocusEvent()->subscribe([this, s](brls::View* view) {
             this->setActive(view);
-            this->onSelect(s);
+            this->onServer(s);
         });
 
         item->registerAction("hints/delete"_i18n, brls::BUTTON_X, [this, item](brls::View* view) {
             Dialog::cancelable("main/setting/server/delete"_i18n, [this, item]() {
                 if (AppConfig::instance().removeServer(item->serverId)) {
-                    brls::sync([this]() { this->willAppear(); });
+                    this->mainframe->setActionAvailable(brls::BUTTON_B, false);
+                    this->mainframe->pushContentView(new ServerAdd());
+                } else {
+                    this->sidebarServers->removeView(item);
                 }
             });
             return true;
@@ -190,14 +185,14 @@ void ServerList::willAppear(bool resetState) {
 
         if (s.urls.front() == AppConfig::instance().getUrl()) {
             item->setActive(true);
-            this->onSelect(s);
+            this->onServer(s);
         }
 
         this->sidebarServers->addView(item);
     }
 }
 
-void ServerList::onSelect(const AppServer& s) {
+void ServerList::onServer(const AppServer& s) {
     this->serverVersion->setDetailText(s.version.empty() ? "-" : s.version);
     this->inputUrl->init("main/setting/url"_i18n, s.urls.front(),
         [s](const std::string& text) { AppConfig::instance().addServer({.id = s.id, .urls = {text}}); });
@@ -213,11 +208,16 @@ void ServerList::onSelect(const AppServer& s) {
         return true;
     });
 
-    if (s.users.empty()) {
+    this->onUser(s.id);
+}
+
+void ServerList::onUser(const std::string& id) {
+    auto users = AppConfig::instance().getUsers(id);
+    if (users.empty()) {
         this->recyclerUsers->setEmpty();
         brls::sync([this]() { brls::Application::giveFocus(this->sidebarServers); });
     } else {
-        this->recyclerUsers->setDataSource(new ServerUserDataSource(s.users, this));
+        this->recyclerUsers->setDataSource(new ServerUserDataSource(users, this));
     }
 }
 

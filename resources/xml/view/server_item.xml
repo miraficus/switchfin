@@ -37,9 +37,6 @@
             marginBottom="10"
             textColor="@theme/font/grey" />
 
-        <brls:Label
-            id="server/users"
-            fontSize="18" />
     </brls:Box>
 
 </brls:Box>

@@ -549,7 +549,7 @@ bool AppConfig::removeServer(const std::string& id) {
         if (it->id == id) {
             this->servers.erase(it);
             this->save();
-            return true;
+            return this->servers.empty();
         }
     }
     return false;
@@ -578,14 +578,12 @@ std::string AppConfig::getDevice(const std::string& token) {
             AppVersion::getPackageName(), AppVersion::getDeviceName(), this->device, AppVersion::getVersion(), token);
 }
 
-const std::vector<AppServer> AppConfig::getServers() const {
-    std::vector<AppServer> list(this->servers);
+const std::vector<AppUser> AppConfig::getUsers(const std::string& id) const {
+    std::vector<AppUser> users;
     for (auto& u : this->users) {
-        for (auto& s : list) {
-            if (u.server_id == s.id) {
-                s.users.push_back(u);
-            }
+        if (u.server_id == id) {
+            users.push_back(u);
         }
     }
-    return list;
+    return users;
 }
