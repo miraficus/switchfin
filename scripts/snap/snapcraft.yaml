@@ -105,7 +105,7 @@ parts:
 
   libplacebo:
     plugin: meson
-    source: https://code.videolan.org/videolan/libplacebo.git
+    source: https://github.com/haasn/libplacebo.git
     source-type: git
     source-tag: v7.349.0
     source-depth: 1

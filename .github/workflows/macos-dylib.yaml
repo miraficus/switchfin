@@ -40,7 +40,7 @@ jobs:
       run: brew reinstall ninja nasm meson
     - name: Build glfw
       run: |
-        curl -sSL https://github.com/dragonflylee/glfw/archive/switchfin.tar.gz | tar zxf - -C ${{ runner.temp }}
+        curl --retry 5 -sSL https://github.com/dragonflylee/glfw/archive/switchfin.tar.gz | tar zxf - -C ${{ runner.temp }}
         cmake -P ${{ runner.temp }}/glfw-switchfin/CMake/GenerateMappings.cmake \
           ${{ runner.temp }}/glfw-switchfin/src/mappings.h.in \
           ${{ runner.temp }}/glfw-switchfin/src/mappings.h
@@ -59,7 +59,7 @@ jobs:
         cmake --install build-glfw
     - name: Build freetype
       run: |
-        curl -sSL https://downloads.sourceforge.net/project/freetype/freetype2/2.13.3/freetype-2.13.3.tar.xz | tar Jxf - -C ${{ runner.temp }}
+        curl --retry 5 -sSL https://downloads.sourceforge.net/project/freetype/freetype2/2.13.3/freetype-2.13.3.tar.xz | tar Jxf - -C ${{ runner.temp }}
         meson setup build-freetype ${{ runner.temp }}/freetype-2.13.3 ${{ matrix.meson }} \
           --prefix=$CMAKE_PREFIX_PATH --buildtype=release --default-library=shared \
           -Dharfbuzz=disabled -Dbrotli=disabled -Dzlib=system
@@ -67,7 +67,7 @@ jobs:
         meson install -C build-freetype
     - name: Build harfbuzz
       run: |
-        curl -sSL https://github.com/harfbuzz/harfbuzz/releases/download/10.1.0/harfbuzz-10.1.0.tar.xz | tar Jxf - -C ${{ runner.temp }}
+        curl --retry 5 -sSL https://github.com/harfbuzz/harfbuzz/releases/download/10.1.0/harfbuzz-10.1.0.tar.xz | tar Jxf - -C ${{ runner.temp }}
         meson setup build-harfbuzz ${{ runner.temp }}/harfbuzz-10.1.0 ${{ matrix.meson }} \
           --prefix=$CMAKE_PREFIX_PATH --buildtype=release --default-library=shared \
           -Dtests=disabled -Ddocs=disabled -Dicu=disabled -Dcairo=disabled \
@@ -76,7 +76,7 @@ jobs:
         meson install -C build-harfbuzz
     - name: Build fribidi
       run: |
-        curl -sSL https://github.com/fribidi/fribidi/releases/download/v1.0.16/fribidi-1.0.16.tar.xz | tar Jxf - -C ${{ runner.temp }}
+        curl --retry 5 -sSL https://github.com/fribidi/fribidi/releases/download/v1.0.16/fribidi-1.0.16.tar.xz | tar Jxf - -C ${{ runner.temp }}
         meson setup build-fribidi ${{ runner.temp }}/fribidi-1.0.16 ${{ matrix.meson }} \
           --prefix=$CMAKE_PREFIX_PATH --buildtype=release --default-library=shared \
           -Ddocs=false -Dbin=false -Dtests=false
@@ -84,14 +84,14 @@ jobs:
         meson install -C build-fribidi
     - name: Build libass
       run: |
-        curl -sSL https://github.com/libass/libass/releases/download/0.17.3/libass-0.17.3.tar.xz | tar Jxf - -C ${{ runner.temp }}
+        curl --retry 5 -sSL https://github.com/libass/libass/releases/download/0.17.3/libass-0.17.3.tar.xz | tar Jxf - -C ${{ runner.temp }}
         meson setup build-libass ${{ runner.temp }}/libass-0.17.3 ${{ matrix.meson }} \
           --prefix=$CMAKE_PREFIX_PATH --buildtype=release --default-library=shared
         meson compile -C build-libass
         meson install -C build-libass
     - name: Build dav1d
       run: |
-        curl -sSL https://downloads.videolan.org/pub/videolan/dav1d/1.5.0/dav1d-1.5.0.tar.xz | tar Jxf - -C ${{ runner.temp }}
+        curl --retry 5 -sSL https://downloads.videolan.org/pub/videolan/dav1d/1.5.0/dav1d-1.5.0.tar.xz | tar Jxf - -C ${{ runner.temp }}
         meson setup build-dav1d ${{ runner.temp }}/dav1d-1.5.0 ${{ matrix.meson }} \
           --prefix=$CMAKE_PREFIX_PATH --buildtype=release --default-library=shared \
           -Denable_tools=false -Denable_examples=false -Denable_tests=false -Denable_docs=false
@@ -99,7 +99,7 @@ jobs:
         meson install -C build-dav1d
     - name: Build libwebp
       run: |
-        curl -sSL https://github.com/webmproject/libwebp/archive/v1.4.0.tar.gz | tar zxf - -C ${{ runner.temp }}
+        curl --retry 5 -sSL https://github.com/webmproject/libwebp/archive/v1.4.0.tar.gz | tar zxf - -C ${{ runner.temp }}
         cmake -B build-libwebp -G Ninja ${{ runner.temp }}/libwebp-1.4.0 \
           -DCMAKE_INSTALL_PREFIX=$CMAKE_PREFIX_PATH \
           -DCMAKE_INSTALL_NAME_DIR=$CMAKE_PREFIX_PATH/lib \
@@ -121,7 +121,7 @@ jobs:
         cmake --install build-libwebp
     - name: Build ffmpeg
       run: |
-        curl -sSL https://ffmpeg.org/releases/ffmpeg-7.1.tar.xz | tar Jxf - -C ${{ runner.temp }}
+        curl --retry 5 -sSL https://ffmpeg.org/releases/ffmpeg-7.1.tar.xz | tar Jxf - -C ${{ runner.temp }}
         mkdir -p build-ffmpeg && cd build-ffmpeg
         ${{ runner.temp }}/ffmpeg-7.1/configure --enable-shared --disable-static \
           --prefix=$CMAKE_PREFIX_PATH --enable-pthreads --disable-runtime-cpudetect \
@@ -140,7 +140,7 @@ jobs:
         make install
     - name: Build libplacebo
       run: |
-        git clone https://code.videolan.org/videolan/libplacebo.git -b v7.349.0 --depth 1 --recurse-submodules ${{ runner.temp }}/libplacebo
+        git clone https://github.com/haasn/libplacebo.git -b v7.349.0 --depth 1 --recurse-submodules ${{ runner.temp }}/libplacebo
         meson setup build-libplacebo ${{ runner.temp }}/libplacebo ${{ matrix.meson }} \
           --prefix=$CMAKE_PREFIX_PATH --buildtype=release --default-library=shared \
           -Ddemos=false -Dtests=false -Dopengl=enabled -Dlcms=disabled -Dvulkan=disabled
@@ -148,7 +148,7 @@ jobs:
         meson install -C build-libplacebo
     - name: Build mpv
       run: |
-        curl -sSL https://github.com/mpv-player/mpv/archive/v0.39.0.tar.gz | tar zxf - -C ${{ runner.temp }}
+        curl --retry 5 -sSL https://github.com/mpv-player/mpv/archive/v0.39.0.tar.gz | tar zxf - -C ${{ runner.temp }}
         meson setup build-mpv ${{ runner.temp }}/mpv-0.39.0 ${{ matrix.meson }} \
           --prefix=$CMAKE_PREFIX_PATH --buildtype=release --default-library=shared \
           -Dlibmpv=true -Dcplayer=false -Dtests=false -Dswift-build=disabled -Dcocoa=disabled \

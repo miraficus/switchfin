@@ -1,0 +1,45 @@
+_realname=mbedtls
+pkgname=switch-${_realname}
+pkgver=2.28.9
+pkgrel=3
+pkgdesc='An open source, portable, easy to use, readable and flexible SSL library'
+arch=('any')
+url='https://tls.mbed.org'
+license=('apache')
+options=(!strip libtool staticlibs)
+depends=(switch-zlib)
+makedepends=('switch-pkg-config' 'dkp-toolchain-vars')
+source=( "${_realname}-${pkgver}.tar.gz::https://github.com/Mbed-TLS/mbedtls/archive/v${pkgver}.tar.gz"
+         "mbedtls-${pkgver}.patch" )
+groups=('switch-portlibs')
+sha256sums=('e4dbcf86a4fb31506482888560f02b161e0ecfb82fee0643abcfc86abee5817e' 'SKIP')
+
+build() {
+  cd mbedtls-$pkgver
+
+  patch -Np1 -i $srcdir/mbedtls-${pkgver}.patch
+
+  ./scripts/config.pl set MBEDTLS_ENTROPY_HARDWARE_ALT
+  ./scripts/config.pl set MBEDTLS_NO_PLATFORM_ENTROPY
+
+  source ${DEVKITPRO}/switchvars.sh
+
+  aarch64-none-elf-cmake \
+    -DCMAKE_INSTALL_PREFIX=$PORTLIBS_PREFIX \
+    -DCMAKE_C_FLAGS="$CFLAGS $CPPFLAGS" \
+    -DZLIB_ROOT="$PORTLIBS_PREFIX" \
+    -DENABLE_ZLIB_SUPPORT=ON \
+    -DENABLE_TESTING=OFF \
+    -DENABLE_PROGRAMS=OFF \
+    .
+
+  make
+
+}
+
+package() {
+
+  cd mbedtls-$pkgver
+  make install DESTDIR="$pkgdir"
+
+}

@@ -1,3 +1,15 @@
+switchfin (0.5.3-1) unstable; urgency=medium
+
+  * save windows state when exit
+  * support touch input on linux
+  * fixed filter missing when sync option off
+  * support paste text to search input
+  * new option low quality
+  * support custom user-agent in webdav browser
+  * support loading custom emoji font
+
+ -- dragonflylee <dragonflylee@outlook.com>  Sun, 27 Oct 2024 20:46:04 +0800
+
 switchfin (0.5.2-1) unstable; urgency=medium
 
   * disable update notify when user caneled
@@ -5,4 +17,24 @@ switchfin (0.5.2-1) unstable; urgency=medium
   * fixed filter missing when sync option off
   * auto selected external subtitles
 
- -- dragonflylee <dragonflylee@outlook.com>  Sun, 11 Apr 2021 22:34:40 -0400
+ -- dragonflylee <dragonflylee@outlook.com>  Sun, 1 Sep 2024 20:29:01 +0800
+
+switchfin (0.5.1-1) unstable; urgency=medium
+
+  * add highlight for current play track
+  * add live tv support
+  * add network timeout for load video
+  * fix panic after cancel login
+  * add webdav file browser
+
+ -- dragonflylee <dragonflylee@outlook.com>  Tue, 30 Jul 2024 14:00:13 +0800
+
+switchfin (0.5.0-1) unstable; urgency=medium
+
+  * danmu plugin integration
+  * video flip and subtitle sync support for player
+  * add episode selector on player view
+  * add video equalizer setting
+  * add support MusicView and PlayList
+
+ -- dragonflylee <dragonflylee@outlook.com>  Wed, 22 May 2024 22:18:53 +0800

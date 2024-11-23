@@ -1,0 +1,16 @@
+# docker build --network host -t build:ubuntu-focal debian/focal
+# docker run --rm --network host -v $PWD:/opt/build -v /tmp:/opt -it build:ubuntu-focal dpkg-buildpackage -b -nc
+
+ARG TAG=focal
+FROM ubuntu:$TAG
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && apt-get install -y --no-install-recommends wget ca-certificates \
+  && wget -qO /etc/apt/trusted.gpg.d/kitware.asc https://apt.kitware.com/keys/kitware-archive-latest.asc \
+  && echo > /etc/apt/sources.list.d/kitware.list "deb https://apt.kitware.com/ubuntu/ focal main" \
+  && apt-get update && apt-get install -y --no-install-recommends debhelper cmake build-essential \
+    nasm git fakeroot xz-utils ninja-build python3-pip && pip3 install meson \
+  && rm -rf /var/lib/apt/lists/* /usr/share/man/*
+
+RUN apt-get update && apt-get install -y --no-install-recommends xorg-dev libdbus-1-dev libgnutls28-dev \
+    libwebp-dev libass-dev libv4l-dev libpulse-dev libuchardet-dev libva-dev libvdpau-dev \
+  && rm -rf /var/lib/apt/lists/* /usr/share/man/*

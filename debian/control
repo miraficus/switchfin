@@ -5,17 +5,16 @@ Maintainer: dragonflylee <dragonflylee@outlook.com>
 Build-Depends: debhelper (>= 10),
                cmake,
                g++,
-               libwayland-dev,
                xorg-dev,
                libdbus-1-dev,
-               libcurl4-openssl-dev,
+               libgnutls28-dev,
                libwebp-dev,
-               libmpv-dev
+               libass-dev
 Standards-Version: 0.5.3
 Vcs-Git: https://github.com/dragonflylee/switchfin.git
 
 Package: switchfin
-Depends: ${shlibs:Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}
 Architecture: any
 Recommends: va-driver-all
 Description: Third-party native Jellyfin client for Nintendo Switch

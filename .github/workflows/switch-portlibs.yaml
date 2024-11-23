@@ -28,7 +28,7 @@ jobs:
         dkp-pacman --noconfirm -U scripts/switch/dkp-*.zst
     - name: Build portlibs
       run: |
-        adduser --gecos '' --home ${GITHUB_WORKSPACE} --disabled-password builder
+        adduser --gecos '' --home ${GITHUB_WORKSPACE}/scripts/switch --disabled-password builder
         echo 'builder ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/builder
 
         curl -o scripts/switch/mpv/deko3d.patch \
@@ -38,18 +38,15 @@ jobs:
           -s ${{ secrets.MPV_COMMIT}}/0.36
 
         chown -R builder:builder scripts/switch
-        sudo -u builder -i bash -s << EOF
-          set -x
-          cd scripts/switch
-          for pkg in harfbuzz ffmpeg libuam; do
-            echo building \$pkg
-            pushd \$pkg; dkp-makepkg -sciCf --noconfirm; popd
-          done
-          for pkg in mpv nspmini hacbrewpack; do
-            echo building \$pkg
-            pushd \$pkg; dkp-makepkg -scCf --noconfirm; popd
-          done
-        EOF
+        for pkg in mbedtls harfbuzz ffmpeg libuam; do
+          echo building $pkg
+          su - builder -c "cd $pkg && dkp-makepkg -siCf --noconfirm"
+        done
+        for pkg in mpv curl nspmini hacbrewpack; do
+          echo building $pkg
+          su - builder -c "cd $pkg && dkp-makepkg -sCf --noconfirm"
+        done
+
     - name: Upload portlibs
       uses: softprops/action-gh-release@v2
       with:

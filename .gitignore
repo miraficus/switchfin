@@ -18,3 +18,4 @@ debian/debhelper-build-stamp
 debian/files
 debian/switchfin*
 debian/.debhelper
+.wget-hsts

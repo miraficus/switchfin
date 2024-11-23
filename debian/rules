@@ -1,11 +1,82 @@
 #!/usr/bin/make -f
 
-export CMAKE_PREFIX_PATH=/opt/switchfin
+PREFIX=/opt/switchfin
+DESTDIR=$(CURDIR)/debian/switchfin$(PREFIX)
+export PKG_CONFIG_PATH=$(PREFIX)/lib/pkgconfig
+
+WAYLAND := $(if $(shell dpkg -s libwayland-dev 2>/dev/null), ON, OFF)
+
+curl:
+	wget -qO- https://curl.se/download/curl-8.11.0.tar.xz | tar Jxf - -C /tmp
+	cmake -B build/curl -G Ninja -S /tmp/curl-8.11.0 -DCMAKE_BUILD_TYPE=Release \
+		-DCMAKE_INSTALL_PREFIX=$(PREFIX) -DCMAKE_INSTALL_RPATH=$(PREFIX)/lib \
+		-DBUILD_CURL_EXE=OFF -DUSE_NGHTTP2=OFF -DBUILD_TESTING=OFF -DBUILD_LIBCURL_DOCS=OFF \
+		-DUSE_LIBIDN2=OFF -DCURL_USE_LIBSSH2=OFF -DCURL_USE_LIBPSL=OFF \
+		-DHTTP_ONLY=ON -DCURL_DISABLE_PROGRESS_METER=ON -DCURL_USE_GNUTLS=ON
+	cmake --build build/curl
+	cmake --install build/curl
+
+glfw:
+	wget -qO- https://github.com/dragonflylee/glfw/archive/switchfin.tar.gz | tar zxf - -C /tmp
+	cmake -B build/glfw -G Ninja -S /tmp/glfw-switchfin -DCMAKE_BUILD_TYPE=Release \
+		-DCMAKE_INSTALL_PREFIX=$(PREFIX) -DCMAKE_INSTALL_RPATH=$(PREFIX)/lib \
+		-DBUILD_SHARED_LIBS=ON -DGLFW_BUILD_X11=ON -DGLFW_BUILD_WAYLAND=$(WAYLAND) \
+		-DGLFW_BUILD_EXAMPLES=OFF -DGLFW_BUILD_TESTS=OFF -DGLFW_BUILD_DOCS=OFF
+	cmake --build build/glfw
+	cmake --install build/glfw
+
+dav1d:
+	wget -qO- https://downloads.videolan.org/pub/videolan/dav1d/1.5.0/dav1d-1.5.0.tar.xz | tar Jxf - -C /tmp
+	meson setup build/dav1d /tmp/dav1d-1.5.0 --prefix=$(PREFIX) --libdir=lib \
+	  --buildtype=release --default-library=shared \
+		-Denable_tools=false -Denable_examples=false -Denable_tests=false -Denable_docs=false
+	meson compile -C build/dav1d
+	meson install -C build/dav1d
+
+ffmpeg: dav1d
+	wget -qO- https://ffmpeg.org/releases/ffmpeg-7.1.tar.xz | tar Jxf - -C /tmp
+	mkdir -p build/ffmpeg && cd build/ffmpeg && \
+	/tmp/ffmpeg-7.1/configure --prefix=$(PREFIX) --enable-shared --disable-static \
+	  --disable-programs --disable-debug --disable-doc --disable-avdevice --enable-rpath --enable-asm \
+		--enable-gpl --enable-gnutls --enable-libv4l2 --enable-libass --enable-libdav1d --enable-opengl \
+		--disable-protocols --enable-protocol=file,http,tcp,udp,hls,https,tls,httpproxy \
+		--disable-filters --enable-filter=hflip,vflip,transpose
+	make -C build/ffmpeg -j$(shell nproc)
+	make -C build/ffmpeg install
+
+libplacebo:
+	git clone https://github.com/haasn/libplacebo.git -b v7.349.0 --depth 1 --recurse-submodules /tmp/libplacebo
+	meson setup build/libplacebo /tmp/libplacebo --prefix=$(PREFIX) --libdir=lib \
+	  --buildtype=release --default-library=shared \
+		-Ddemos=false -Dtests=false -Dlcms=disabled -Dvulkan=disabled
+	meson compile -C build/libplacebo
+	meson install -C build/libplacebo
+
+mpv: ffmpeg libplacebo
+	wget -qO- https://github.com/mpv-player/mpv/archive/v0.39.0.tar.gz | tar zxf - -C /tmp
+	meson setup build/mpv /tmp/mpv-0.39.0 --prefix=$(PREFIX) --libdir=lib \
+	  --buildtype=release --default-library=shared \
+		-Dlibmpv=true -Dcplayer=false -Dtests=false -Dlibarchive=disabled
+	meson compile -C build/mpv
+	meson install -C build/mpv
 
 %:
-	dh $@ --buildsystem=cmake --builddirectory=build
+	dh $@ --buildsystem=cmake+ninja --builddirectory=build
 
 override_dh_auto_configure:
 	dh_auto_configure -- \
-		-DPLATFORM_DESKTOP=ON -DCMAKE_INSTALL=ON \
-    -DFETCHCONTENT_FULLY_DISCONNECTED=OFF
+		-DCMAKE_INSTALL_PREFIX=$(PREFIX) \
+		-DCMAKE_INSTALL_RPATH=$(PREFIX)/lib \
+		-DCMAKE_INSTALL_SHARE_DIR=/usr/share \
+		-DCMAKE_PREFIX_PATH=$(PREFIX) \
+		-DCUSTOM_RESOURCES_DIR=$(PREFIX) \
+		-DPLATFORM_DESKTOP=ON \
+		-DCMAKE_INSTALL=ON \
+		-DUSE_SYSTEM_GLFW=ON
+
+override_dh_auto_test:
+
+override_dh_shlibdeps:
+	mkdir -p $(DESTDIR)/lib && ldd $(DESTDIR)/bin/Switchfin | \
+		grep '$(PREFIX)' | awk '{print $$3}' | xargs install -t $(DESTDIR)/lib
+	dh_shlibdeps -l$(PREFIX)/lib --dpkg-shlibdeps-params=--ignore-missing-info
