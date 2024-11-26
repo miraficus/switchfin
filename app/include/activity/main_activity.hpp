@@ -17,6 +17,7 @@
 #pragma once
 
 #include <borealis.hpp>
+#include <api/websocket.hpp>
 
 class MainActivity : public brls::Activity {
 public:
@@ -26,4 +27,7 @@ public:
     MainActivity();
 
     void onContentAvailable() override;
+
+private:
+    std::unique_ptr<websocket> ws;
 };
