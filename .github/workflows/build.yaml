@@ -272,7 +272,11 @@ jobs:
         - tag: Intel
           arch: x86_64
           target: "10.15"
-        tag: [ Silicon, Intel ]
+        - tag: Intel_Old
+          arch: x86_64
+          target: "10.11"
+          cmake: -DUSE_BOOST_FILESYSTEM=ON
+        tag: [ Silicon, Intel, Intel_Old ]
     steps:
     - uses: actions/checkout@v4
       with:
@@ -280,12 +284,12 @@ jobs:
     - name: Install deps
       run: |
         brew install create-dmg dylibbundler
-        curl -sSL https://github.com/dragonflylee/switchfin/releases/download/macos-dylib/dylib-ffmpeg71-mpv39-${{ matrix.tag }}.tar.gz | tar zxf - -C /tmp
+        curl -sSL https://github.com/dragonflylee/switchfin/releases/download/macos-dylib/dylib-ffmpeg71-${{ matrix.tag }}.tar.gz | tar zxf - -C /tmp
     - name: Build App
       env:
         DYLD_LIBRARY_PATH: /tmp/lib
       run: |
-        cmake -B build \
+        cmake -B build ${{ matrix.cmake }} \
           -DCMAKE_PREFIX_PATH=/tmp \
           -DCMAKE_BUILD_TYPE=Release \
           -DPLATFORM_DESKTOP=ON \

@@ -18,6 +18,8 @@ curl:
 
 glfw:
 	wget -qO- https://github.com/dragonflylee/glfw/archive/switchfin.tar.gz | tar zxf - -C /tmp
+	cmake -P /tmp/glfw-switchfin/CMake/GenerateMappings.cmake \
+    /tmp/glfw-switchfin/src/mappings.h.in /tmp/glfw-switchfin/src/mappings.h
 	cmake -B build/glfw -G Ninja -S /tmp/glfw-switchfin -DCMAKE_BUILD_TYPE=Release \
 		-DCMAKE_INSTALL_PREFIX=$(PREFIX) -DCMAKE_INSTALL_RPATH=$(PREFIX)/lib \
 		-DBUILD_SHARED_LIBS=ON -DGLFW_BUILD_X11=ON -DGLFW_BUILD_WAYLAND=$(WAYLAND) \

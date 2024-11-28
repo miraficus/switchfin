@@ -23,7 +23,11 @@ jobs:
           arch: x86_64
           target: "10.15"
           meson: --cross-file $GITHUB_WORKSPACE/scripts/macos/macos_x86_64.txt
-        tag: [ Silicon, Intel ]
+        - tag: Intel_Old
+          arch: x86_64
+          target: "10.11"
+          meson: --cross-file $GITHUB_WORKSPACE/scripts/macos/macos_10.11.txt
+        tag: [ Silicon, Intel, Intel_Old ]
     runs-on: macos-12
     env:
       CMAKE_PREFIX_PATH: /tmp
@@ -38,6 +42,15 @@ jobs:
         brew unlink python && brew link --overwrite python
     - name: Install dependency
       run: brew reinstall ninja nasm meson
+    - name: Build bootstrap
+      if: ${{ matrix.tag == 'Intel_Old' }}
+      run: |
+        curl --retry 5 -sSL https://boostorg.jfrog.io/artifactory/main/release/1.85.0/source/boost_1_85_0.tar.gz | tar zxf - -C ${{ runner.temp }}
+        cd ${{ runner.temp }}/boost_1_85_0
+        ./bootstrap.sh --with-libraries=filesystem --without-icu -prefix=$CMAKE_PREFIX_PATH
+        ./b2 install target-os=darwin variant=release --with-filesystem \
+          cxxflags="-arch ${{ matrix.arch }} -mmacosx-version-min=${{ matrix.target }}" \
+          linkflags="-arch ${{ matrix.arch }} -mmacosx-version-min=${{ matrix.target }}"
     - name: Build glfw
       run: |
         curl --retry 5 -sSL https://github.com/dragonflylee/glfw/archive/switchfin.tar.gz | tar zxf - -C ${{ runner.temp }}
@@ -50,13 +63,36 @@ jobs:
           -DCMAKE_INSTALL_NAME_DIR=$CMAKE_PREFIX_PATH/lib \
           -DCMAKE_OSX_ARCHITECTURES=${{ matrix.arch }} \
           -DCMAKE_OSX_DEPLOYMENT_TARGET=${{ matrix.target }} \
-          -DCMAKE_BUILD_TYPE=Release \
-          -DBUILD_SHARED_LIBS=ON \
-          -DGLFW_BUILD_EXAMPLES=OFF \
-          -DGLFW_BUILD_TESTS=OFF \
-          -DGLFW_BUILD_DOCS=OFF
+          -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON \
+          -DGLFW_BUILD_EXAMPLES=OFF -DGLFW_BUILD_TESTS=OFF -DGLFW_BUILD_DOCS=OFF
         cmake --build build-glfw
         cmake --install build-glfw
+    - name: Build libcurl
+      run: |
+        curl --retry 5 -sSL https://curl.se/download/curl-8.11.0.tar.xz | tar Jxf - -C ${{ runner.temp }}
+        cmake -B build-curl -G Ninja -S ${{ runner.temp }}/curl-8.11.0 \
+          -DCMAKE_INSTALL_PREFIX=$CMAKE_PREFIX_PATH \
+          -DCMAKE_INSTALL_NAME_DIR=$CMAKE_PREFIX_PATH/lib \
+          -DCMAKE_OSX_ARCHITECTURES=${{ matrix.arch }} \
+          -DCMAKE_OSX_DEPLOYMENT_TARGET=${{ matrix.target }} \
+          -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON \
+          -DHTTP_ONLY=ON -DCURL_DISABLE_PROGRESS_METER=ON -DCURL_USE_SECTRANSP=ON \
+          -DBUILD_CURL_EXE=OFF -DUSE_NGHTTP2=OFF -DBUILD_TESTING=OFF -DBUILD_LIBCURL_DOCS=OFF \
+          -DUSE_LIBIDN2=OFF -DCURL_USE_LIBSSH2=OFF -DCURL_USE_LIBPSL=OFF
+        cmake --build build-curl
+        cmake --install build-curl
+    - name: Build uchardet
+      run: |
+        curl --retry 5 -sSL https://www.freedesktop.org/software/uchardet/releases/uchardet-0.0.8.tar.xz | tar Jxf - -C ${{ runner.temp }}
+        cmake -B build-uchardet -G Ninja -S ${{ runner.temp }}/uchardet-0.0.8 \
+          -DCMAKE_INSTALL_PREFIX=$CMAKE_PREFIX_PATH \
+          -DCMAKE_INSTALL_NAME_DIR=$CMAKE_PREFIX_PATH/lib \
+          -DCMAKE_OSX_ARCHITECTURES=${{ matrix.arch }} \
+          -DCMAKE_OSX_DEPLOYMENT_TARGET=${{ matrix.target }} \
+          -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON \
+          -DBUILD_BINARY=OFF -DBUILD_STATIC=OFF
+        cmake --build build-uchardet
+        cmake --install build-uchardet
     - name: Build freetype
       run: |
         curl --retry 5 -sSL https://downloads.sourceforge.net/project/freetype/freetype2/2.13.3/freetype-2.13.3.tar.xz | tar Jxf - -C ${{ runner.temp }}
@@ -100,23 +136,17 @@ jobs:
     - name: Build libwebp
       run: |
         curl --retry 5 -sSL https://github.com/webmproject/libwebp/archive/v1.4.0.tar.gz | tar zxf - -C ${{ runner.temp }}
-        cmake -B build-libwebp -G Ninja ${{ runner.temp }}/libwebp-1.4.0 \
+        cmake -B build-libwebp -G Ninja -S ${{ runner.temp }}/libwebp-1.4.0 \
           -DCMAKE_INSTALL_PREFIX=$CMAKE_PREFIX_PATH \
           -DCMAKE_INSTALL_NAME_DIR=$CMAKE_PREFIX_PATH/lib \
           -DCMAKE_OSX_ARCHITECTURES=${{ matrix.arch }} \
           -DCMAKE_OSX_DEPLOYMENT_TARGET=${{ matrix.target }} \
-          -DCMAKE_BUILD_TYPE=Release \
-          -DBUILD_SHARED_LIBS=ON \
-          -DWEBP_BUILD_EXTRAS=OFF \
-          -DWEBP_BUILD_ANIM_UTILS=OFF \
-          -DWEBP_BUILD_CWEBP=OFF \
-          -DWEBP_BUILD_DWEBP=OFF \
-          -DWEBP_BUILD_GIF2WEBP=OFF \
-          -DWEBP_BUILD_IMG2WEBP=OFF \
-          -DWEBP_BUILD_VWEBP=OFF \
-          -DWEBP_BUILD_WEBPINFO=OFF \
-          -DWEBP_BUILD_WEBPMUX=OFF \
-          -DWEBP_BUILD_LIBWEBPMUX=OFF
+          -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON \
+          -DWEBP_BUILD_EXTRAS=OFF -DWEBP_BUILD_ANIM_UTILS=OFF \
+          -DWEBP_BUILD_CWEBP=OFF -DWEBP_BUILD_DWEBP=OFF \
+          -DWEBP_BUILD_GIF2WEBP=OFF -DWEBP_BUILD_IMG2WEBP=OFF \
+          -DWEBP_BUILD_VWEBP=OFF -DWEBP_BUILD_WEBPINFO=OFF \
+          -DWEBP_BUILD_WEBPMUX=OFF -DWEBP_BUILD_LIBWEBPMUX=OFF
         cmake --build build-libwebp
         cmake --install build-libwebp
     - name: Build ffmpeg
@@ -139,6 +169,7 @@ jobs:
         make -j$(sysctl -n hw.ncpu)
         make install
     - name: Build libplacebo
+      if: ${{ matrix.tag != 'Intel_Old' }}
       run: |
         git clone https://github.com/haasn/libplacebo.git -b v7.349.0 --depth 1 --recurse-submodules ${{ runner.temp }}/libplacebo
         meson setup build-libplacebo ${{ runner.temp }}/libplacebo ${{ matrix.meson }} \
@@ -147,6 +178,7 @@ jobs:
         meson compile -C build-libplacebo
         meson install -C build-libplacebo
     - name: Build mpv
+      if: ${{ matrix.tag != 'Intel_Old' }}
       run: |
         curl --retry 5 -sSL https://github.com/mpv-player/mpv/archive/v0.39.0.tar.gz | tar zxf - -C ${{ runner.temp }}
         meson setup build-mpv ${{ runner.temp }}/mpv-0.39.0 ${{ matrix.meson }} \
@@ -157,10 +189,24 @@ jobs:
           -Dmanpage-build=disabled -Dhtml-build=disabled 
         meson compile -C build-mpv
         meson install -C build-mpv
+    - name: Build mpv36
+      if: ${{ matrix.tag == 'Intel_Old' }}
+      run: |
+        curl --retry 5 -sSL https://github.com/mpv-player/mpv/archive/v0.36.0.tar.gz | tar zxf - -C ${{ runner.temp }}
+        patch -d ${{ runner.temp }}/mpv-0.36.0 -Nbp1 -i ${{ github.workspace }}/scripts/macos/mpv.patch
+        patch -d ${{ runner.temp }}/mpv-0.36.0 -Nbp1 -i ${{ github.workspace }}/scripts/macos/lavfi.patch
+        meson setup build-mpv ${{ runner.temp }}/mpv-0.36.0 ${{ matrix.meson }} \
+          --prefix=$CMAKE_PREFIX_PATH --buildtype=release --default-library=shared \
+          -Dlibmpv=true -Dcplayer=false -Dtests=false -Dswift-build=disabled \
+          -Dmacos-cocoa-cb=disabled -Dmacos-media-player=disabled -Dmacos-touchbar=disabled \
+          -Dlibarchive=disabled -Dlcms2=disabled -Djpeg=disabled \
+          -Dmanpage-build=disabled -Dhtml-build=disabled 
+        meson compile -C build-mpv
+        meson install -C build-mpv
     - name: Build packages
       run: |
         cd $CMAKE_PREFIX_PATH
-        tar zcf ${{ github.workspace }}/dylib-ffmpeg71-mpv39-${{ matrix.tag }}.tar.gz \
+        tar zcf ${{ github.workspace }}/dylib-ffmpeg71-${{ matrix.tag }}.tar.gz \
           include lib/pkgconfig lib/cmake lib/*.dylib
     - name: Archive Build Logs
       if: ${{ failure() }}
@@ -179,4 +225,3 @@ jobs:
         files: dylib-*.tar.gz
         body: |
           ![download](https://img.shields.io/github/downloads/${{ github.repository }}/macos-dylib/total?label=Downloads)
-
