@@ -5,6 +5,7 @@
 #include "activity/server_list.hpp"
 #include "activity/main_activity.hpp"
 #include "view/recycling_grid.hpp"
+#include "view/auto_tab_frame.hpp"
 #include "tab/server_add.hpp"
 #include "tab/server_login.hpp"
 #include "utils/image.hpp"
@@ -129,6 +130,9 @@ ServerList::~ServerList() { brls::Logger::debug("ServerList Activity: delete"); 
 
 void ServerList::onContentAvailable() {
     this->inputUrl->detail->setSingleLine(true);
+    this->tabFrame->setTabChangedAction([this](size_t index) {
+        if (!index) this->willAppear(false);
+    });
 
     this->btnServerAdd->registerClickAction([](brls::View* view) {
         view->present(new ServerAdd());
@@ -146,7 +150,7 @@ void ServerList::onContentAvailable() {
         return true;
     });
 
-    this->recyclerUsers->registerCell("Cell", [this]() { return new UserCell(); });
+    this->recyclerUsers->registerCell("Cell", []() { return new UserCell(); });
 
     this->btnSignin->registerClickAction([this](brls::View* view) {
         view->present(new ServerLogin("", this->getUrl()));
@@ -157,11 +161,9 @@ void ServerList::onContentAvailable() {
 void ServerList::willAppear(bool resetState) {
     auto list = AppConfig::instance().getServers();
     if (list.empty()) {
-        this->mainframe->pushContentView(new ServerAdd());
-        this->mainframe->setActionAvailable(brls::BUTTON_B, false);
+        this->tabFrame->setTabAttachedView(new ServerAdd());
         return;
     }
-    this->mainframe->setActionAvailable(brls::BUTTON_B, true);
     this->sidebarServers->clearViews();
 
     for (auto& s : list) {
@@ -174,8 +176,9 @@ void ServerList::willAppear(bool resetState) {
         item->registerAction("hints/delete"_i18n, brls::BUTTON_X, [this, item](brls::View* view) {
             Dialog::cancelable("main/setting/server/delete"_i18n, [this, item]() {
                 if (AppConfig::instance().removeServer(item->serverId)) {
-                    this->mainframe->setActionAvailable(brls::BUTTON_B, false);
-                    this->mainframe->pushContentView(new ServerAdd());
+                    brls::View* view = new ServerAdd();
+                    this->tabFrame->setTabAttachedView(view);
+                    brls::Application::giveFocus(view);
                 } else {
                     this->sidebarServers->removeView(item);
                 }

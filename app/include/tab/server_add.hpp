@@ -11,6 +11,8 @@ public:
     ServerAdd();
     ~ServerAdd() override;
 
+    brls::View* getDefaultFocus() override;
+
 private:
     bool onConnect();
 

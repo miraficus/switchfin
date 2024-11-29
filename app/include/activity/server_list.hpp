@@ -8,6 +8,7 @@
 #include "utils/config.hpp"
 
 class RecyclingGrid;
+class AutoTabFrame;
 class ServerCell;
 
 class ServerList : public brls::Activity {
@@ -30,7 +31,7 @@ private:
     BRLS_BIND(brls::DetailCell, serverVersion, "server/version");
     BRLS_BIND(brls::InputCell, inputUrl, "selector/server/urls");
     BRLS_BIND(brls::Button, btnSignin, "btn/server/signin");
-    BRLS_BIND(brls::AppletFrame, mainframe, "server/frame");
+    BRLS_BIND(AutoTabFrame, tabFrame, "server/tabFrame");
 
     void onServer(const AppServer &s);
     void setActive(brls::View *active);

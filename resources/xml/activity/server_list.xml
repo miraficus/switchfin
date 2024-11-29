@@ -10,7 +10,7 @@
         height="100%">
 
         <AutoTabFrame
-            id="main/tabFrame"
+            id="server/tabFrame"
             grow="1"
             tabBackgroundColor="@theme/color/grey_1"
             tabItemActiveTextColor="@theme/color/app"
@@ -68,22 +68,18 @@
                         grow="1">
 
                         <brls:Header
-                            width="auto"
-                            height="auto"
+                            height="40"
                             title="@i18n/main/setting/server/detail" />
 
                         <brls:Box
                             width="100%"
-                            height="auto"
                             axis="column">
 
                             <brls:InputCell
-                                height="auto"
                                 title="@i18n/main/setting/url"
                                 id="selector/server/urls" />
 
                             <brls:DetailCell
-                                height="auto"
                                 title="@i18n/main/setting/version"
                                 focusable="false"
                                 id="server/version" />

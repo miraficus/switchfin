@@ -22,9 +22,10 @@ ServerAdd::ServerAdd() {
 
 ServerAdd::~ServerAdd() { brls::Logger::debug("ServerAdd Activity: delete"); }
 
+brls::View* ServerAdd::getDefaultFocus() { return this->inputUrl; }
+
 bool ServerAdd::onConnect() {
     brls::Application::blockInputs();
-    this->btnConnect->setTextColor(brls::Application::getTheme().getColor("font/grey"));
     std::string baseUrl = this->inputUrl->getValue();
     if (baseUrl.length() < 10 || baseUrl.substr(0, 4).compare("http")) {
         brls::Application::unblockInputs();
@@ -32,6 +33,7 @@ bool ServerAdd::onConnect() {
         return false;
     }
     while (baseUrl.back() == '/') baseUrl.pop_back();
+    this->btnConnect->setTextColor(brls::Application::getTheme().getColor("font/grey"));
 
     brls::Logger::debug("ServerAdd onConnect: click {}", baseUrl);
 
