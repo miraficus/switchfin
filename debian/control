@@ -10,7 +10,8 @@ Build-Depends: debhelper (>= 10),
                libgnutls28-dev,
                libwebp-dev,
                libass-dev,
-               libuchardet-dev
+               libuchardet-dev,
+               libpulse-dev
 Standards-Version: 0.5.3
 Vcs-Git: https://github.com/dragonflylee/switchfin.git
 

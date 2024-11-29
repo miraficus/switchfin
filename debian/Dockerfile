@@ -1,5 +1,5 @@
 # docker build --network host -t build:debian-bookworm debian
-# docker run --rm --network host -v $PWD:/opt/build -v /tmp:/opt -it build:debian-bookworm dpkg-buildpackage -b -nc
+# docker run --rm --network host -v $PWD:/build -w /build -it build:debian-bookworm dpkg-buildpackage -b -nc
 
 ARG IMG=debian
 ARG TAG=bookworm

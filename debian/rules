@@ -4,7 +4,7 @@ PREFIX=/opt/switchfin
 DESTDIR=$(CURDIR)/debian/switchfin$(PREFIX)
 export PKG_CONFIG_PATH=$(PREFIX)/lib/pkgconfig
 
-WAYLAND := $(if $(shell dpkg -s libwayland-dev 2>/dev/null), ON, OFF)
+WAYLAND := $(if $(shell dpkg -s libxkbcommon-dev 2>/dev/null),ON,OFF)
 
 curl:
 	wget -qO- https://curl.se/download/curl-8.11.0.tar.xz | tar Jxf - -C /tmp

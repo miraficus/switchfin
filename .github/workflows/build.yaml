@@ -197,12 +197,13 @@ jobs:
       fail-fast: false
       matrix:
         include:
+        - { img: ubuntu, tag: focal }
         - { img: ubuntu, tag: noble }
         - { img: debian, tag: bookworm }
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/${{ github.repository_owner }}/build:${{ matrix.img }}-${{ matrix.tag }}
-    if: ${{ inputs.deb }}
+    if: ${{ inputs.deb || github.event_name != 'workflow_dispatch' }}
     steps:
     - uses: actions/checkout@v4
       with:
