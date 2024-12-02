@@ -30,7 +30,15 @@ HomeTab::HomeTab() {
 
 HomeTab::~HomeTab() { brls::Logger::debug("View HomeTab: delete"); }
 
-brls::View* HomeTab::getDefaultFocus() { return this->videoLatest; }
+brls::View* HomeTab::getDefaultFocus() {
+    if (this->userResume->getVisibility() == brls::Visibility::VISIBLE) {
+        return this->userResume;
+    }
+    if (this->showNextup->getVisibility() == brls::Visibility::VISIBLE) {
+        return this->showNextup;
+    }
+    return this->videoLatest; 
+}
 
 void HomeTab::doRequest() {
     this->startNextup = 0;

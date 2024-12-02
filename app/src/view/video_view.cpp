@@ -98,18 +98,16 @@ VideoView::VideoView() {
     this->btnVolume->addGestureRecognizer(new brls::TapGestureRecognizer(this->btnVolume));
 
     /// 弹幕切换按钮
-    this->btnDanmakuIcon->getParent()->registerClickAction([this](...) { return this->toggleDanmaku(); });
-    this->btnDanmakuIcon->getParent()->addGestureRecognizer(
-        new brls::TapGestureRecognizer(this->btnDanmakuIcon->getParent()));
+    this->btnDanmakuToggle->registerClickAction([this](...) { return this->toggleDanmaku(); });
+    this->btnDanmakuToggle->addGestureRecognizer(new brls::TapGestureRecognizer(this->btnDanmakuToggle));
 
     /// 弹幕设置按钮
-    this->btnDanmakuSettingIcon->getParent()->registerClickAction([](...) {
+    this->btnDanmakuSetting->registerClickAction([](...) {
         auto setting = new DanmakuSetting();
         brls::Application::pushActivity(new brls::Activity(setting));
         return true;
     });
-    this->btnDanmakuSettingIcon->getParent()->addGestureRecognizer(
-        new brls::TapGestureRecognizer(this->btnDanmakuSettingIcon->getParent()));
+    this->btnDanmakuSetting->addGestureRecognizer(new brls::TapGestureRecognizer(this->btnDanmakuSetting));
 
     this->registerMpvEvent();
 
@@ -303,7 +301,7 @@ void VideoView::setList(const std::vector<std::string>& values, int index) {
         brls::Dropdown* dropdown = new brls::Dropdown(
             "main/player/episode"_i18n, values,
             [this](int selected) {
-                this->playIndex = selected;
+                this->showLoading();
                 this->playIndexEvent.fire(selected);
             },
             this->playIndex);
@@ -313,18 +311,22 @@ void VideoView::setList(const std::vector<std::string>& values, int index) {
     this->btnEpisode->addGestureRecognizer(new brls::TapGestureRecognizer(this->btnEpisode));
     this->btnEpisode->setVisibility(brls::Visibility::VISIBLE);
     this->showEpisodeLabel->setVisibility(brls::Visibility::VISIBLE);
-    this->btnBackward->setVisibility(index > 0 ? brls::Visibility::VISIBLE : brls::Visibility::GONE);
-    this->btnForward->setVisibility(
-        index + 1 < (int)values.size() ? brls::Visibility::VISIBLE : brls::Visibility::GONE);
 
-    this->playIndexEvent.subscribe([this, values](int index) {
-        this->showLoading();
-        this->btnBackward->setVisibility(index > 0 ? brls::Visibility::VISIBLE : brls::Visibility::GONE);
-        this->btnForward->setVisibility(
-            index + 1 < (int)values.size() ? brls::Visibility::VISIBLE : brls::Visibility::GONE);
-    });
+    auto event = [this, values](int index) {
+        this->playIndex = index;
 
-    this->playIndex = index;
+        auto v1 = index > 0 ? brls::Visibility::VISIBLE : brls::Visibility::GONE;
+        auto v2 = index + 1 < (int)values.size() ? brls::Visibility::VISIBLE : brls::Visibility::GONE;
+
+        this->btnBackward->setVisibility(v1);
+        for (brls::View* view : this->btnBackward->getChildren()) view->setVisibility(v1);
+
+        this->btnForward->setVisibility(v2);
+        for (brls::View* view : this->btnForward->getChildren()) view->setVisibility(v2);
+    };
+
+    this->playIndexEvent.subscribe(event);
+    event(index);
 }
 
 void VideoView::requestSeeking(int seek, int delay) {
@@ -542,14 +544,14 @@ void VideoView::registerMpvEvent() {
             if (MPVCore::OSD_ON_TOGGLE) {
                 this->showOSD(true);
             }
-            this->btnToggleIcon->setImageFromSVGRes("icon/ico-pause.svg");
+            this->toggleIcon->setImageFromSVGRes("icon/ico-pause.svg");
             break;
         case MpvEventEnum::MPV_PAUSE:
             if (MPVCore::OSD_ON_TOGGLE) {
                 this->showOSD(false);
             }
             hideLoading(false);
-            this->btnToggleIcon->setImageFromSVGRes("icon/ico-play.svg");
+            this->toggleIcon->setImageFromSVGRes("icon/ico-play.svg");
             break;
         case MpvEventEnum::START_FILE:
             if (MPVCore::OSD_ON_TOGGLE) {
@@ -584,7 +586,7 @@ void VideoView::registerMpvEvent() {
         case MpvEventEnum::END_OF_FILE:
             // 播放结束
             disableDimming(false);
-            this->btnToggleIcon->setImageFromSVGRes("icon/ico-play.svg");
+            this->toggleIcon->setImageFromSVGRes("icon/ico-play.svg");
             this->playIndexEvent.fire(++this->playIndex);
             break;
         case MpvEventEnum::CACHE_SPEED_CHANGE:
@@ -596,10 +598,10 @@ void VideoView::registerMpvEvent() {
             }
             break;
         case MpvEventEnum::VIDEO_MUTE:
-            this->btnVolumeIcon->setImageFromSVGRes("icon/ico-volume-off.svg");
+            this->volumeIcon->setImageFromSVGRes("icon/ico-volume-off.svg");
             break;
         case MpvEventEnum::VIDEO_UNMUTE:
-            this->btnVolumeIcon->setImageFromSVGRes("icon/ico-volume.svg");
+            this->volumeIcon->setImageFromSVGRes("icon/ico-volume.svg");
             break;
         case MpvEventEnum::MPV_FILE_ERROR: {
             auto dialog = new brls::Dialog("main/player/error"_i18n);
@@ -685,7 +687,7 @@ bool VideoView::toggleOSDLock() {
         this->osdLockIcon->setImageFromSVGRes("icon/player-unlock.svg");
         // 手动设置上下按键的导航路线
         osdLockBox->setCustomNavigationRoute(brls::FocusDirection::UP, "video/osd/setting");
-        osdLockBox->setCustomNavigationRoute(brls::FocusDirection::DOWN, "video/osd/icon/box");
+        osdLockBox->setCustomNavigationRoute(brls::FocusDirection::DOWN, "video/speed/box");
     }
     return true;
 }
@@ -774,13 +776,13 @@ void VideoView::disableDimming(bool disable) {
 
 void VideoView::setDanmakuEnable(brls::Visibility v) {
     this->enableDanmaku = (v == brls::Visibility::VISIBLE);
-    btnDanmakuIcon->setVisibility(v);
-    btnDanmakuIcon->getParent()->setVisibility(v);
+    btnDanmakuToggle->setVisibility(v);
+    danmakuIcon->setVisibility(v);
     if (enableDanmaku) {
         this->refreshDanmakuIcon();
     } else {
-        btnDanmakuSettingIcon->setVisibility(v);
-        btnDanmakuSettingIcon->getParent()->setVisibility(v);
+        btnDanmakuSetting->setVisibility(v);
+        danmakuSettingIcon->setVisibility(v);
     }
 }
 
@@ -794,17 +796,17 @@ bool VideoView::toggleDanmaku() {
 
 void VideoView::refreshDanmakuIcon() {
     if (DanmakuCore::DANMAKU_ON) {
-        this->btnDanmakuIcon->setImageFromSVGRes("icon/ico-danmu-switch-on.svg");
-        btnDanmakuSettingIcon->setVisibility(brls::Visibility::VISIBLE);
-        btnDanmakuSettingIcon->getParent()->setVisibility(brls::Visibility::VISIBLE);
+        this->danmakuIcon->setImageFromSVGRes("icon/ico-danmu-switch-on.svg");
+        btnDanmakuSetting->setVisibility(brls::Visibility::VISIBLE);
+        danmakuSettingIcon->setVisibility(brls::Visibility::VISIBLE);
     } else {
-        this->btnDanmakuIcon->setImageFromSVGRes("icon/ico-danmu-switch-off.svg");
+        this->danmakuIcon->setImageFromSVGRes("icon/ico-danmu-switch-off.svg");
         // 当焦点刚好位于弹幕设置按钮时，这时通过快捷键关闭弹幕设置会导致焦点不会自动切换
-        if (brls::Application::getCurrentFocus() == btnDanmakuSettingIcon) {
-            brls::Application::giveFocus(btnDanmakuIcon);
+        if (brls::Application::getCurrentFocus() == btnDanmakuSetting) {
+            brls::Application::giveFocus(btnDanmakuToggle);
         }
-        btnDanmakuSettingIcon->setVisibility(brls::Visibility::GONE);
-        btnDanmakuSettingIcon->getParent()->setVisibility(brls::Visibility::GONE);
+        btnDanmakuSetting->setVisibility(brls::Visibility::GONE);
+        danmakuSettingIcon->setVisibility(brls::Visibility::GONE);
     }
 }
 
@@ -820,4 +822,7 @@ void VideoView::setClipPoint(const std::vector<float>& clips) {
 
 void VideoView::hideVideoProgressSlider() { this->osdSlider->setVisibility(brls::Visibility::GONE); }
 
-void VideoView::hideVideoQuality() { this->btnVideoQuality->setVisibility(brls::Visibility::GONE); }
+void VideoView::hideVideoQuality() {
+    this->btnVideoQuality->setVisibility(brls::Visibility::GONE);
+    for (brls::View* view : this->btnVideoQuality->getChildren()) view->setVisibility(brls::Visibility::GONE);
+}

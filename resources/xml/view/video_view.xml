@@ -14,8 +14,8 @@
         backgroundColor="#303030A0"
         focusable="true"
         focusUp="video/osd/setting/icon"
-        focusDown="video/osd/icon/box"
-        focusRight="video/osd/backward/icon"
+        focusDown="video/speed/box"
+        focusRight="video/osd/lock/box"
         focusLeft="video/osd/lock/box"
         cornerRadius="8"
         positionTop="45%"
@@ -48,14 +48,14 @@
             justifyContent="center"
             height="60">
             <brls:Label
-                id="video/close"
+                id="video/close/label"
                 marginTop="7"
                 marginLeft="1"
                 focusable="true"
-                focusUp="video/close"
-                focusRight="video/osd/backward/icon"
-                focusDown="video/osd/bottom/box"
-                focusLeft="video/close"
+                focusUp="video/close/label"
+                focusRight="video/osd/icon/box"
+                focusDown="video/osd/toggle"
+                focusLeft="video/close/label"
                 horizontalAlign="center"
                 verticalAlign="center"
                 lineHeight="1"
@@ -72,6 +72,7 @@
             textColor="#FFFFFF" />
 
         <brls:Box
+            id="video/osd/icon/box"
             positionType="absolute"
             positionRight="10"
             positionTop="10">
@@ -87,9 +88,8 @@
                     id="video/osd/backward/icon"
                     focusable="true"
                     focusUp="video/osd/backward/icon"
-                    focusLeft="video/close"
-                    focusRight="video/osd/forward/icon"
                     focusDown="video/osd/bottom/box"
+                    visibility="gone"
                     hideHighlightBackground="true"
                     highlightCornerRadius="30"
                     height="30"
@@ -108,9 +108,8 @@
                     id="video/osd/forward/icon"
                     focusable="true"
                     focusUp="video/osd/forward/icon"
-                    focusLeft="video/osd/backward/icon"
-                    focusRight="video/osd/cast/icon"
                     focusDown="video/osd/lock/box"
+                    visibility="gone"
                     hideHighlightBackground="true"
                     highlightCornerRadius="30"
                     height="30"
@@ -128,8 +127,6 @@
                     id="video/osd/cast/icon"
                     focusable="true"
                     focusUp="video/osd/cast/icon"
-                    focusLeft="video/osd/forward/icon"
-                    focusRight="video/osd/setting/icon"
                     focusDown="video/osd/lock/box"
                     hideHighlightBackground="true"
                     highlightCornerRadius="30"
@@ -149,7 +146,6 @@
                     id="video/osd/setting/icon"
                     focusable="true"
                     focusUp="video/osd/setting/icon"
-                    focusLeft="video/osd/cast/icon"
                     focusRight="video/osd/setting/icon"
                     focusDown="video/osd/lock/box"
                     hideHighlightBackground="true"
@@ -240,9 +236,9 @@
             id="video/osd/toggle"
             wireframe="false"
             focusable="true"
-            focusUp="video/osd/setting"
+            focusUp="video/close/label"
             focusLeft="video/osd/toggle"
-            focusRight="video/osd/icon/box"
+            focusRight="video/osd/volume/icon"
             hideHighlightBackground="true"
             highlightCornerRadius="100"
             alignItems="center"
@@ -297,7 +293,6 @@
                     textColor="#FFFFFF"
                     text="00:00" />
                 <brls:Box
-                    id="video/osd/icon/box"
                     positionType="absolute"
                     positionRight="20">
                     <brls:Box
@@ -310,7 +305,7 @@
                         <SVGImage
                             focusable="true"
                             focusUp="video/osd/lock/box"
-                            focusDown="video/osd/volume"
+                            focusDown="video/osd/volume/icon"
                             id="video/osd/volume/icon"
                             hideHighlightBackground="true"
                             highlightCornerRadius="30"
@@ -320,7 +315,7 @@
                             svg="@res/icon/ico-volume.svg" />
                     </brls:Box>
                     <brls:Box
-                        id="video/osd/danmaku/box/setting"
+                        id="video/osd/danmaku/setting"
                         hideClickAnimation="true"
                         alignItems="center"
                         justifyContent="center"
@@ -341,7 +336,7 @@
                             svg="@res/icon/ico-danmu-setting.svg" />
                     </brls:Box>
                     <brls:Box
-                        id="video/osd/danmaku/box/toggle"
+                        id="video/osd/danmaku/toggle"
                         hideClickAnimation="true"
                         alignItems="center"
                         justifyContent="center"
@@ -371,11 +366,11 @@
                         justifyContent="center"
                         height="60">
                         <brls:Label
-                            id="show/episode"
+                            id="show/episode/label"
                             textColor="#FFFFFF"
                             focusable="true"
                             focusUp="video/osd/lock/box"
-                            focusDown="show/episode"
+                            focusDown="show/episode/label"
                             visibility="gone"
                             horizontalAlign="center"
                             text="@i18n/main/player/episode"
@@ -391,11 +386,11 @@
                         justifyContent="center"
                         height="60">
                         <brls:Label
-                            id="video/quality"
+                            id="video/quality/label"
                             textColor="#FFFFFF"
                             focusable="true"
                             focusUp="video/osd/lock/box"
-                            focusDown="video/quality"
+                            focusDown="video/quality/label"
                             horizontalAlign="center"
                             text="@i18n/main/player/quality"
                             hideHighlightBackground="true"
@@ -410,12 +405,12 @@
                         justifyContent="center"
                         height="60">
                         <brls:Label
-                            id="video/speed"
+                            id="video/speed/label"
                             textColor="#FFFFFF"
                             focusable="true"
                             focusUp="video/osd/lock/box"
-                            focusDown="video/speed"
-                            focusRight="video/speed"
+                            focusDown="video/speed/label"
+                            focusRight="video/speed/label"
                             horizontalAlign="center"
                             text="@i18n/main/player/speed"
                             hideHighlightBackground="true"

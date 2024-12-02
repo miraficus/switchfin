@@ -79,10 +79,12 @@ private:
     BRLS_BIND(brls::Box, btnClose, "video/close/box");
     BRLS_BIND(brls::Box, osdLockBox, "video/osd/lock/box");
     BRLS_BIND(SVGImage, osdLockIcon, "video/osd/lock/icon");
-    BRLS_BIND(SVGImage, btnToggleIcon, "video/osd/toggle/icon");
-    BRLS_BIND(SVGImage, btnVolumeIcon, "video/osd/volume/icon");
-    BRLS_BIND(SVGImage, btnDanmakuIcon, "video/osd/danmaku/icon");
-    BRLS_BIND(SVGImage, btnDanmakuSettingIcon, "video/osd/danmaku/setting/icon");
+    BRLS_BIND(SVGImage, toggleIcon, "video/osd/toggle/icon");
+    BRLS_BIND(SVGImage, volumeIcon, "video/osd/volume/icon");
+    BRLS_BIND(SVGImage, danmakuIcon, "video/osd/danmaku/icon");
+    BRLS_BIND(SVGImage, danmakuSettingIcon, "video/osd/danmaku/setting/icon");
+    BRLS_BIND(brls::Box, btnDanmakuToggle, "video/osd/danmaku/toggle");
+    BRLS_BIND(brls::Box, btnDanmakuSetting, "video/osd/danmaku/setting");
     BRLS_BIND(brls::Box, osdTopBox, "video/osd/top/box");
     BRLS_BIND(brls::Box, osdBottomBox, "video/osd/bottom/box");
     // 用于显示缓冲组件
@@ -97,8 +99,8 @@ private:
     BRLS_BIND(VideoProgressSlider, osdSlider, "video/osd/bottom/progress");
     BRLS_BIND(brls::Label, leftStatusLabel, "video/left/status");
     BRLS_BIND(brls::Label, rightStatusLabel, "video/right/status");
-    BRLS_BIND(brls::Label, videoSpeedLabel, "video/speed");
-    BRLS_BIND(brls::Label, showEpisodeLabel, "show/episode");
+    BRLS_BIND(brls::Label, videoSpeedLabel, "video/speed/label");
+    BRLS_BIND(brls::Label, showEpisodeLabel, "show/episode/label");
     BRLS_BIND(brls::Label, speedHintLabel, "video/speed/hint/label");
     BRLS_BIND(brls::Box, speedHintBox, "video/speed/hint/box");
     BRLS_BIND(brls::Label, hintLabel, "video/osd/hint/label");
