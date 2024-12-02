@@ -9,7 +9,7 @@ MainActivity::MainActivity() {
     conf.checkDanmuku();
 
     std::string query = HTTP::encode_form({
-        {"api_key", conf.getUser().access_token},
+        {"api_key", conf.getToken()},
         {"deviceId", conf.getDeviceId()},
     });
 

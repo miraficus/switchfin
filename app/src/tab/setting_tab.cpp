@@ -93,15 +93,15 @@ void SettingTab::onCreate() {
             return true;
         });
 
-        btnUser->setDetailText(conf.getUser().name);
+        btnUser->setDetailText(conf.getUserName());
         btnUser->registerClickAction([](...) {
             Dialog::cancelable("main/setting/others/logout"_i18n, []() {
                 brls::async([]() {
                     auto& c = AppConfig::instance();
-                    HTTP::Header header = {"X-Emby-Token: " + c.getUser().access_token};
+                    HTTP::Header header = {"X-Emby-Token: " + c.getToken()};
                     try {
                         HTTP::post(c.getUrl() + jellyfin::apiLogout, "", header, HTTP::Timeout{});
-                        c.removeUser(c.getUser().id);
+                        c.removeUser(c.getUserId());
                     } catch (const std::exception& ex) {
                         brls::Logger::warning("Logout failed: {}", ex.what());
                     }

@@ -30,7 +30,6 @@ public:
 
         this->addGestureRecognizer(new brls::TapGestureRecognizer(this));
 
-        this->serverId = s.id;
         this->labelName->setText(s.name.empty() ? "-" : s.name);
         this->labelUrl->setText(s.urls.front());
     }
@@ -47,8 +46,6 @@ public:
     }
 
     bool getActive() { return this->accent->getVisibility() == brls::Visibility::VISIBLE; }
-
-    std::string serverId;
 
 private:
     BRLS_BIND(brls::Rectangle, accent, "brls/sidebar/item_accent");
@@ -131,7 +128,7 @@ ServerList::~ServerList() { brls::Logger::debug("ServerList Activity: delete"); 
 void ServerList::onContentAvailable() {
     this->inputUrl->detail->setSingleLine(true);
     this->tabFrame->setTabChangedAction([this](size_t index) {
-        if (!index) this->willAppear(false);
+        if (!index) this->willAppear();
     });
 
     this->btnServerAdd->registerClickAction([](brls::View* view) {
@@ -173,9 +170,9 @@ void ServerList::willAppear(bool resetState) {
             this->onServer(s);
         });
 
-        item->registerAction("hints/delete"_i18n, brls::BUTTON_X, [this, item](brls::View* view) {
-            Dialog::cancelable("main/setting/server/delete"_i18n, [this, item]() {
-                if (AppConfig::instance().removeServer(item->serverId)) {
+        item->registerAction("hints/delete"_i18n, brls::BUTTON_X, [this, s](brls::View* item) {
+            Dialog::cancelable("main/setting/server/delete"_i18n, [this, item, s]() {
+                if (AppConfig::instance().removeServer(s.id)) {
                     brls::View* view = new ServerAdd();
                     this->tabFrame->setTabAttachedView(view);
                     brls::Application::giveFocus(view);
@@ -197,15 +194,20 @@ void ServerList::willAppear(bool resetState) {
 
 void ServerList::onServer(const AppServer& s) {
     this->serverVersion->setDetailText(s.version.empty() ? "-" : s.version);
-    this->inputUrl->init("main/setting/url"_i18n, s.urls.front(),
-        [s](const std::string& text) { AppConfig::instance().addServer({.id = s.id, .urls = {text}}); });
+    this->inputUrl->setDetailText(s.urls.front());
     this->inputUrl->registerAction("hints/preset"_i18n, brls::BUTTON_X, [this, s](...) {
+        return brls::Application::getImeManager()->openForText(
+            [this, s](const std::string& text) {
+                AppConfig::instance().addServer({.id = s.id, .urls = {text}});
+                this->inputUrl->setDetailText(text);
+            },
+            "main/setting/url"_i18n, "", 255, this->inputUrl->detail->getFullText());
+    });
+    this->inputUrl->registerClickAction([this, s](...) {
         brls::Dropdown* dropdown = new brls::Dropdown("main/setting/url"_i18n, s.urls, [this, s](int selected) {
-            AppConfig::instance().addServer({
-                .id = s.id,
-                .urls = {s.urls[selected]},
-            });
-            brls::sync([this]() { this->willAppear(); });
+            const std::string& url = s.urls[selected];
+            AppConfig::instance().addServer({.id = s.id, .urls = {url}});
+            this->inputUrl->setDetailText(url);
         });
         brls::Application::pushActivity(new brls::Activity(dropdown));
         return true;

@@ -118,7 +118,7 @@ void PlayerView::setSeries(const std::string& seriesId) {
     std::string query = HTTP::encode_form({
         {"isVirtualUnaired", "false"},
         {"isMissing", "false"},
-        {"userId", AppConfig::instance().getUser().id},
+        {"userId", AppConfig::instance().getUserId()},
         {"fields", "Chapters"},
     });
 
@@ -171,7 +171,7 @@ void PlayerView::playMedia(const uint64_t seekTicks) {
     ASYNC_RETAIN
     jellyfin::postJSON(
         {
-            {"UserId", AppConfig::instance().getUser().id},
+            {"UserId", AppConfig::instance().getUserId()},
             {"AudioStreamIndex", PlayerSetting::selectedAudio},
             {"SubtitleStreamIndex", PlayerSetting::selectedSubtitle},
             {"AllowAudioStreamCopy", true},
@@ -334,7 +334,7 @@ void PlayerView::requestDanmaku() {
     ASYNC_RETAIN
     brls::async([ASYNC_TOKEN]() {
         auto& c = AppConfig::instance();
-        HTTP::Header header = {"X-Emby-Token: " + c.getUser().access_token};
+        HTTP::Header header = {"X-Emby-Token: " + c.getToken()};
         std::string url = fmt::format(fmt::runtime(jellyfin::apiDanmuku), this->itemId);
 
         try {

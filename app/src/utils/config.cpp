@@ -386,28 +386,30 @@ void AppConfig::save() {
 }
 
 bool AppConfig::checkLogin() {
-    for (auto& u : this->users) {
-        if (u.id == this->user_id) {
-            HTTP::Header header = {this->getDevice(u.access_token)};
-            std::string uri = this->server_url + jellyfin::apiInfo;
-            try {
-                std::string resp = HTTP::get(uri, header, HTTP::Timeout{});
-                jellyfin::PublicSystemInfo info = nlohmann::json::parse(resp);
-                this->addServer(AppServer{
-                    .name = info.ServerName,
-                    .id = info.Id,
-                    .version = info.Version,
-                });
+    auto is_user = [this](const AppUser& u) { return u.id == this->user_id; };
+    this->user = std::find_if(this->users.begin(), this->users.end(), is_user);
+    if (this->user == this->users.end()) return false;
 
-                this->user = u;
-                return true;
-            } catch (const std::exception& ex) {
-                brls::Logger::warning("AppConfig checkLogin: {}", ex.what());
-                return false;
-            }
-        }
+    auto is_server = [this](const AppServer& s) { return s.id == this->user->server_id; };
+    auto it = std::find_if(this->servers.begin(), this->servers.end(), is_server);
+    if (it == this->servers.end()) return false;
+
+    this->server_url = it->urls.front();
+    HTTP::Header header = {this->getDevice(this->user->access_token)};
+    std::string uri = this->server_url + jellyfin::apiInfo;
+    try {
+        std::string resp = HTTP::get(uri, header, HTTP::Timeout{});
+        jellyfin::PublicSystemInfo info = nlohmann::json::parse(resp);
+        this->addServer(AppServer{
+            .name = info.ServerName,
+            .id = info.Id,
+            .version = info.Version,
+        });
+        return true;
+    } catch (const std::exception& ex) {
+        brls::Logger::warning("AppConfig checkLogin: {}", ex.what());
+        return false;
     }
-    return false;
 }
 
 bool AppConfig::checkDanmuku() {
@@ -524,24 +526,20 @@ bool AppConfig::addServer(const AppServer& s) {
     return false;
 }
 
-bool AppConfig::addUser(const AppUser& u, const std::string& url) {
-    bool found = false;
-    for (auto& o : this->users) {
-        if (o.id == u.id) {
-            o.name = u.name;
-            o.access_token = u.access_token;
-            o.server_id = u.server_id;
-            found = true;
-            break;
-        }
+void AppConfig::addUser(const AppUser& u, const std::string& url) {
+    auto is_user = [u](const AppUser& o) { return o.id == u.id; };
+    auto it = std::find_if(this->users.begin(), this->users.end(), is_user);
+    if (it != this->users.end()) {
+        it->name = u.name;
+        it->access_token = u.access_token;
+        it->server_id = u.server_id;
+    } else {
+        it = this->users.insert(it, u);
     }
-    if (!found) this->users.push_back(u);
-
     this->server_url = url;
     this->user_id = u.id;
-    this->user = u;
+    this->user = it;
     this->save();
-    return found;
 }
 
 bool AppConfig::removeServer(const std::string& id) {

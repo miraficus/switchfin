@@ -147,7 +147,7 @@ void Playlist::doList() {
     std::string query = HTTP::encode_form({
         {"fields", "PrimaryImageAspectRatio,Chapters,BasicSyncInfo"},
         {"EnableImageTypes", "Primary"},
-        {"UserId", AppConfig::instance().getUser().id},
+        {"UserId", AppConfig::instance().getUserId()},
     });
 
     ASYNC_RETAIN

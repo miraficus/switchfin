@@ -56,6 +56,8 @@ inline void from_json(const nlohmann::json& nlohmann_json_j, AppRemote& nlohmann
 }
 
 class AppConfig : public brls::Singleton<AppConfig> {
+    using UserIter = std::vector<AppUser>::iterator;
+
 public:
     enum Item {
         FULLSCREEN,
@@ -140,26 +142,27 @@ public:
     inline const Option& getOptions(const Item item) const { return settingMap[item]; }
 
     bool addServer(const AppServer& s);
-    bool addUser(const AppUser& u, const std::string& url);
+    void addUser(const AppUser& u, const std::string& url);
     bool removeServer(const std::string& id);
     bool removeUser(const std::string& id);
     const std::string& getDeviceId() { return this->device; }
     std::string getDevice(const std::string& token = "");
-    const AppUser& getUser() const { return this->user; }
+    const std::string& getUserId() const { return this->user_id; }
+    const std::string& getUserName() const { return this->user->name; }
+    const std::string& getToken() const { return this->user->access_token; }
     const std::string& getUrl() const { return this->server_url; }
     const std::vector<AppRemote>& getRemotes() const { return this->remotes; }
     const std::vector<AppServer>& getServers() const { return this->servers; }
     const std::vector<AppUser> getUsers(const std::string& id) const;
 
-    NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(
-        AppConfig, user_id, server_url, device, users, servers, setting, remotes);
+    NLOHMANN_DEFINE_TYPE_INTRUSIVE_WITH_DEFAULT(AppConfig, user_id, device, users, servers, setting, remotes);
 
     inline static bool SYNC = true;
 
 private:
     static std::unordered_map<Item, Option> settingMap;
 
-    AppUser user;
+    UserIter user;
     std::string user_id;
     std::string server_url;
     std::string device;

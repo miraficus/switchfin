@@ -92,7 +92,7 @@ void HomeTab::doResume() {
             this->headerResume->setSubtitle(ex);
             brls::Application::notify(ex);
         },
-        jellyfin::apiUserResume, AppConfig::instance().getUser().id, query);
+        jellyfin::apiUserResume, AppConfig::instance().getUserId(), query);
 }
 
 void HomeTab::doVideoLatest() {
@@ -121,7 +121,7 @@ void HomeTab::doVideoLatest() {
             this->videoLatest->setVisibility(brls::Visibility::GONE);
             brls::Application::notify(ex);
         },
-        jellyfin::apiUserLatest, AppConfig::instance().getUser().id, query);
+        jellyfin::apiUserLatest, AppConfig::instance().getUserId(), query);
 }
 
 void HomeTab::doMusicLatest() {
@@ -150,12 +150,12 @@ void HomeTab::doMusicLatest() {
             this->musicLatest->setVisibility(brls::Visibility::GONE);
             brls::Application::notify(ex);
         },
-        jellyfin::apiUserLatest, AppConfig::instance().getUser().id, query);
+        jellyfin::apiUserLatest, AppConfig::instance().getUserId(), query);
 }
 
 void HomeTab::doNextup() {
     std::string query = HTTP::encode_form({
-        {"userId", AppConfig::instance().getUser().id},
+        {"userId", AppConfig::instance().getUserId()},
         {"fields", "BasicSyncInfo,Chapters"},
         {"enableResumable", "false"},
         {"enableRewatching", "false"},

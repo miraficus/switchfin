@@ -75,7 +75,7 @@ void MediaCollection::doPreferences() {
             ASYNC_RELEASE
             this->recycler->setError(ex);
         },
-        jellyfin::apiUserSetting, AppConfig::instance().getUser().id);
+        jellyfin::apiUserSetting, AppConfig::instance().getUserId());
 
     this->registerAction("main/media/sort"_i18n, brls::BUTTON_Y, [this](...) {
         MediaFilter* filter = new MediaFilter();
@@ -126,7 +126,7 @@ void MediaCollection::saveFilter() {
             {"Client", "emby"},
         },
         [](...) {}, [](const std::string& ex) { brls::Logger::warning("usersettings upload: {}", ex); },
-        jellyfin::apiUserSetting, AppConfig::instance().getUser().id);
+        jellyfin::apiUserSetting, AppConfig::instance().getUserId());
 }
 
 void MediaCollection::doRequest() {
@@ -173,5 +173,5 @@ void MediaCollection::doRequest() {
                 this->recycler->setError(ex);
             }
         },
-        jellyfin::apiUserLibrary, AppConfig::instance().getUser().id, HTTP::encode_form(query));
+        jellyfin::apiUserLibrary, AppConfig::instance().getUserId(), HTTP::encode_form(query));
 }

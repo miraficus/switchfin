@@ -70,7 +70,7 @@ void Analytics::send() {
     const auto ms = std::chrono::duration_cast<std::chrono::microseconds>(ts);
 
     pkg.client_id = this->client_id;
-    pkg.user_id = AppConfig::instance().getUser().id;
+    pkg.user_id = AppConfig::instance().getUserId();
     pkg.timestamp_micros = ms.count();
 
     try {

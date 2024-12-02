@@ -132,5 +132,5 @@ void MediaFolders::doRequest() {
             dialog->addButton("hints/cancel"_i18n, []() {});
             dialog->open();
         },
-        jellyfin::apiUserViews, AppConfig::instance().getUser().id);
+        jellyfin::apiUserViews, AppConfig::instance().getUserId());
 }

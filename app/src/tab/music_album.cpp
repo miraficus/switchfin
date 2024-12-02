@@ -143,7 +143,7 @@ void MusicAlbum::doAlbum() {
             ASYNC_RELEASE
             this->albumAritst->setText(r.AlbumArtist);
         },
-        nullptr, jellyfin::apiUserItem, AppConfig::instance().getUser().id, this->itemId);
+        nullptr, jellyfin::apiUserItem, AppConfig::instance().getUserId(), this->itemId);
 }
 
 void MusicAlbum::doTracks() {
@@ -163,5 +163,5 @@ void MusicAlbum::doTracks() {
             ASYNC_RELEASE
             this->albumTracks->setError(ex);
         },
-        jellyfin::apiUserLibrary, AppConfig::instance().getUser().id, query);
+        jellyfin::apiUserLibrary, AppConfig::instance().getUserId(), query);
 }

@@ -136,12 +136,12 @@ void MediaSeries::doSeries() {
                 this->imageLogo->setVisibility(brls::Visibility::VISIBLE);
             }
         },
-        [](...) {}, jellyfin::apiUserItem, AppConfig::instance().getUser().id, this->seriesId);
+        [](...) {}, jellyfin::apiUserItem, AppConfig::instance().getUserId(), this->seriesId);
 }
 
 void MediaSeries::doSeason() {
     std::string query = HTTP::encode_form({
-        {"userId", AppConfig::instance().getUser().id},
+        {"userId", AppConfig::instance().getUserId()},
         {"fields", "ItemCounts"},
     });
 
@@ -173,7 +173,7 @@ void MediaSeries::doSeason() {
 
 void MediaSeries::doEpisodes(const std::string& seasonId) {
     std::string query = HTTP::encode_form({
-        {"userId", AppConfig::instance().getUser().id},
+        {"userId", AppConfig::instance().getUserId()},
         {"seasonId", seasonId},
         {"fields", "ItemCounts,PrimaryImageAspectRatio,Chapters,Overview"},
     });

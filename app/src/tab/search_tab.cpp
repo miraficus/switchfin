@@ -243,7 +243,7 @@ void SearchTab::doSuggest() {
             ASYNC_RELEASE
             this->searchSuggest->setError(ex);
         },
-        jellyfin::apiUserLibrary, AppConfig::instance().getUser().id, query);
+        jellyfin::apiUserLibrary, AppConfig::instance().getUserId(), query);
 }
 
 void SearchTab::doSearch(const std::string& searchTerm) {
@@ -278,7 +278,7 @@ void SearchTab::doSearch(const std::string& searchTerm) {
             ASYNC_RELEASE
             brls::Application::notify(ex);
         },
-        jellyfin::apiUserLibrary, AppConfig::instance().getUser().id, query);
+        jellyfin::apiUserLibrary, AppConfig::instance().getUserId(), query);
 }
 
 void SearchTab::updateInput() {

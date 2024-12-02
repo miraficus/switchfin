@@ -69,7 +69,7 @@ LiveTV::LiveTV(const std::string& itemId) {
 brls::View* LiveTV::getDefaultFocus() { return this->recycler; }
 
 void LiveTV::doRequest() {
-    HTTP::Form query = {{"userId", AppConfig::instance().getUser().id}};
+    HTTP::Form query = {{"userId", AppConfig::instance().getUserId()}};
 
     ASYNC_RETAIN
     jellyfin::getJSON<jellyfin::Result<jellyfin::Channel>>(

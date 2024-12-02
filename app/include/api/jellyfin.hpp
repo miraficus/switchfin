@@ -19,7 +19,7 @@ inline void getJSON(const std::function<void(Result)>& then, OnError error, std:
     std::string url = fmt::format(fmt::runtime(fmt), std::forward<Args>(args)...);
     brls::async([then, error, url]() {
         auto& c = AppConfig::instance();
-        HTTP::Header header = {"X-Emby-Token: " + c.getUser().access_token};
+        HTTP::Header header = {"X-Emby-Token: " + c.getToken()};
 
         try {
             auto resp = HTTP::get(c.getUrl() + url, header, HTTP::Timeout{});
@@ -39,7 +39,7 @@ inline void postJSON(const nlohmann::json& data, Then then, OnError error, std::
         auto& c = AppConfig::instance();
         HTTP::Header header = {
             "Content-Type: application/json",
-            "X-Emby-Token: " + c.getUser().access_token,
+            "X-Emby-Token: " + c.getToken(),
         };
 
         try {

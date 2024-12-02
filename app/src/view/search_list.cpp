@@ -45,7 +45,7 @@ void SearchList::doRequest(const std::string& searchTerm) {
             ASYNC_RELEASE
             this->setVisibility(brls::Visibility::GONE);
         },
-        jellyfin::apiUserLibrary, AppConfig::instance().getUser().id, query);
+        jellyfin::apiUserLibrary, AppConfig::instance().getUserId(), query);
 }
 
 brls::View* SearchList::create() { return new SearchList(); }
