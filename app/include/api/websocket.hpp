@@ -5,6 +5,8 @@
 #pragma once
 
 #include <string>
+#include <atomic>
+#include <memory>
 #ifdef BOREALIS_USE_STD_THREAD
 #include <thread>
 #else
@@ -27,4 +29,5 @@ private:
     pthread_t th;
 #endif
     CURL *easy;
+    std::shared_ptr<std::atomic_bool> isStopped;
 };

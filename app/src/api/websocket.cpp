@@ -20,19 +20,26 @@ websocket::websocket(const std::string& url) {
     curl_easy_setopt(this->easy, CURLOPT_SSL_VERIFYPEER, 0L);
     curl_easy_setopt(this->easy, CURLOPT_SSL_VERIFYHOST, 0L);
 
+    this->isStopped = std::make_shared<std::atomic_bool>(false);
 #ifdef BOREALIS_USE_STD_THREAD
-    this->th = std::make_shared<std::thread>(ws_recv, this->easy);
+    this->th = std::make_shared<std::thread>(ws_recv, this);
 #else
-    pthread_create(&this->th, nullptr, ws_recv, this->easy);
+    pthread_create(&this->th, nullptr, ws_recv, this);
 #endif
 #endif
 }
 
-websocket::~websocket() { curl_easy_cleanup(this->easy); }
+websocket::~websocket() {
+    this->isStopped->store(true);
+    curl_easy_cleanup(this->easy);
+}
 
 void* websocket::ws_recv(void* ptr) {
 #if LIBCURL_VERSION_NUM >= 0x080000 && !defined(__PS4__)
-    CURL* easy = static_cast<CURL*>(ptr);
+    websocket* p = reinterpret_cast<websocket*>(ptr);
+    auto isStopped = p->isStopped;
+    CURL* easy = p->easy;
+
     CURLcode res = curl_easy_perform(easy);
     if (res != CURLE_OK) {
         brls::Logger::warning("ws perform failed {}", curl_easy_strerror(res));
@@ -53,7 +60,7 @@ void* websocket::ws_recv(void* ptr) {
         FD_ZERO(&rfds);
         FD_SET(ws_sockfd, &rfds);
         int ret = select(1, &rfds, NULL, NULL, &tv);
-        if (ret < 0) break;
+        if (ret < 0 || isStopped->load()) break;
         if (ret == 0) {
             curl_ws_send(easy, resp.data(), resp.size(), &slen, 0, CURLWS_TEXT);
             continue;
