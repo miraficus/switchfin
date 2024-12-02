@@ -3,7 +3,7 @@
 _realname=dav1d
 pkgbase=mingw-w64-${_realname}
 pkgname=("${MINGW_PACKAGE_PREFIX}-${_realname}")
-pkgver=1.5.0 
+pkgver=1.5.0
 pkgrel=1
 pkgdesc="AV1 cross-platform decoder focused on speed and correctness (mingw-w64)"
 arch=('any')
@@ -38,7 +38,5 @@ build() {
 }
 
 package() {
-  cd "${srcdir}/build-${MSYSTEM}"
-
-  DESTDIR="${pkgdir}" ${MINGW_PREFIX}/bin/meson install
+  ${MINGW_PREFIX}/bin/meson install -C "build-${MSYSTEM}" --destdir "${pkgdir}"
 }

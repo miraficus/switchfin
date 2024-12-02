@@ -16,6 +16,11 @@
 #include <mpv/render_dk3d.h>
 #else
 #include <mpv/render_gl.h>
+#if defined(__PSV__) || defined(__PS4__)
+#include <GLES2/gl2.h>
+#else
+#include <glad/glad.h>
+#endif
 #endif
 
 typedef std::unordered_map<std::string, std::string> MPVMap;
@@ -181,6 +186,7 @@ private:
         {MPV_RENDER_PARAM_INVALID, nullptr},
     };
 #else
+    GLint default_framebuffer = 0;
     mpv_opengl_fbo mpv_fbo;
     int flip_y{1};
     mpv_render_param mpv_params[3] = {

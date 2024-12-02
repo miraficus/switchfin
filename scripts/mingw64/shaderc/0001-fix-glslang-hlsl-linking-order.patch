@@ -19,11 +19,11 @@ index 6d217bfcde..e5f500bd1b 100644
  URL: https://github.com/google/shaderc
  
 +Requires.private: SPIRV-Tools
-+Libs.private: -lGenericCodeGen -lMachineIndependent -lSPIRV
++Libs.private: -lGenericCodeGen -lMachineIndependent -lglslang -lOSDependent -lSPIRV
  Libs: -L${libdir} @LIBS@
  Cflags: -I${includedir}
 diff --git a/libshaderc_util/CMakeLists.txt b/libshaderc_util/CMakeLists.txt
-index 69ba519a9b..4221aee96e 100644
+index 69ba519..964b7e2 100644
 --- a/libshaderc_util/CMakeLists.txt
 +++ b/libshaderc_util/CMakeLists.txt
 @@ -46,8 +46,8 @@ add_definitions(-DENABLE_HLSL)
@@ -32,7 +32,7 @@ index 69ba519a9b..4221aee96e 100644
  target_link_libraries(shaderc_util PRIVATE
 -  glslang SPIRV
 -  SPIRV-Tools-opt ${CMAKE_THREAD_LIBS_INIT})
-+  MachineIndependent GenericCodeGen glslang SPIRV
++  MachineIndependent GenericCodeGen glslang OSDependent SPIRV
 +  SPIRV-Tools-opt SPIRV-Tools ${CMAKE_THREAD_LIBS_INIT})
  
  shaderc_add_tests(

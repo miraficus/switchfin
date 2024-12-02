@@ -1,5 +1,4 @@
 #include "api/jellyfin.hpp"
-#include "view/mpv_core.hpp"
 #include "view/video_profile.hpp"
 #include "utils/misc.hpp"
 #include <fmt/ranges.h>
@@ -20,6 +19,8 @@ VideoProfile::~VideoProfile() {
     brls::Logger::debug("View VideoProfile: delete");
     this->ticker.stop();
 }
+
+#include "view/mpv_core.hpp"
 
 void VideoProfile::init(const std::string& method) {
     auto& mpv = MPVCore::instance();

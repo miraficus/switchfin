@@ -32,7 +32,7 @@ prepare() {
 
 build() {
   MSYS2_ARG_CONV_EXCL="--prefix=" \
-    meson setup \
+    ${MINGW_PREFIX}/bin/meson setup \
       --prefix="${MINGW_PREFIX}" \
       --buildtype=release \
       --default-library=static \
@@ -46,9 +46,9 @@ build() {
       "build-${MSYSTEM}" \
       "${srcdir}/${_realname}-${pkgver}"
 
-  meson compile -C "build-${MSYSTEM}"
+  ${MINGW_PREFIX}/bin/meson compile -C "build-${MSYSTEM}"
 }
 
 package() {
-  meson install -C "build-${MSYSTEM}" --destdir "${pkgdir}"
+  ${MINGW_PREFIX}/bin/meson install -C "build-${MSYSTEM}" --destdir "${pkgdir}"
 }

@@ -25,11 +25,6 @@ extern std::unique_ptr<brls::D3D11Context> D3D11_CONTEXT;
 #elif defined(BOREALIS_USE_DEKO3D)
 #include <borealis/platforms/switch/switch_video.hpp>
 #else
-#if defined(__PSV__) || defined(PS4)
-#include <GLES2/gl2.h>
-#else
-#include <glad/glad.h>
-#endif
 #ifdef __SDL2__
 #include <SDL2/SDL.h>
 #else
@@ -59,7 +54,7 @@ void MPVCore::on_wakeup(void *self) {
 }
 
 MPVCore::MPVCore() {
-#ifdef __PS4_
+#ifdef __PS4__
     ps4_mpv_use_precompiled_shaders = 1;
     ps4_mpv_dump_shaders = 0;
 #endif
@@ -128,7 +123,7 @@ void MPVCore::init() {
         mpv_set_option_string(mpv, "sub-font", "nintendo_udjxh-db_zh-tw_003");
     else if (locale == brls::LOCALE_Ko)
         mpv_set_option_string(mpv, "sub-font", "nintendo_udsg-r_ko_003");
-#elif defined(PS4)
+#elif defined(__PS4__)
     mpv_set_option_string(mpv, "vd-lavc-threads", "6");
 #elif defined(__PSV__)
     mpv_set_option_string(mpv, "vd-lavc-dr", "no");
@@ -239,6 +234,13 @@ void MPVCore::init() {
             command("set", "pause", "no");
         }
     });
+
+#if defined(BOREALIS_USE_OPENGL) && !defined(MPV_SW_RENDER)
+    // Get default framebuffer
+    glGetIntegerv(GL_FRAMEBUFFER_BINDING, &default_framebuffer);
+    glBindFramebuffer(GL_FRAMEBUFFER, default_framebuffer);
+    mpv_fbo.fbo = default_framebuffer;
+#endif
 }
 
 void MPVCore::clean() {
@@ -370,6 +372,7 @@ void MPVCore::draw(brls::Rect rect, float alpha) {
 #elif defined(BOREALIS_USE_DEKO3D)
         videoContext->queueWaitFence(&doneFence);
 #else
+        glBindFramebuffer(GL_FRAMEBUFFER, default_framebuffer);
         glViewport(0, 0, brls::Application::windowWidth, brls::Application::windowHeight);
 #endif
         mpv_render_context_report_swap(this->mpv_context);
