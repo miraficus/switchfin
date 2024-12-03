@@ -28,6 +28,9 @@
 #ifdef __SWITCH__
 #include "utils/overclock.hpp"
 #endif
+#ifdef __linux__
+#include <borealis/platforms/desktop/steam_deck.hpp>
+#endif
 
 using namespace brls::literals;  // for _i18n
 
@@ -68,6 +71,18 @@ private:
     BRLS_BIND(brls::Label, labelGithub, "setting/about/github");
     BRLS_BIND(brls::Label, labelThirdpart, "setting/about/thirdpart");
     BRLS_BIND(brls::Box, btnGithub, "setting/box/github");
+};
+
+class TutorialFont : public brls::Box {
+public:
+    TutorialFont() {
+        const std::string confDir = AppConfig::instance().configDir();
+        this->inflateFromXMLRes("xml/view/tutorial_font.xml");
+        fontA3->setText(fmt::format(fmt::runtime("main/setting/tutorial/font_a3"_i18n), confDir));
+    }
+
+private:
+    BRLS_BIND(brls::Label, fontA3, "tutorial/font_a3");
 };
 
 SettingTab::SettingTab() {
@@ -222,18 +237,31 @@ void SettingTab::onCreate() {
         dialog->open();
         return true;
     });
-    btnTutorialFont->setVisibility(brls::Visibility::GONE);
 #else
+    btnTutorialOpenApp->setVisibility(brls::Visibility::GONE);
+    btnTutorialError->setVisibility(brls::Visibility::GONE);
+#endif
     btnTutorialFont->registerClickAction([](...) -> bool {
-        auto view = brls::View::createFromXMLResource("view/tutorial_font.xml");
-        auto dialog = new brls::Dialog(dynamic_cast<brls::Box*>(view));
+        auto dialog = new brls::Dialog(new TutorialFont());
         dialog->addButton("hints/ok"_i18n, []() {});
         dialog->open();
         return true;
     });
-    btnTutorialOpenApp->setVisibility(brls::Visibility::GONE);
-    btnTutorialError->setVisibility(brls::Visibility::GONE);
+
+    btnOpenConfig->registerClickAction([](...) -> bool {
+        const std::string confDir = AppConfig::instance().configDir();
+#if defined(__SWITCH__) || defined(__PSV__) || defined(PS4)
+        Dialog::show("main/setting/others/config_dir"_i18n + ":\n" + confDir);
+#else
+#ifdef __linux__
+        if (!brls::isSteamDeck())
 #endif
+        {
+            brls::Application::getPlatform()->openBrowser(confDir);
+        }
+#endif
+        return true;
+    });
 
 /// Fullscreen
 #if defined(__APPLE__) || defined(__linux__) || defined(_WIN32)

@@ -175,8 +175,8 @@
       "font_a1": "1. Tải xuống phông chữ hoặc phông chữ biểu tượng mà bạn muốn\n2. Đổi tên phông chữ thành: font.ttf; Đổi tên biểu tượng thành: icon.ttf\n3. Đặt các tệp phông chữ vào thư mục cấu hình\n4. Khởi động lại ứng dụng",
       "font_q2": "Câu hỏi thường gập",
       "font_a2": "1. Switchfin ưu tiên hiển thị phông chữ tùy chỉnh, với phông chữ tích hợp sẵn làm phương án dự phòng\n2. Mục \"Cài đặt - Hướng dẫn\" cung cấp một mục menu để mở nhanh thư mục cấu hình\n3. Trên Linux, Switchfin sử dụng xdg-open để mở thư mục. Nếu không thể mở đúng thư mục cấu hình, bạn có thể cân nhắc cài đặt công cụ này",
-      "error_q3": "Phụ đề không hiển thị",
-      "error_a3": "Đặt font vào /switch/Switchfin/subfont.ttf"
+      "font_q3": "Phụ đề không hiển thị",
+      "font_a3": "Đặt font vào {}/subfont.ttf"
     },
     "quick_connect": {
       "header": "Kết nối nhanh",

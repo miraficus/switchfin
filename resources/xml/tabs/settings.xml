@@ -115,6 +115,9 @@
                 <brls:RadioCell
                     id="tools/tutorial_font"
                     title="@i18n/main/setting/tutorial/font" />
+                <brls:RadioCell
+                    id="tools/config_dir"
+                    title="@i18n/main/setting/others/config_dir" />
             </brls:Box>
 
             <brls:Header

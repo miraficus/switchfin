@@ -175,8 +175,8 @@
       "font_a1": "1. Download the font or icon font you want\n2. Rename font to: font.ttf; Rename icon to: icon.ttf\n3. Place font files in the config directory\n4. Restart the application",
       "font_q2": "FAQ",
       "font_a2": "1. Switchfin prioritizes the display of custom fonts, with built-in fonts as a fallback\n2. \"Settings - Tutorial\" provides a menu item to quickly open the config directory\n3. On Linux, Switchfin uses xdg-open to open the directory. If the configuration directory cannot be opened correctly, you can consider installing this tool",
-      "error_q3": "Subtitles didn't display",
-      "error_a3": "Put any ttf file at /switch/Switchfin/subfont.ttf"
+      "font_q3": "Subtitles didn't display",
+      "font_a3": "Put any ttf file at {}/subfont.ttf"
     },
     "quick_connect": {
       "header": "Quick Connect",
@@ -218,6 +218,7 @@
         "ps": "PlayStation",
         "keyboard": "Keyboard"
       },
+      "config_dir": "Config directory",
       "logout": "Logout of the current account \n(the application will quit)",
       "up2date": "App is up to date",
       "upgrade": "{} is available now! Ready to update?",
