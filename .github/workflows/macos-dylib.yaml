@@ -28,14 +28,14 @@ jobs:
           target: "10.11"
           meson: --cross-file $GITHUB_WORKSPACE/scripts/macos/macos_10.11.txt
         tag: [ Silicon, Intel, Intel_Old ]
-    runs-on: macos-12
+    runs-on: macos-latest
     env:
       CMAKE_PREFIX_PATH: /tmp
       PKG_CONFIG_LIBDIR: /tmp/lib/pkgconfig
     steps:
     - uses: actions/checkout@v4
       with:
-        sparse-checkout: scripts/macos
+        sparse-checkout: scripts
     - name: Remove stray upstream python binary symlinks under /usr/local
       run: |
         find /usr/local/bin -lname '*/Library/Frameworks/Python.framework/*' -delete -print
@@ -67,6 +67,20 @@ jobs:
           -DGLFW_BUILD_EXAMPLES=OFF -DGLFW_BUILD_TESTS=OFF -DGLFW_BUILD_DOCS=OFF
         cmake --build build-glfw
         cmake --install build-glfw
+    - name: Build mbedtls
+      run: |
+        curl --retry 5 -sSL https://github.com/Mbed-TLS/mbedtls/releases/download/mbedtls-3.6.2/mbedtls-3.6.2.tar.bz2 | tar jxf - -C ${{ runner.temp }}
+        cmake -B build-mbedtls -G Ninja -S ${{ runner.temp }}/mbedtls-3.6.2 \
+          -DCMAKE_INSTALL_PREFIX=$CMAKE_PREFIX_PATH \
+          -DCMAKE_INSTALL_NAME_DIR=$CMAKE_PREFIX_PATH/lib \
+          -DCMAKE_OSX_ARCHITECTURES=${{ matrix.arch }} \
+          -DCMAKE_OSX_DEPLOYMENT_TARGET=${{ matrix.target }} \
+          -DCMAKE_BUILD_TYPE=Release \
+          -DUSE_SHARED_MBEDTLS_LIBRARY=ON \
+          -DUSE_STATIC_MBEDTLS_LIBRARY=OFF \
+          -DENABLE_PROGRAMS=OFF -DENABLE_TESTING=OFF
+        cmake --build build-mbedtls
+        cmake --install build-mbedtls
     - name: Build libcurl
       run: |
         curl --retry 5 -sSL https://curl.se/download/curl-8.11.0.tar.xz | tar Jxf - -C ${{ runner.temp }}
@@ -76,7 +90,7 @@ jobs:
           -DCMAKE_OSX_ARCHITECTURES=${{ matrix.arch }} \
           -DCMAKE_OSX_DEPLOYMENT_TARGET=${{ matrix.target }} \
           -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON \
-          -DHTTP_ONLY=ON -DCURL_DISABLE_PROGRESS_METER=ON -DCURL_USE_SECTRANSP=ON \
+          -DHTTP_ONLY=ON -DCURL_DISABLE_PROGRESS_METER=ON -DCURL_USE_MBEDTLS=ON \
           -DBUILD_CURL_EXE=OFF -DUSE_NGHTTP2=OFF -DBUILD_TESTING=OFF -DBUILD_LIBCURL_DOCS=OFF \
           -DUSE_LIBIDN2=OFF -DCURL_USE_LIBSSH2=OFF -DCURL_USE_LIBPSL=OFF
         cmake --build build-curl
@@ -153,7 +167,7 @@ jobs:
       run: |
         curl --retry 5 -sSL https://ffmpeg.org/releases/ffmpeg-7.1.tar.xz | tar Jxf - -C ${{ runner.temp }}
         mkdir -p build-ffmpeg && cd build-ffmpeg
-        ${{ runner.temp }}/ffmpeg-7.1/configure --enable-shared --disable-static \
+        ${{ runner.temp }}/ffmpeg-7.1/configure --enable-shared --disable-static --pkg-config-flags=-static \
           --prefix=$CMAKE_PREFIX_PATH --enable-pthreads --disable-runtime-cpudetect \
           --cc=clang --enable-cross-compile --target-os=darwin --arch=${{ matrix.arch }} \
           --extra-cflags='-arch ${{ matrix.arch }} -mmacosx-version-min=${{ matrix.target }}' \
@@ -163,9 +177,9 @@ jobs:
           --disable-programs --disable-doc --disable-debug --disable-avdevice \
           --disable-filters --enable-filter=hflip,vflip,transpose --disable-muxers \
           --disable-protocols --enable-protocol=file,http,tcp,udp,hls,https,tls,httpproxy \
-          --disable-libjack --disable-indev=jack --disable-postproc --enable-demuxer=hls \
+          --disable-libjack --disable-indev=jack --disable-postproc --enable-network \
           --enable-libdav1d --enable-libass --enable-libfreetype --enable-zlib --enable-bzlib \
-          --enable-network --enable-securetransport --enable-videotoolbox --enable-audiotoolbox
+          --enable-videotoolbox --enable-audiotoolbox --enable-mbedtls --enable-gpl --enable-version3
         make -j$(sysctl -n hw.ncpu)
         make install
     - name: Build libplacebo

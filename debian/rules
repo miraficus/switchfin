@@ -19,7 +19,7 @@ curl:
 glfw:
 	wget -qO- https://github.com/dragonflylee/glfw/archive/switchfin.tar.gz | tar zxf - -C /tmp
 	cmake -P /tmp/glfw-switchfin/CMake/GenerateMappings.cmake \
-    /tmp/glfw-switchfin/src/mappings.h.in /tmp/glfw-switchfin/src/mappings.h
+		/tmp/glfw-switchfin/src/mappings.h.in /tmp/glfw-switchfin/src/mappings.h
 	cmake -B build/glfw -G Ninja -S /tmp/glfw-switchfin -DCMAKE_BUILD_TYPE=Release \
 		-DCMAKE_INSTALL_PREFIX=$(PREFIX) -DCMAKE_INSTALL_RPATH=$(PREFIX)/lib \
 		-DBUILD_SHARED_LIBS=ON -DGLFW_BUILD_X11=ON -DGLFW_BUILD_WAYLAND=$(WAYLAND) \
@@ -30,7 +30,7 @@ glfw:
 dav1d:
 	wget -qO- https://downloads.videolan.org/pub/videolan/dav1d/1.5.0/dav1d-1.5.0.tar.xz | tar Jxf - -C /tmp
 	meson setup build/dav1d /tmp/dav1d-1.5.0 --prefix=$(PREFIX) --libdir=lib \
-	  --buildtype=release --default-library=shared \
+		--buildtype=release --default-library=shared \
 		-Denable_tools=false -Denable_examples=false -Denable_tests=false -Denable_docs=false
 	meson compile -C build/dav1d
 	meson install -C build/dav1d
@@ -38,9 +38,9 @@ dav1d:
 ffmpeg: dav1d
 	wget -qO- https://ffmpeg.org/releases/ffmpeg-7.1.tar.xz | tar Jxf - -C /tmp
 	mkdir -p build/ffmpeg && cd build/ffmpeg && \
-	/tmp/ffmpeg-7.1/configure --prefix=$(PREFIX) --enable-shared --disable-static \
-	  --disable-programs --disable-debug --disable-doc --disable-avdevice --enable-rpath --enable-asm \
-		--enable-gpl --enable-gnutls --enable-libv4l2 --enable-libass --enable-libdav1d --enable-opengl \
+	/tmp/ffmpeg-7.1/configure --prefix=$(PREFIX) --enable-shared --disable-static --enable-rpath \
+		--disable-programs --disable-debug --disable-doc --disable-avdevice --enable-asm --enable-libv4l2 \
+		--enable-gpl --enable-gnutls --enable-libass --enable-opengl --enable-libdav1d \
 		--disable-protocols --enable-protocol=file,http,tcp,udp,hls,https,tls,httpproxy \
 		--disable-filters --enable-filter=hflip,vflip,transpose
 	make -C build/ffmpeg -j$(shell nproc)
@@ -49,7 +49,7 @@ ffmpeg: dav1d
 libplacebo:
 	git clone https://github.com/haasn/libplacebo.git -b v7.349.0 --depth 1 --recurse-submodules /tmp/libplacebo
 	meson setup build/libplacebo /tmp/libplacebo --prefix=$(PREFIX) --libdir=lib \
-	  --buildtype=release --default-library=shared \
+		--buildtype=release --default-library=shared \
 		-Ddemos=false -Dtests=false -Dlcms=disabled -Dvulkan=disabled
 	meson compile -C build/libplacebo
 	meson install -C build/libplacebo
@@ -57,7 +57,7 @@ libplacebo:
 mpv: ffmpeg libplacebo
 	wget -qO- https://github.com/mpv-player/mpv/archive/v0.39.0.tar.gz | tar zxf - -C /tmp
 	meson setup build/mpv /tmp/mpv-0.39.0 --prefix=$(PREFIX) --libdir=lib \
-	  --buildtype=release --default-library=shared \
+		--buildtype=release --default-library=shared \
 		-Dlibmpv=true -Dcplayer=false -Dtests=false -Dlibarchive=disabled
 	meson compile -C build/mpv
 	meson install -C build/mpv

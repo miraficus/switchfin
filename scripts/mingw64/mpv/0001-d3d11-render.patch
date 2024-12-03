@@ -188,6 +188,24 @@ index 0000000000..cf6f6bae44
 +    .destroy     = destroy,
 +};
 \ No newline at end of file
+diff --git a/video/out/d3d11/ra_d3d11.c b/video/out/d3d11/ra_d3d11.c
+index 2b35686111..4e12a09771 100644
+--- a/video/out/d3d11/ra_d3d11.c
++++ b/video/out/d3d11/ra_d3d11.c
+@@ -2239,13 +2239,6 @@ static void destroy(struct ra *ra)
+     SAFE_RELEASE(p->ctx1);
+     SAFE_RELEASE(p->dev1);
+     SAFE_RELEASE(p->dev);
+-
+-    if (p->ctx) {
+-        // Destroy the device context synchronously so referenced objects don't
+-        // show up in the leak check
+-        ID3D11DeviceContext_ClearState(p->ctx);
+-        ID3D11DeviceContext_Flush(p->ctx);
+-    }
+     SAFE_RELEASE(p->ctx);
+ 
+ #if HAVE_DXGI_DEBUG
 diff --git a/video/out/gpu/libmpv_gpu.c b/video/out/gpu/libmpv_gpu.c
 index 0878fa00f1..e9b0243871 100644
 --- a/video/out/gpu/libmpv_gpu.c

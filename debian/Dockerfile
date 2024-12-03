@@ -10,6 +10,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends wget xz-utils \
   && rm -rf /var/lib/apt/lists/* /usr/share/man/*
 
 RUN apt-get update && apt-get install -y --no-install-recommends xorg-dev libdbus-1-dev \
-    libwayland-dev libxkbcommon-dev libgnutls28-dev libwebp-dev libass-dev \
+    libwayland-dev libxkbcommon-dev libgnutls28-dev libwebp-dev libass-dev libssh2-1-dev \
     libv4l-dev libpulse-dev libuchardet-dev libva-dev libvdpau-dev \
   && rm -rf /var/lib/apt/lists/* /usr/share/man/*
