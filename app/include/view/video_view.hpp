@@ -83,6 +83,7 @@ private:
     BRLS_BIND(SVGImage, volumeIcon, "video/osd/volume/icon");
     BRLS_BIND(SVGImage, danmakuIcon, "video/osd/danmaku/icon");
     BRLS_BIND(SVGImage, danmakuSettingIcon, "video/osd/danmaku/setting/icon");
+    BRLS_BIND(SVGImage, osdSettingIcon, "video/osd/setting/icon");
     BRLS_BIND(brls::Box, btnDanmakuToggle, "video/osd/danmaku/toggle");
     BRLS_BIND(brls::Box, btnDanmakuSetting, "video/osd/danmaku/setting");
     BRLS_BIND(brls::Box, osdTopBox, "video/osd/top/box");
@@ -136,6 +137,7 @@ private:
     bool enableDanmaku = true;
     brls::Event<int> playIndexEvent;
     brls::VoidEvent settingEvent;
+    View* lastFocusedView = nullptr;
 
     // OSD
     bool isOsdShown = false;

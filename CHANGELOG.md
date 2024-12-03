@@ -13,6 +13,8 @@
 * loading osd when change episode
 * update server info when check login
 * audio load failed when proxy enabled
+* navigate route of video view
+* focus logic of lock button
 
 ## [0.5.3]
 

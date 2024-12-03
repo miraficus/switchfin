@@ -88,10 +88,39 @@ VideoView::VideoView() {
     this->registerAction(
         "main/player/setting"_i18n, brls::BUTTON_X,
         [this](brls::View* view) {
+            CHECK_OSD(true);
             this->settingEvent.fire();
             return true;
         },
         true);
+
+    this->registerAction(
+        "volumeUp", brls::BUTTON_NAV_UP,
+        [this](brls::View* view) -> bool {
+            CHECK_OSD(true);
+            brls::ControllerState state{};
+            input->updateUnifiedControllerState(&state);
+            if (state.buttons[brls::BUTTON_RT]) {
+                this->requestVolume((int)MPVCore::instance().volume + 5, 400);
+                return true;
+            }
+            return false;
+        },
+        true, true);
+
+    this->registerAction(
+        "volumeDown", brls::BUTTON_NAV_DOWN,
+        [this](brls::View* view) -> bool {
+            CHECK_OSD(true);
+            brls::ControllerState state{};
+            input->updateUnifiedControllerState(&state);
+            if (state.buttons[brls::BUTTON_RT]) {
+                this->requestVolume((int)MPVCore::instance().volume - 5, 400);
+                return true;
+            }
+            return false;
+        },
+        true, true);
 
     /// 音量按钮
     this->btnVolume->registerClickAction([this](brls::View* view) { return this->toggleVolume(view); });
@@ -153,7 +182,7 @@ VideoView::VideoView() {
         case OsdGestureType::LONG_PRESS_CANCEL:
         case OsdGestureType::LONG_PRESS_END:
             if (isOsdLock) {
-                mpv.togglePlay();
+                this->toggleOSD();
                 break;
             }
             mpv.setSpeed(1.0f);
@@ -258,7 +287,8 @@ VideoView::VideoView() {
     });
     this->btnForward->addGestureRecognizer(new brls::TapGestureRecognizer(this->btnForward));
 
-    this->registerAction("main/player/toggle"_i18n, brls::BUTTON_A, [this](brls::View* view) -> bool {
+    this->registerAction("main/player/toggle"_i18n, brls::BUTTON_A, [this](brls::View* view) {
+        CHECK_OSD(false);
         MPVCore::instance().togglePlay();
         if (MPVCore::OSD_ON_TOGGLE) {
             this->showOSD(true);
@@ -414,15 +444,15 @@ void VideoView::draw(NVGcontext* vg, float x, float y, float w, float h, brls::S
 
     // draw osd
     brls::Time current = brls::getCPUTimeUsec();
-    if ((this->osdState == OSDState::SHOWN && current < this->osdLastShowTime) ||
-        this->osdState == OSDState::ALWAYS_ON) {
+    if (current < this->osdLastShowTime) {
+        if (!this->isOsdShown) {
+            this->isOsdShown = true;
+        }
+
         // 当 osd 锁定时，只显示锁定按钮
         if (!isOsdLock) {
-            if (!this->isOsdShown) {
-                this->isOsdShown = true;
-                osdTopBox->setVisibility(brls::Visibility::VISIBLE);
-                osdBottomBox->setVisibility(brls::Visibility::VISIBLE);
-            }
+            osdTopBox->setVisibility(brls::Visibility::VISIBLE);
+            osdBottomBox->setVisibility(brls::Visibility::VISIBLE);
             osdBottomBox->frame(ctx);
             osdTopBox->frame(ctx);
         }
@@ -516,6 +546,12 @@ void VideoView::onChildFocusGained(View* directChild, View* focusedView) {
         if (focusedView->getParent()->getVisibility() == brls::Visibility::GONE) {
             brls::Application::giveFocus(this);
         }
+        // 设定自定义导航
+        if (focusedView == this->osdSettingIcon) {
+            this->osdSettingIcon->setCustomNavigationRoute(brls::FocusDirection::DOWN,
+                lastFocusedView == this->btnToggle ? "video/osd/toggle" : "video/osd/lock/box");
+        }
+        lastFocusedView = focusedView;
         return;
     }
     brls::Application::giveFocus(this);
@@ -656,7 +692,7 @@ void VideoView::showOSD(bool autoHide) {
         this->osdLastShowTime = brls::getCPUTimeUsec() + VideoView::OSD_SHOW_TIME;
         this->osdState = OSDState::SHOWN;
     } else {
-        this->osdLastShowTime = 0xffffffff;
+        this->osdLastShowTime = std::numeric_limits<std::time_t>::max();
         this->osdState = OSDState::ALWAYS_ON;
     }
 }
