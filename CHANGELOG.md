@@ -7,6 +7,7 @@
 * add japanese localization (@yyoossk)
 * add vietnamese localization (@tlover-code)
 * support modify server url
+* remote add ftp/sftp support
 
 ### Fixed
 

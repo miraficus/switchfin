@@ -37,11 +37,12 @@ dav1d:
 
 ffmpeg: dav1d
 	wget -qO- https://ffmpeg.org/releases/ffmpeg-7.1.tar.xz | tar Jxf - -C /tmp
+	patch -d /tmp/ffmpeg-7.1 -Nbp1 -i $(CURDIR)/scripts/mingw64/ffmpeg/avio.patch
 	mkdir -p build/ffmpeg && cd build/ffmpeg && \
 	/tmp/ffmpeg-7.1/configure --prefix=$(PREFIX) --enable-shared --disable-static --enable-rpath \
 		--disable-programs --disable-debug --disable-doc --disable-avdevice --enable-asm --enable-libv4l2 \
-		--enable-gpl --enable-gnutls --enable-libass --enable-opengl --enable-libdav1d \
-		--disable-protocols --enable-protocol=file,http,tcp,udp,hls,https,tls,httpproxy \
+		--enable-gpl --enable-gnutls --enable-libssh2 --enable-libass --enable-opengl --enable-libdav1d \
+		--disable-protocols --enable-protocol=file,http,tcp,udp,hls,https,ftp,libssh2,tls,httpproxy \
 		--disable-filters --enable-filter=hflip,vflip,transpose
 	make -C build/ffmpeg -j$(shell nproc)
 	make -C build/ffmpeg install
@@ -56,6 +57,7 @@ libplacebo:
 
 mpv: ffmpeg libplacebo
 	wget -qO- https://github.com/mpv-player/mpv/archive/v0.39.0.tar.gz | tar zxf - -C /tmp
+	wget -qO- https://github.com/mpv-player/mpv/commit/901b9bc8888c8bc5647d146aa4b84a9cccc9cbe1.patch | patch -d /tmp/mpv-0.39.0 -Nbp1 -i -
 	meson setup build/mpv /tmp/mpv-0.39.0 --prefix=$(PREFIX) --libdir=lib \
 		--buildtype=release --default-library=shared \
 		-Dlibmpv=true -Dcplayer=false -Dtests=false -Dlibarchive=disabled

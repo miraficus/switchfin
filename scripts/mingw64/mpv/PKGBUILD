@@ -26,13 +26,15 @@ makedepends=(
 options=('strip')
 source=(
   "${_realname}-${pkgver}.tar.gz"::"https://github.com/mpv-player/${_realname}/archive/v${pkgver}.tar.gz"
+  "https://github.com/mpv-player/mpv/commit/901b9bc8888c8bc5647d146aa4b84a9cccc9cbe1.patch"
   "0001-d3d11-render.patch"
 )
-sha256sums=('2ca92437affb62c2b559b4419ea4785c70d023590500e8a52e95ea3ab4554683' 'SKIP')
+sha256sums=('2ca92437affb62c2b559b4419ea4785c70d023590500e8a52e95ea3ab4554683' 'SKIP' 'SKIP')
 
 prepare() {
   cd "${srcdir}/${_realname}-${pkgver}"
   patch -Nbp1 -i "${srcdir}/0001-d3d11-render.patch"
+  patch -Nbp1 -i "${srcdir}/901b9bc8888c8bc5647d146aa4b84a9cccc9cbe1.patch"
 }
 
 build() {
@@ -65,4 +67,10 @@ package() {
   meson install -C "build-${MSYSTEM}" --destdir "${pkgdir}"
   sed -s "/private/d" -i ${pkgdir}${MINGW_PREFIX}/lib/pkgconfig/mpv.pc
   sed -s "s|$(cygpath -am ${MINGW_PREFIX})|${MINGW_PREFIX}|g" -i ${pkgdir}${MINGW_PREFIX}/lib/pkgconfig/mpv.pc
+  # used by avio
+  hfiles=("libavformat/avio.h" "libavformat/version_major.h" "libavutil/attributes.h"
+    "libavutil/avconfig.h" "libavutil/dict.h" "libavutil/log.h" "libavutil/macros.h" "libavutil/version.h")
+  for _name in "${hfiles[@]}"; do
+    install -Dm644 "${MINGW_PREFIX}/include/${_name}" "${pkgdir}${MINGW_PREFIX}/include/${_name}"
+  done
 }

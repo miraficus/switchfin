@@ -83,6 +83,7 @@ void MPVCore::init() {
     // misc
     mpv_set_option_string(mpv, "config", "yes");
     mpv_set_option_string(mpv, "config-dir", conf.configDir().c_str());
+    mpv_set_option_string(mpv, "cache-on-disk", "no");
     mpv_set_option_string(mpv, "ytdl", "no");
     mpv_set_option_string(mpv, "referrer", conf.getUrl().c_str());
     mpv_set_option_string(mpv, "osd-level", "0");

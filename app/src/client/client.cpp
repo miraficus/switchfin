@@ -1,6 +1,7 @@
 #include "client/local.hpp"
 #include "client/webdav.hpp"
 #include "client/apache.hpp"
+#include "client/avio.hpp"
 #include <utils/misc.hpp>
 
 namespace remote {
@@ -25,10 +26,10 @@ std::shared_ptr<Client> create(const AppRemote& c) {
     if (scheme == "http" || scheme == "https") {
         return std::make_shared<Apache>(c);
     }
-    throw std::runtime_error("unsupport protocol");
+    return std::make_shared<AVIO>(c.url);
 }
 
-void Client::init(const AppRemote &conf, HTTP& cilent) {
+void Client::init(const AppRemote& conf, HTTP& cilent) {
     std::stringstream ssextra;
     ssextra << fmt::format("network-timeout={}", HTTP::TIMEOUT / 100);
     if (HTTP::PROXY_STATUS) ssextra << ",http-proxy=\"" << HTTP::PROXY << "\"";

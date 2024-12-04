@@ -81,6 +81,19 @@ jobs:
           -DENABLE_PROGRAMS=OFF -DENABLE_TESTING=OFF
         cmake --build build-mbedtls
         cmake --install build-mbedtls
+    - name: Build libssh2
+      run: |
+        curl --retry 5 -sSL https://libssh2.org/download/libssh2-1.11.1.tar.xz | tar Jxf - -C ${{ runner.temp }}
+        cmake -B build-libssh2 -G Ninja -S ${{ runner.temp }}/libssh2-1.11.1 \
+          -DCMAKE_INSTALL_PREFIX=$CMAKE_PREFIX_PATH \
+          -DCMAKE_INSTALL_NAME_DIR=$CMAKE_PREFIX_PATH/lib \
+          -DCMAKE_OSX_ARCHITECTURES=${{ matrix.arch }} \
+          -DCMAKE_OSX_DEPLOYMENT_TARGET=${{ matrix.target }} \
+          -DCMAKE_BUILD_TYPE=Release -DCRYPTO_BACKEND=mbedTLS \
+          -DBUILD_SHARED_LIBS=ON -DBUILD_STATIC_LIBS=OFF \
+          -DBUILD_EXAMPLES=OFF -DBUILD_TESTING=OFF
+        cmake --build build-libssh2
+        cmake --install build-libssh2
     - name: Build libcurl
       run: |
         curl --retry 5 -sSL https://curl.se/download/curl-8.11.0.tar.xz | tar Jxf - -C ${{ runner.temp }}
@@ -90,7 +103,7 @@ jobs:
           -DCMAKE_OSX_ARCHITECTURES=${{ matrix.arch }} \
           -DCMAKE_OSX_DEPLOYMENT_TARGET=${{ matrix.target }} \
           -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON \
-          -DHTTP_ONLY=ON -DCURL_DISABLE_PROGRESS_METER=ON -DCURL_USE_MBEDTLS=ON \
+          -DHTTP_ONLY=ON -DCURL_DISABLE_PROGRESS_METER=ON -DCURL_USE_SECTRANSP=ON \
           -DBUILD_CURL_EXE=OFF -DUSE_NGHTTP2=OFF -DBUILD_TESTING=OFF -DBUILD_LIBCURL_DOCS=OFF \
           -DUSE_LIBIDN2=OFF -DCURL_USE_LIBSSH2=OFF -DCURL_USE_LIBPSL=OFF
         cmake --build build-curl
@@ -166,6 +179,7 @@ jobs:
     - name: Build ffmpeg
       run: |
         curl --retry 5 -sSL https://ffmpeg.org/releases/ffmpeg-7.1.tar.xz | tar Jxf - -C ${{ runner.temp }}
+        patch -d ${{ runner.temp }}/ffmpeg-7.1 -Nbp1 -i ${{ github.workspace }}/scripts/mingw64/ffmpeg/avio.patch
         mkdir -p build-ffmpeg && cd build-ffmpeg
         ${{ runner.temp }}/ffmpeg-7.1/configure --enable-shared --disable-static --pkg-config-flags=-static \
           --prefix=$CMAKE_PREFIX_PATH --enable-pthreads --disable-runtime-cpudetect \
@@ -174,9 +188,9 @@ jobs:
           --extra-cxxflags='-arch ${{ matrix.arch }} -mmacosx-version-min=${{ matrix.target }}' \
           --extra-ldflags='-arch ${{ matrix.arch }} -mmacosx-version-min=${{ matrix.target }}' \
           --disable-autodetect --disable-encoders --enable-pic ${{ matrix.ffmpeg }} \
-          --disable-programs --disable-doc --disable-debug --disable-avdevice \
+          --disable-programs --disable-doc --disable-debug --disable-avdevice --enable-libssh2 \
           --disable-filters --enable-filter=hflip,vflip,transpose --disable-muxers \
-          --disable-protocols --enable-protocol=file,http,tcp,udp,hls,https,tls,httpproxy \
+          --disable-protocols --enable-protocol=file,http,tcp,udp,hls,https,tls,ftp,libssh2,httpproxy \
           --disable-libjack --disable-indev=jack --disable-postproc --enable-network \
           --enable-libdav1d --enable-libass --enable-libfreetype --enable-zlib --enable-bzlib \
           --enable-videotoolbox --enable-audiotoolbox --enable-mbedtls --enable-gpl --enable-version3
@@ -195,6 +209,7 @@ jobs:
       if: ${{ matrix.tag != 'Intel_Old' }}
       run: |
         curl --retry 5 -sSL https://github.com/mpv-player/mpv/archive/v0.39.0.tar.gz | tar zxf - -C ${{ runner.temp }}
+        curl --retry 5 -sSL https://github.com/mpv-player/mpv/commit/901b9bc8888c8bc5647d146aa4b84a9cccc9cbe1.patch | patch -d ${{ runner.temp }}/mpv-0.39.0 -Nbp1 -i -
         meson setup build-mpv ${{ runner.temp }}/mpv-0.39.0 ${{ matrix.meson }} \
           --prefix=$CMAKE_PREFIX_PATH --buildtype=release --default-library=shared \
           -Dlibmpv=true -Dcplayer=false -Dtests=false -Dswift-build=disabled -Dcocoa=disabled \
