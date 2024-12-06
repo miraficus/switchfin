@@ -32,16 +32,16 @@ brls::View* RemoteTab::create() { return new RemoteTab(); }
 void RemoteTab::onCreate() {
     for (auto& r : AppConfig::instance().getRemotes()) {
         try {
-            auto c = remote::create(r);
             auto* item = new AutoSidebarItem();
             item->setTabStyle(AutoTabBarStyle::ACCENT);
             item->setFontSize(22);
             item->setLabel(r.name);
-            this->tabFrame->addTab(item, [c]() {
-                auto view = new RemoteView(c);
-                view->push(c->rootPath());
-                return view;
-            });
+
+            auto c = remote::create(r);
+            auto view = new RemoteView(c, r.name);
+            view->push(c->rootPath());
+
+            this->tabFrame->addTab(item, [view]() { return view; });
         } catch (const std::exception& ex) {
             brls::Logger::warning("remote {} create {}", r.name, ex.what());
         }

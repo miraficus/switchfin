@@ -11,11 +11,13 @@ class RecyclingGrid;
 
 using DirList = std::vector<remote::DirEntry>;
 
+class RemoteResume;
+
 class RemoteView : public AttachedView {
 public:
     using Client = std::shared_ptr<remote::Client>;
 
-    RemoteView(Client c);
+    RemoteView(Client c, const std::string& name);
     ~RemoteView() override;
 
     brls::View* getDefaultFocus() override;
@@ -32,5 +34,6 @@ private:
     void load();
 
     std::vector<std::string> stack;
+    std::unique_ptr<RemoteResume> resume;
     Client client;
 };

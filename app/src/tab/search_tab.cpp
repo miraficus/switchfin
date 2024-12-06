@@ -89,7 +89,7 @@ public:
 class HistoryDataSource : public RecyclingGridDataSource {
 public:
     HistoryDataSource() {
-        this->path = AppConfig::instance().configDir() + "/history.json";
+        this->path = AppConfig::instance().configDir() + "/search.json";
         std::ifstream readFile(this->path);
         if (readFile.is_open()) {
             try {
