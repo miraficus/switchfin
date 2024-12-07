@@ -157,14 +157,12 @@ void ServerList::onContentAvailable() {
 
 void ServerList::willAppear(bool resetState) {
     auto list = AppConfig::instance().getServers();
-    if (list.empty()) {
-        this->tabFrame->setTabAttachedView(new ServerAdd());
-        return;
-    }
+    ServerCell* item = nullptr;
+    std::string url = AppConfig::instance().getUrl();
     this->sidebarServers->clearViews();
 
     for (auto& s : list) {
-        ServerCell* item = new ServerCell(s);
+        item = new ServerCell(s);
         item->getFocusEvent()->subscribe([this, s](brls::View* view) {
             this->setActive(view);
             this->onServer(s);
@@ -183,13 +181,20 @@ void ServerList::willAppear(bool resetState) {
             return true;
         });
 
-        if (s.urls.front() == AppConfig::instance().getUrl()) {
-            item->setActive(true);
-            this->onServer(s);
+        if (s.urls.size() > 0) {
+            if (url.empty()) {
+                url = s.urls.front();
+            }
+            if (s.urls.front() == url) {
+                item->setActive(true);
+                this->onServer(s);
+            }
         }
 
         this->sidebarServers->addView(item);
     }
+
+    if (!item) this->tabFrame->setTabAttachedView(new ServerAdd());
 }
 
 void ServerList::onServer(const AppServer& s) {
