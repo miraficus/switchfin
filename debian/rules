@@ -42,7 +42,7 @@ ffmpeg: dav1d
 	/tmp/ffmpeg-7.1/configure --prefix=$(PREFIX) --enable-shared --disable-static --enable-rpath \
 		--disable-programs --disable-debug --disable-doc --disable-avdevice --enable-asm --enable-libv4l2 \
 		--enable-gpl --enable-gnutls --enable-libssh2 --enable-libass --enable-opengl --enable-libdav1d \
-		--disable-protocols --enable-protocol=file,http,tcp,udp,hls,https,ftp,libssh2,tls,httpproxy \
+		--disable-protocols --enable-protocol=file,http,tcp,udp,hls,https,tls,ftp,libssh2,rtp,crypto,httpproxy \
 		--disable-filters --enable-filter=hflip,vflip,transpose
 	make -C build/ffmpeg -j$(shell nproc)
 	make -C build/ffmpeg install

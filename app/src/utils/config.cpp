@@ -1,6 +1,15 @@
 #ifdef __SWITCH__
 #include <switch.h>
 #include "utils/overclock.hpp"
+#elif defined(__PS4__)
+#include <orbis/SystemService.h>
+#include <orbis/Sysmodule.h>
+#include <arpa/inet.h>
+
+extern "C" {
+extern in_addr_t primary_dns;
+extern in_addr_t secondary_dns;
+}
 #elif defined(__APPLE__) || defined(__linux__) || defined(_WIN32)
 #include <unistd.h>
 #include <borealis/platforms/desktop/desktop_platform.hpp>
@@ -198,6 +207,12 @@ bool AppConfig::init() {
                                                    width, height, (int)VideoContext::posX, (int)VideoContext::posY));
         this->save();
     });
+#elif defined(__PS4__)
+    if (sceSysmoduleLoadModuleInternal(ORBIS_SYSMODULE_INTERNAL_NET) < 0) brls::Logger::error("cannot load net module");
+    primary_dns = inet_addr("223.5.5.5");
+    secondary_dns = inet_addr("1.1.1.1");
+    // 在加载第一帧之后隐藏启动画面
+    brls::sync([]() { sceSystemServiceHideSplashScreen(); });
 #endif
 
     AppConfig::SYNC = this->getItem(SYNC_SETTING, true);
@@ -217,7 +232,7 @@ bool AppConfig::init() {
     // 初始化内存缓存大小
     MPVCore::INMEMORY_CACHE = this->getItem(PLAYER_INMEMORY_CACHE, 10);
     // 是否使用低质量解码
-#if defined(__PSV__) || defined(PS4) || defined(__SWITCH__)
+#if defined(__PSV__) || defined(__PS4__) || defined(__SWITCH__)
     MPVCore::LOW_QUALITY = this->getItem(PLAYER_LOW_QUALITY, true);
 #else
     MPVCore::LOW_QUALITY = this->getItem(PLAYER_LOW_QUALITY, false);
@@ -283,7 +298,7 @@ bool AppConfig::init() {
         }
 
         // 初始化纹理缓存数量
-#if defined(__PSV__) || defined(PS4)
+#if defined(__PSV__) || defined(__PS4__)
         brls::TextureCache::instance().cache.setCapacity(1);
 #else
         brls::TextureCache::instance().cache.setCapacity(getItem(TEXTURE_CACHE_NUM, 200));
@@ -339,7 +354,7 @@ bool AppConfig::init() {
     brls::FontLoader::USER_ICON_PATH = configDir() + "/icon.ttf";
     if (access(brls::FontLoader::USER_ICON_PATH.c_str(), F_OK) == -1) {
         // 自定义字体不存在，使用内置字体
-#if defined(__PSV__) || defined(PS4)
+#if defined(__PSV__) || defined(__PS4__)
         brls::FontLoader::USER_ICON_PATH = BRLS_ASSET("font/keymap_ps.ttf");
 #else
         std::string icon = getItem(KEYMAP, std::string("xbox"));
@@ -436,7 +451,7 @@ bool AppConfig::checkDanmuku() {
 std::string AppConfig::configDir() {
 #if __SWITCH__
     return fmt::format("sdmc:/switch/{}", AppVersion::getPackageName());
-#elif defined(PS4)
+#elif defined(__PS4__)
     return fmt::format("/data/{}", AppVersion::getPackageName());
 #elif defined(__PSV__)
     return fmt::format("ux0:/data/{}", AppVersion::getPackageName());

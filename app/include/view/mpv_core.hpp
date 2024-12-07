@@ -133,7 +133,15 @@ public:
 
     // 硬件解码
     inline static bool HARDWARE_DEC = false;
+#ifdef __SWITCH__
     inline static std::string PLAYER_HWDEC_METHOD = "auto";
+#elif defined(__PSV__)
+    inline static std::string PLAYER_HWDEC_METHOD = "vita-copy";
+#elif defined(__PS4__)
+    inline static std::string PLAYER_HWDEC_METHOD = "no";
+#else
+    inline static std::string PLAYER_HWDEC_METHOD = "auto-safe";
+#endif
     inline static std::string VIDEO_CODEC = "h264";
     inline static int64_t VIDEO_QUALITY = 0;
 

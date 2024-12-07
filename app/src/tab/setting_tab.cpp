@@ -250,7 +250,7 @@ void SettingTab::onCreate() {
 
     btnOpenConfig->registerClickAction([](...) -> bool {
         const std::string confDir = AppConfig::instance().configDir();
-#if defined(__SWITCH__) || defined(__PSV__) || defined(PS4)
+#if defined(__SWITCH__) || defined(__PSV__) || defined(__PS4__)
         Dialog::show("main/setting/others/config_dir"_i18n + ":\n" + confDir);
 #else
 #ifdef __linux__

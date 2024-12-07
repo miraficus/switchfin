@@ -31,7 +31,7 @@ std::string AppVersion::getPlatform() {
     return "NX";
 #elif defined(__PSV__)
     return "PSVita";
-#elif defined(PS4)
+#elif defined(__PS4__)
     return "PS4";
 #elif defined(__APPLE__)
     return "macOS";

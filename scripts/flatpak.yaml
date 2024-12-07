@@ -143,7 +143,7 @@ modules:
           - --disable-encoders
           - --disable-muxers
           - --disable-filters
-          - --enable-protocol=file,http,tcp,udp,hls,https,tls,ftp,libssh2,httpproxy
+          - --enable-protocol=file,http,tcp,udp,hls,https,tls,ftp,libssh2,rtp,crypto,httpproxy
           - --enable-filter=hflip,vflip,transpose
           - --enable-libssh2
           - --enable-libv4l2
