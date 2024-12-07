@@ -80,6 +80,7 @@ std::unordered_map<AppConfig::Item, AppConfig::Option> AppConfig::settingMap = {
     {PLAYER_HWDEC, {"player_hwdec"}},
     {PLAYER_HWDEC_CUSTOM, {"player_hwdec_custom"}},
     {PLAYER_ASPECT, {"player_aspect", {"auto", "stretch", "crop", "4:3", "16:9"}}},
+    {DANMAKU, {"danmaku"}},
     {DANMAKU_ON, {"danmaku_on"}},
     {DANMAKU_STYLE_AREA, {"danmaku_style_area", {"1/4", "1/2", "3/4", "1"}, {25, 50, 75, 100}}},
     {DANMAKU_STYLE_ALPHA,
@@ -438,11 +439,13 @@ bool AppConfig::checkDanmuku() {
                 }
             }
             DanmakuCore::PLUGIN_ACTIVE = false;
-            brls::Logger::warning("Danmaku plugin not found");
+            brls::Logger::info("Danmaku plugin not found");
         },
-        [](const std::string& err) {
-            DanmakuCore::PLUGIN_ACTIVE = false;
-            brls::Logger::error("AppConfig checkDanmuku: {}", err);
+        [this](const std::string& err) {
+            const std::string locale = brls::Application::getPlatform()->getLocale();
+            bool enable = (locale == brls::LOCALE_ZH_HANS) || (locale == brls::LOCALE_ZH_HANT);
+            DanmakuCore::PLUGIN_ACTIVE = this->getItem(DANMAKU, enable);
+            brls::Logger::warning("checkDanmuku {} fallback ({})", err, DanmakuCore::PLUGIN_ACTIVE);
         },
         jellyfin::apiPlugins);
     return false;

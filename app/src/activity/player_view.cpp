@@ -66,7 +66,7 @@ PlayerView::PlayerView(const jellyfin::Item& item) : itemId(item.Id) {
             if (PlayerSetting::selectedSubtitle > 0) {
                 mpv.setInt("sid", PlayerSetting::selectedSubtitle);
             }
-            if (DanmakuCore::PLUGIN_ACTIVE) {
+            if (DanmakuCore::PLUGIN_ACTIVE && this->stream.Protocol != "Http") {
                 this->requestDanmaku();
             }
             break;

@@ -27,7 +27,7 @@ inline void getJSON(const std::function<void(Result)>& then, OnError error, std:
             auto j = nlohmann::json::parse(resp).get<Result>();
             brls::sync(std::bind(std::move(then), std::move(j)));
         } catch (const std::exception& ex) {
-            if (error) brls::sync(std::bind(error, ex.what()));
+            if (error) brls::sync(std::bind(error, std::string(ex.what())));
         }
     });
 }
@@ -48,7 +48,7 @@ inline void postJSON(const nlohmann::json& data, Then then, OnError error, std::
             nlohmann::json j = nlohmann::json::parse(resp);
             brls::sync(std::bind(std::move(then), std::move(j)));
         } catch (const std::exception& ex) {
-            if (error) brls::sync(std::bind(error, ex.what()));
+            if (error) brls::sync(std::bind(error, std::string(ex.what())));
         }
     });
 }
