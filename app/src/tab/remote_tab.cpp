@@ -39,9 +39,10 @@ void RemoteTab::onCreate() {
 
             auto c = remote::create(r);
             auto view = new RemoteView(c, r.name);
-            view->push(c->rootPath());
-
-            this->tabFrame->addTab(item, [view]() { return view; });
+            this->tabFrame->addTab(item, [view, c]() {
+                view->push(c->rootPath());
+                return view;
+            });
         } catch (const std::exception& ex) {
             brls::Logger::warning("remote {} create {}", r.name, ex.what());
         }

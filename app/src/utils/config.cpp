@@ -175,9 +175,11 @@ bool AppConfig::init() {
         }
     }
 
-#if defined(__APPLE__) || defined(__linux__) || defined(_WIN32)
+#if defined(_WIN32) && !defined(_WINRT_)
     misc::initCrashDump();
+#endif
 
+#if defined(__APPLE__) || defined(__linux__) || defined(_WIN32)
     if (this->getItem(AppConfig::SINGLE, false) && misc::sendIPC(this->ipcSocket(), "{}")) {
         brls::Logger::warning("AppConfig single instance");
         return false;
