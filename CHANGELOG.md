@@ -1,6 +1,6 @@
 # Changelog
 
-## [next]
+## [0.6.0]
 
 ### Add
 
@@ -8,6 +8,7 @@
 * add vietnamese localization (@tlover-code)
 * support modify server url
 * remote add ftp/sftp support
+* remote add resume history
 
 ### Fixed
 

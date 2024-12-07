@@ -1,3 +1,15 @@
+switchfin (0.6.0-1) unstable; urgency=medium
+
+  * support modify server url
+  * remote add ftp/sftp support
+  * remote add resume history
+  * fix loading osd when change episode
+  * update server info when check login
+  * fix music load failed when proxy enabled
+  * fix navigate route of video view
+
+ -- dragonflylee <dragonflylee@outlook.com>  Sat, 7 Dec 2024 22:30:36 +0800
+
 switchfin (0.5.3-1) unstable; urgency=medium
 
   * save windows state when exit

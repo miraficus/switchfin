@@ -12,7 +12,7 @@ Build-Depends: debhelper (>= 10),
                libass-dev,
                libuchardet-dev,
                libpulse-dev
-Standards-Version: 0.5.3
+Standards-Version: 0.6.0
 Vcs-Git: https://github.com/dragonflylee/switchfin.git
 
 Package: switchfin

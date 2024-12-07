@@ -22,7 +22,7 @@ Switchfin is third-party PC player for Jellyfin that provides a native user inte
 - Completely native interface
 - Supported media items: movies, series, seasons, episodes 
   - Direct play and transcoding
-- Remote browser for Webdav/Apache/Nginx server
+- Remote browser for Webdav/Apache/Nginx/FTP server
 - Base on MPV Player
   - Container formats: mkv, mov, mp4, avi
   - Video codecs: H.264, H.265, VP8, VP9, AV1
@@ -60,6 +60,10 @@ Switchfin is third-party PC player for Jellyfin that provides a native user inte
       "passwd": "guest_Api789",
       "url": "webdav://192.168.1.5:5678/dav",
       "user": "guest"
+    },
+    {
+      "name": "rpi",
+      "url": "sftp//pi:raspberry@192.168.1.5/media"
     },
     {
       "name": "rclone",
