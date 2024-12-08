@@ -89,7 +89,7 @@ public:
                 break;
             }
             case MpvEventEnum::END_OF_FILE:
-                this->resume->end(this->url);
+                if (this->resume) this->resume->end(this->url);
                 break;
             default:;
             }
@@ -105,11 +105,12 @@ public:
         mpv.getEvent()->unsubscribe(eventSubscribeID);
         view->getPlayEvent()->unsubscribe(playSubscribeID);
         view->getSettingEvent()->unsubscribe(settingSubscribeID);
-
-        if (mpv.video_progress > RESUME_THRESHOLD && mpv.duration - mpv.video_progress > RESUME_THRESHOLD) {
-            this->resume->update(this->url, mpv.video_progress);
-        } else {
-            this->resume->end(this->url);
+        if (this->resume) {
+            if (mpv.video_progress > RESUME_THRESHOLD && mpv.duration - mpv.video_progress > RESUME_THRESHOLD) {
+                this->resume->update(this->url, mpv.video_progress);
+            } else {
+                this->resume->end(this->url);
+            }
         }
     }
 
@@ -243,7 +244,7 @@ static std::set<std::string> subtitleExt = {".srt", ".ass", ".ssa", ".sub", ".sm
 
 class FileDataSource : public RecyclingGridDataSource {
 public:
-    FileDataSource(const DirList& r, RemoteView::Client c, bool root, RemoteResume* rr)
+    FileDataSource(const DirList& r, RemoteView::Client c, RemoteResume* rr)
         : list(std::move(r)), resume(rr), client(c) {
         if (this->list.size() > 1) {
             std::sort(this->list.begin() + 1, this->list.end(), [](auto i, auto j) {
@@ -315,7 +316,7 @@ public:
         }
 
         if (item.type == remote::EntryType::PLAYLIST) {
-            RemotePlayer* view = new RemotePlayer(item, this->resume);
+            RemotePlayer* view = new RemotePlayer(item, nullptr);
             MPVCore::instance().setUrl(item.url(), client->extraOption());
             brls::Application::pushActivity(new brls::Activity(view), brls::TransitionAnimation::NONE);
         }
@@ -381,8 +382,7 @@ void RemoteView::load() {
             auto r = client->list(this->stack.back());
             brls::sync([ASYNC_TOKEN, r]() {
                 ASYNC_RELEASE
-                bool root = this->stack.size() <= 1;
-                this->recycler->setDataSource(new FileDataSource(r, client, root, this->resume.get()));
+                this->recycler->setDataSource(new FileDataSource(r, client, this->resume.get()));
             });
         } catch (const std::exception& ex) {
             std::string error = ex.what();
