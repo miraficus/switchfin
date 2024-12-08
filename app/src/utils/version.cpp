@@ -74,7 +74,7 @@ std::string AppVersion::getDeviceName() {
         return buf.data();
     }
 #endif
-    return getPackageName();
+    return fmt::format("{} for {}", getPackageName(), getPlatform());
 }
 
 bool AppVersion::needUpdate(std::string latestVersion) { return false; }

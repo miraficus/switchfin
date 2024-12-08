@@ -1,12 +1,15 @@
 #ifdef __SWITCH__
 #include <switch.h>
 #include "utils/overclock.hpp"
+#elif defined(__PSV__)
 #elif defined(__PS4__)
 #include <orbis/SystemService.h>
 #include <orbis/Sysmodule.h>
 #include <arpa/inet.h>
 
 extern "C" {
+extern int ps4_mpv_use_precompiled_shaders;
+extern int ps4_mpv_dump_shaders;
 extern in_addr_t primary_dns;
 extern in_addr_t secondary_dns;
 }
@@ -214,6 +217,8 @@ bool AppConfig::init() {
     if (sceSysmoduleLoadModuleInternal(ORBIS_SYSMODULE_INTERNAL_NET) < 0) brls::Logger::error("cannot load net module");
     primary_dns = inet_addr("223.5.5.5");
     secondary_dns = inet_addr("1.1.1.1");
+    ps4_mpv_use_precompiled_shaders = 1;
+    ps4_mpv_dump_shaders = 0;
     // 在加载第一帧之后隐藏启动画面
     brls::sync([]() { sceSystemServiceHideSplashScreen(); });
 #endif
@@ -484,7 +489,9 @@ std::string AppConfig::ipcSocket() {
 }
 
 void AppConfig::checkRestart(char* argv[]) {
-#if defined(__APPLE__) || defined(__linux__) || defined(_WIN32)
+#if defined(__PS4__)
+#elif __PSV__
+#elif defined(__APPLE__) || defined(__linux__) || defined(_WIN32)
     if (brls::DesktopPlatform::RESTART_APP) {
         brls::Logger::info("Restart app {}", argv[0]);
         execv(argv[0], argv);

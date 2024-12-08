@@ -7,13 +7,6 @@
 #include "utils/misc.hpp"
 #include <fmt/ranges.h>
 
-#ifdef __PS4__
-extern "C" {
-extern int ps4_mpv_use_precompiled_shaders;
-extern int ps4_mpv_dump_shaders;
-}
-#endif
-
 static inline void check_error(int status) {
     if (status < 0) brls::Logger::error("MPV ERROR => {}", mpv_error_string(status));
 }
@@ -54,10 +47,6 @@ void MPVCore::on_wakeup(void *self) {
 }
 
 MPVCore::MPVCore() {
-#ifdef __PS4__
-    ps4_mpv_use_precompiled_shaders = 1;
-    ps4_mpv_dump_shaders = 0;
-#endif
     this->init();
     // Destroy mpv when application exit
     brls::Application::getExitEvent()->subscribe([this]() {
@@ -265,6 +254,8 @@ void MPVCore::clean() {
 void MPVCore::restart() {
     this->clean();
     this->init();
+
+    setFrameSize(rect);
 }
 
 MPVMap MPVCore::supportCodecs() {
@@ -293,7 +284,10 @@ MPVMap MPVCore::supportCodecs() {
     return codecs;
 }
 
-void MPVCore::setFrameSize(brls::Rect rect) {
+void MPVCore::setFrameSize(brls::Rect area) {
+    rect = area;
+    if (isnan(rect.getWidth()) || isnan(rect.getHeight())) return;
+
 #ifdef MPV_SW_RENDER
 #ifdef BOREALIS_USE_D3D11
     // 使用 dx11 的拷贝交换，否则视频渲染异常
@@ -324,13 +318,18 @@ void MPVCore::setFrameSize(brls::Rect rect) {
     sw_size[0] = drawWidth;
     sw_size[1] = drawHeight;
     pitch = PIXCEL_SIZE * drawWidth;
+#elif !defined(BOREALIS_USE_D3D11)
+    // Using default framebuffer
+    this->mpv_fbo.w = brls::Application::windowWidth;
+    this->mpv_fbo.h = brls::Application::windowHeight;
 #endif
 }
 
 bool MPVCore::isValid() { return mpv_context != nullptr; }
 
-void MPVCore::draw(brls::Rect rect, float alpha) {
+void MPVCore::draw(brls::Rect area, float alpha) {
     if (mpv_context == nullptr) return;
+    if (!(this->rect == area)) this->setFrameSize(area);
 
 #ifdef MPV_SW_RENDER
     if (!pixels) return;
@@ -354,11 +353,6 @@ void MPVCore::draw(brls::Rect rect, float alpha) {
 #else
     // 只在非透明时绘制视频，可以避免退出页面时视频画面残留
     if (alpha >= 1) {
-#ifndef BOREALIS_USE_D3D11
-        // Using default framebuffer
-        this->mpv_fbo.w = brls::Application::windowWidth;
-        this->mpv_fbo.h = brls::Application::windowHeight;
-#endif
 #ifdef BOREALIS_USE_DEKO3D
         static auto videoContext =
             dynamic_cast<brls::SwitchVideoContext *>(brls::Application::getPlatform()->getVideoContext());
@@ -549,6 +543,8 @@ void MPVCore::reset() {
     this->cache_speed = 0;  // Bps
     this->playback_time = 0;
     this->video_progress = 0;
+
+    setFrameSize(rect);
 }
 
 void MPVCore::setUrl(const std::string &url, const std::string &extra, const std::string &method, uint64_t userdata) {
@@ -652,22 +648,4 @@ std::unordered_map<std::string, mpv_node> MPVCore::getNodeMap(const std::string 
         mpv_free_node_contents(&node);
     }
     return nodeMap;
-}
-
-void MPVCore::setShader(const std::string &profile, const std::string &shaders, bool showHint) {
-    brls::Logger::info("Set shader [{}]: {}", profile, shaders);
-    if (shaders.empty()) return;
-    this->command("no-osd", "change-list", "glsl-shaders", "set", shaders.c_str());
-    if (showHint) showOsdText(profile);
-}
-
-void MPVCore::clearShader(bool showHint) {
-    brls::Logger::info("Clear shader");
-    this->command("no-osd", "change-list", "glsl-shaders", "clr", "");
-    if (showHint) showOsdText("Clear shader");
-}
-
-void MPVCore::showOsdText(const std::string &value, int duration) {
-    std::string d = std::to_string(duration);
-    this->command("show-text", value.c_str(), d.c_str());
 }

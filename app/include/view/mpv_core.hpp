@@ -101,12 +101,6 @@ public:
 
     void reset();
 
-    void setShader(const std::string &profile, const std::string &shaders, bool showHint = true);
-
-    void clearShader(bool showHint = true);
-
-    void showOsdText(const std::string &value, int duration = 2000);
-
     MPVMap supportCodecs();
 
     // core states
@@ -161,6 +155,7 @@ public:
 private:
     mpv_handle *mpv = nullptr;
     mpv_render_context *mpv_context = nullptr;
+    brls::Rect rect = {0, 0, 1920, 1080};
     bool video_stopped = true;
     int64_t cache_speed = 0;  // Bps
 
