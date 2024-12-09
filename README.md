@@ -119,4 +119,5 @@ cmake --build build_mingw
 - @devkitpro and switchbrew for [libnx](https://github.com/switchbrew/libnx)
 - @natinusala and XITRIX for [borealis](https://github.com/natinusala/borealis)
 - @proconsule for [nxmp](https://github.com/proconsule/nxmp)
-- @averne for great work of [FFmpeg](https://github.com/averne/FFmpeg) hwaccel backend 
+- @averne for great work of [FFmpeg](https://github.com/averne/FFmpeg) hwaccel backend
+- @averne deko3d backend of [mpv](https://github.com/averne/mpv)

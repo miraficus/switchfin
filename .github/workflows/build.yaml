@@ -80,8 +80,8 @@ jobs:
         files: |
           Switchfin-windows-*.7z
           Switchfin-macOS-*/*.dmg
-          Switchfin-NintendoSwitch-deko3d/*.nro
-          Switchfin-PS4/*.pkg
+          Switchfin-NintendoSwitch-deko3d-*/*.nro
+          Switchfin-PS4-*/*.pkg
           Switchfin-*.flatpak
           Switchfin-*/*.pkg.tar.*
         body: |
@@ -127,7 +127,7 @@ jobs:
     - name: Upload Assets
       uses: actions/upload-artifact@v4
       with:
-        name: Switchfin-NintendoSwitch${{ matrix.shuffix }}
+        name: Switchfin-NintendoSwitch${{ matrix.shuffix }}-${{ github.run_number }}
         path: |
           build/Switchfin.nro
           build/Switchfin.elf
@@ -147,7 +147,7 @@ jobs:
     - name: Upload Assets
       uses: actions/upload-artifact@v4
       with:
-        name: Switchfin-PS4
+        name: Switchfin-PS4-${{ github.run_number }}
         path: |
           build/Switchfin.oelf
           build/*.pkg
@@ -188,7 +188,7 @@ jobs:
       uses: actions/upload-artifact@v4
       if: ${{ matrix.arch == 'x86_64' || inputs.arm_flatpak || startsWith(github.ref, 'refs/tags/') }}
       with:
-        name: Switchfin-Flatpak-${{ matrix.arch }}
+        name: Switchfin-Flatpak-${{ matrix.arch }}-${{ github.run_number }}
         path: Switchfin-*.flatpak
         if-no-files-found: error
 
@@ -225,7 +225,7 @@ jobs:
     - name: Upload Assets
       uses: actions/upload-artifact@v4
       with:
-        name: Switchfin-${{ matrix.img }}-${{ matrix.tag }}
+        name: Switchfin-${{ matrix.img }}-${{ matrix.tag }}-${{ github.run_number }}
         path: switchfin_*.deb
 
   build-snap:
@@ -241,7 +241,7 @@ jobs:
     - name: Upload Assets
       uses: actions/upload-artifact@v4
       with:
-        name: Switchfin-Snapcraft
+        name: Switchfin-Snapcraft-${{ github.run_number }}
         path: scripts/*.snap
 
   build-aur:
@@ -257,7 +257,7 @@ jobs:
     - name: Upload Assets
       uses: actions/upload-artifact@v4
       with:
-        name: Switchfin-Archlinux
+        name: Switchfin-Archlinux-${{ github.run_number }}
         path: scripts/aur/*.pkg.tar.*
 
   build-macos:
@@ -313,7 +313,7 @@ jobs:
     - name: Upload Assets
       uses: actions/upload-artifact@v4
       with:
-        name: Switchfin-macOS-${{ matrix.tag }}
+        name: Switchfin-macOS-${{ matrix.tag }}-${{ github.run_number }}
         path: Switchfin-*.dmg
 
   build-mingw:
@@ -372,45 +372,9 @@ jobs:
     - name: Upload Assets
       uses: actions/upload-artifact@v4
       with:
-        name: Switchfin-windows-${{ matrix.arch }}
+        name: Switchfin-windows-${{ matrix.arch }}-${{ github.run_number }}
         path: |
           build/Switchfin.exe
           build/Switchfin.pdb
           build/libmpv-2.dll
           build/README.md
-
-  build-msvc:
-    runs-on: windows-latest
-    if: ${{ inputs.msvc }}
-    strategy:
-      fail-fast: false
-      matrix:
-        arch: [ x64 ]
-    steps:
-    - name: Install xmake
-      shell: powershell
-      run: |
-        Invoke-Expression (Invoke-Webrequest 'https://xmake.io/psget.text' -UseBasicParsing).Content
-    - uses: actions/checkout@v4
-      with:
-        submodules: recursive
-    - name: Cache xmake packages
-      uses: actions/cache@v3
-      with:
-        key: ${{ runner.os }}-{{ matrix.arch }}-xmake
-        path: |
-          ${{ runner.temp }}/.xmake/packages
-    - name: Build
-      shell: powershell
-      run: |
-        $env:path+=";$env:USERPROFILE\xmake"
-        $env:XMAKE_GLOBALDIR="${{ runner.temp }}"
-        xmake config -c -y -a ${{ matrix.arch }}
-        xmake build -y
-        cd build\windows\${{ matrix.arch }}\release
-        7z a -mx=9 "$env:GITHUB_WORKSPACE\Switchfin-${{ matrix.arch }}-msvc.7z" *
-    - name: Upload Assets
-      uses: actions/upload-artifact@v4
-      with:
-        name: Switchfin-MSVC-${{ matrix.arch }}
-        path: Switchfin-*.7z

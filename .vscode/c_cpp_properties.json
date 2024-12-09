@@ -6,8 +6,8 @@
                 "${workspaceFolder}/app/include",
                 "${workspaceFolder}/library/**",
                 "${env:DEVKITPRO}/libnx/include",
-                "${env:DEVKITPRO}/devkitA64/aarch64-none-elf/include/**",
-                "${env:DEVKITPRO}/portlibs/switch/include/**"
+                "${env:DEVKITPRO}/devkitA64/aarch64-none-elf/include",
+                "${env:DEVKITPRO}/portlibs/switch/include"
             ],
             "defines": [
                 "__SWITCH__",
