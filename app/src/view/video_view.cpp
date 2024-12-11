@@ -520,20 +520,6 @@ void VideoView::draw(NVGcontext* vg, float x, float y, float w, float h, brls::S
 
 void VideoView::invalidate() { View::invalidate(); }
 
-void VideoView::onLayout() {
-    brls::View::onLayout();
-
-    brls::Rect rect = getFrame();
-    if (oldRect.getWidth() == -1) this->oldRect = rect;
-
-    if (!(rect == oldRect)) {
-        brls::Logger::debug(
-            "VideoView: size: {} / {} scale: {}", rect.getWidth(), rect.getHeight(), brls::Application::windowScale);
-        MPVCore::instance().setFrameSize(rect);
-    }
-    oldRect = rect;
-}
-
 void VideoView::onChildFocusGained(View* directChild, View* focusedView) {
     Box::onChildFocusGained(directChild, focusedView);
     if (isOsdLock) {

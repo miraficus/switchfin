@@ -35,8 +35,6 @@ public:
 
     void invalidate() override;
 
-    void onLayout() override;
-
     View* getDefaultFocus() override { return this->isOsdShown ? this->btnToggle : this; }
 
     void onChildFocusGained(View* directChild, View* focusedView) override;

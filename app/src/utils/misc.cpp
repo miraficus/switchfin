@@ -223,8 +223,8 @@ bool misc::sendIPC(const std::string& sock, const std::string& payload) {
 
 namespace base64 {
 
-inline static const char kEncodeLookup[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-inline static const char kPadCharacter = '=';
+const char kEncodeLookup[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+const char kPadCharacter = '=';
 
 using byte = std::uint8_t;
 

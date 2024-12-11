@@ -38,7 +38,17 @@ static void *get_proc_address(void *unused, const char *name) {
 
 void MPVCore::on_update(void *self) {
     MPVCore *mpv = reinterpret_cast<MPVCore *>(self);
-    brls::sync([mpv]() { mpv_render_context_update(mpv->mpv_context); });
+    uint64_t flags = mpv_render_context_update(mpv->mpv_context);
+#if defined(MPV_SW_RENDER)
+    if (flags & MPV_RENDER_UPDATE_FRAME) {
+        brls::sync([mpv]() {
+            mpv_render_context_render(mpv->mpv_context, mpv->mpv_params);
+            mpv_render_context_report_swap(mpv->mpv_context);
+        });
+    }
+#else
+    (void)flags;
+#endif
 }
 
 void MPVCore::on_wakeup(void *self) {
@@ -127,6 +137,8 @@ void MPVCore::init() {
 #ifdef __SWITCH__
         mpv_set_option_string(mpv, "hwdec", "auto");
         brls::Logger::info("MPV hardware decode: {}", "auto");
+#elif defined(__PS4__)
+        mpv_set_option_string(mpv, "hwdec", "no");
 #elif defined(__PSV__)
         mpv_set_option_string(mpv, "hwdec", "vita-copy");
         brls::Logger::info("MPV hardware decode: vita-copy");
@@ -191,9 +203,11 @@ void MPVCore::init() {
     };
 #else
     mpv_opengl_init_params gl_init_params{get_proc_address, nullptr};
+    int advanced_control{1};
     mpv_render_param params[] = {
         {MPV_RENDER_PARAM_API_TYPE, const_cast<char *>(MPV_RENDER_API_TYPE_OPENGL)},
         {MPV_RENDER_PARAM_OPENGL_INIT_PARAMS, &gl_init_params},
+        {MPV_RENDER_PARAM_ADVANCED_CONTROL, &advanced_control},
         {MPV_RENDER_PARAM_INVALID, nullptr},
     };
 #endif
@@ -333,8 +347,6 @@ void MPVCore::draw(brls::Rect area, float alpha) {
 
 #ifdef MPV_SW_RENDER
     if (!pixels) return;
-    mpv_render_context_render(this->mpv_context, mpv_params);
-    mpv_render_context_report_swap(this->mpv_context);
 
     auto *vg = brls::Application::getNVGContext();
     nvgUpdateImage(vg, nvg_image, (const unsigned char *)pixels);
