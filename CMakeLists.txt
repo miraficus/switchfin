@@ -92,10 +92,6 @@ endif ()
 # build borealis and other third party libraries
 add_subdirectory(library)
 
-if (MINGW)
-    set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++ -static")
-endif ()
-
 if (USE_SYSTEM_CURL)
     find_package(CURL REQUIRED)
 else ()
@@ -151,6 +147,10 @@ if (PLATFORM_DESKTOP)
         list(APPEND APP_PLATFORM_OPTION -DUSE_WEBP)
         list(APPEND APP_PLATFORM_INCLUDE ${WebP_INCLUDE_DIRS})
         list(APPEND APP_PLATFORM_LIB ${WebP_LIBRARY})
+    endif ()
+
+    if (MINGW)
+        set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++ -static")
     endif ()
 else ()
     # Used for Cross Compile such as NintendoSwitch

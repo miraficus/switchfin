@@ -5,6 +5,7 @@ on:
     branches: [ dev ]
     paths:
     - debian/Dockerfile
+  workflow_dispatch:
 
 permissions:
   packages: write
