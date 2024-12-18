@@ -6,13 +6,22 @@ export PKG_CONFIG_PATH=$(PREFIX)/lib/pkgconfig
 
 WAYLAND := $(if $(shell dpkg -s libxkbcommon-dev 2>/dev/null),ON,OFF)
 
-curl:
-	wget -qO- https://curl.se/download/curl-8.11.0.tar.xz | tar Jxf - -C /tmp
-	cmake -B build/curl -G Ninja -S /tmp/curl-8.11.0 -DCMAKE_BUILD_TYPE=Release \
+mbedtls:
+	wget -qO- https://github.com/Mbed-TLS/mbedtls/releases/download/mbedtls-3.6.2/mbedtls-3.6.2.tar.bz2 | tar jxf - -C /tmp
+	cmake -B build/mbedtls -G Ninja -S /tmp/mbedtls-3.6.2 -DCMAKE_BUILD_TYPE=Release \
+		-DCMAKE_INSTALL_PREFIX=$(PREFIX) -DCMAKE_INSTALL_RPATH=$(PREFIX)/lib \
+		-DUSE_SHARED_MBEDTLS_LIBRARY=ON -DUSE_STATIC_MBEDTLS_LIBRARY=OFF \
+		-DENABLE_PROGRAMS=OFF -DENABLE_TESTING=OFF
+	cmake --build build/mbedtls
+	cmake --install build/mbedtls
+
+curl: mbedtls
+	wget -qO- https://curl.se/download/curl-8.11.1.tar.xz | tar Jxf - -C /tmp
+	cmake -B build/curl -G Ninja -S /tmp/curl-8.11.1 -DCMAKE_BUILD_TYPE=Release \
 		-DCMAKE_INSTALL_PREFIX=$(PREFIX) -DCMAKE_INSTALL_RPATH=$(PREFIX)/lib \
 		-DBUILD_CURL_EXE=OFF -DUSE_NGHTTP2=OFF -DBUILD_TESTING=OFF -DBUILD_LIBCURL_DOCS=OFF \
 		-DUSE_LIBIDN2=OFF -DCURL_USE_LIBSSH2=OFF -DCURL_USE_LIBPSL=OFF \
-		-DHTTP_ONLY=ON -DCURL_DISABLE_PROGRESS_METER=ON -DCURL_USE_GNUTLS=ON
+		-DHTTP_ONLY=ON -DCURL_DISABLE_PROGRESS_METER=ON -DCURL_USE_MBEDTLS=ON
 	cmake --build build/curl
 	cmake --install build/curl
 
@@ -27,6 +36,15 @@ glfw:
 	cmake --build build/glfw
 	cmake --install build/glfw
 
+libssh2:
+	wget -qO- https://libssh2.org/download/libssh2-1.11.1.tar.xz | tar Jxf - -C /tmp
+	cmake -B build/libssh2 -G Ninja -S /tmp/libssh2-1.11.1 -DCMAKE_BUILD_TYPE=Release \
+		-DCMAKE_INSTALL_PREFIX=$(PREFIX) -DCMAKE_INSTALL_RPATH=$(PREFIX)/lib \
+		-DBUILD_SHARED_LIBS=ON -DBUILD_STATIC_LIBS=OFF -DCRYPTO_BACKEND=mbedTLS \
+		-DBUILD_EXAMPLES=OFF -DBUILD_TESTING=OFF
+	cmake --build build/libssh2
+	cmake --install build/libssh2
+
 dav1d:
 	wget -qO- https://downloads.videolan.org/pub/videolan/dav1d/1.5.0/dav1d-1.5.0.tar.xz | tar Jxf - -C /tmp
 	meson setup build/dav1d /tmp/dav1d-1.5.0 --prefix=$(PREFIX) --libdir=lib \
@@ -35,13 +53,14 @@ dav1d:
 	meson compile -C build/dav1d
 	meson install -C build/dav1d
 
-ffmpeg: dav1d
+ffmpeg: libssh2 dav1d
 	wget -qO- https://ffmpeg.org/releases/ffmpeg-7.1.tar.xz | tar Jxf - -C /tmp
 	patch -d /tmp/ffmpeg-7.1 -Nbp1 -i $(CURDIR)/scripts/mingw64/ffmpeg/avio.patch
 	mkdir -p build/ffmpeg && cd build/ffmpeg && \
 	/tmp/ffmpeg-7.1/configure --prefix=$(PREFIX) --enable-shared --disable-static --enable-rpath \
-		--disable-programs --disable-debug --disable-doc --disable-avdevice --enable-asm --enable-libv4l2 \
-		--enable-gpl --enable-gnutls --enable-libssh2 --enable-libass --enable-opengl --enable-libdav1d \
+		--disable-programs --disable-debug --disable-doc --disable-avdevice --disable-autodetect \
+		--enable-mbedtls --enable-gpl --enable-version3 --enable-libssh2 --enable-asm --enable-opengl \
+		--enable-libass --enable-libdav1d --enable-libv4l2 --enable-vaapi --enable-vdpau \
 		--disable-protocols --enable-protocol=file,http,tcp,udp,hls,https,tls,ftp,libssh2,rtp,crypto,httpproxy \
 		--disable-filters --enable-filter=hflip,vflip,transpose
 	make -C build/ffmpeg -j$(shell nproc)

@@ -96,8 +96,8 @@ jobs:
         cmake --install build-libssh2
     - name: Build libcurl
       run: |
-        curl --retry 5 -sSL https://curl.se/download/curl-8.11.0.tar.xz | tar Jxf - -C ${{ runner.temp }}
-        cmake -B build-curl -G Ninja -S ${{ runner.temp }}/curl-8.11.0 \
+        curl --retry 5 -sSL https://curl.se/download/curl-8.11.1.tar.xz | tar Jxf - -C ${{ runner.temp }}
+        cmake -B build-curl -G Ninja -S ${{ runner.temp }}/curl-8.11.1 \
           -DCMAKE_INSTALL_PREFIX=$CMAKE_PREFIX_PATH \
           -DCMAKE_INSTALL_NAME_DIR=$CMAKE_PREFIX_PATH/lib \
           -DCMAKE_OSX_ARCHITECTURES=${{ matrix.arch }} \
