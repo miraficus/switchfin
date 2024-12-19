@@ -75,7 +75,6 @@ public:
         CLIP_POINT,
         SYNC_SETTING,
         PLAYER_BOTTOM_BAR,
-        PLAYER_SEEKING_STEP,
         PLAYER_LOW_QUALITY,
         PLAYER_INMEMORY_CACHE,
         PLAYER_HWDEC,

@@ -143,7 +143,6 @@ public:
 
     // 触发倍速时的默认值，单位为 %
     inline static int VIDEO_SPEED = 200;
-    inline static int SEEKING_STEP = 15;
 
     // 是否镜像视频
     inline static int VIDEO_FILTER = 0;

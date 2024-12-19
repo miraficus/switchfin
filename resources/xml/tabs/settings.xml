@@ -54,8 +54,6 @@
                     id="setting/video/quality" />
                 <brls:SelectorCell
                     id="setting/video/inmemory" />
-                <brls:SelectorCell
-                    id="setting/player/seeking" />
                 <brls:BooleanCell
                     id="setting/video/subs_fallback" />
                 <brls:BooleanCell

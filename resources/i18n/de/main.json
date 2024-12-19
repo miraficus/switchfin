@@ -63,8 +63,7 @@
       "hwdec": "Hardwaredekodierung",
       "osd_on_toggle": "Zeige OSD wenn pausiert",
       "transcodec": "Transcodec",
-      "maxbitrate": "Max Bitrate",
-      "seeking_step": "Seekschritt"
+      "maxbitrate": "Max Bitrate"
     },
     "network": {
       "header": "Netzwerk",

@@ -94,7 +94,6 @@
       "clip_point": "Zobrazit bod klipu kapitoly",
       "transcodec": "Transcodec",
       "video_quality": "Kvalita videa",
-      "seeking_step": "Krok hledání",
       "subsync": "Synchronizace titulků"
     },
     "filter": {

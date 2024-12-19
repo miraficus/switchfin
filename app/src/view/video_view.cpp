@@ -25,6 +25,15 @@ using namespace brls::literals;
         return true;                                                                  \
     }
 
+static int getSeekRange(int current) {
+    current = abs(current);
+    if (current < 60) return 5;
+    if (current < 300) return 10;
+    if (current < 600) return 20;
+    if (current < 1200) return 60;
+    return current / 15;
+}
+
 VideoView::VideoView() {
     this->inflateFromXMLRes("xml/view/video_view.xml");
     brls::Logger::debug("VideoView: created");
@@ -54,7 +63,7 @@ VideoView::VideoView() {
         "\uE08F", brls::BUTTON_LB,
         [this](brls::View* view) -> bool {
             CHECK_OSD(true);
-            this->seekingRange -= MPVCore::SEEKING_STEP;
+            this->seekingRange -= getSeekRange(this->seekingRange);
             this->requestSeeking(seekingRange);
             return true;
         },
@@ -64,7 +73,7 @@ VideoView::VideoView() {
         "\uE08E", brls::BUTTON_RB,
         [this](brls::View* view) -> bool {
             CHECK_OSD(true);
-            this->seekingRange += MPVCore::SEEKING_STEP;
+            this->seekingRange += getSeekRange(this->seekingRange);
             this->requestSeeking(seekingRange);
             return true;
         },

@@ -134,7 +134,6 @@
       "clip_point": "進度條顯示章節位置",
       "transcodec": "轉碼格式",
       "video_quality": "視頻質量",
-      "seeking_step": "快進步進秒數",
       "subsync": "字幕同步"
     },
     "filter": {

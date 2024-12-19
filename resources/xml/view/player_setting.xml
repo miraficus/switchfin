@@ -46,8 +46,6 @@
                     <brls:SelectorCell
                         id="setting/track/subtitle" />
                     <brls:SelectorCell
-                        id="setting/player/seeking" />
-                    <brls:SelectorCell
                         id="setting/video/mirror" />
                     <brls:SelectorCell
                         id="setting/video/aspect" />

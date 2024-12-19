@@ -130,7 +130,6 @@
       "clip_point": "チャプターのクリップポイントを表示",
       "transcodec": "トランスコーデック",
       "video_quality": "ビデオ品質",
-      "seeking_step": "シーキングステップ",
       "subsync": "字幕同期"
     },
     "filter": {
