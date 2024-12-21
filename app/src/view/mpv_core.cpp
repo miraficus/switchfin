@@ -38,17 +38,17 @@ static void *get_proc_address(void *unused, const char *name) {
 
 void MPVCore::on_update(void *self) {
     MPVCore *mpv = reinterpret_cast<MPVCore *>(self);
-    uint64_t flags = mpv_render_context_update(mpv->mpv_context);
+    brls::sync([mpv]() {
+        uint64_t flags = mpv_render_context_update(mpv->mpv_context);
 #if defined(MPV_SW_RENDER)
-    if (flags & MPV_RENDER_UPDATE_FRAME) {
-        brls::sync([mpv]() {
+        if (flags & MPV_RENDER_UPDATE_FRAME) {
             mpv_render_context_render(mpv->mpv_context, mpv->mpv_params);
             mpv_render_context_report_swap(mpv->mpv_context);
-        });
-    }
+        }
 #else
-    (void)flags;
+        (void)flags;
 #endif
+    });
 }
 
 void MPVCore::on_wakeup(void *self) {
