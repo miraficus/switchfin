@@ -218,6 +218,8 @@ jobs:
       if: steps.cache-deps.outputs.cache-hit != 'true'
       run: make -f debian/rules curl glfw mpv
     - name: Build deb
+      env:
+        DH_QUIET: "1"
       run: |
         git config --system --add safe.directory $GITHUB_WORKSPACE
         dpkg-buildpackage -b -nc

@@ -47,7 +47,11 @@ void* websocket::ws_recv(void* ptr) {
     }
 
     int ws_sockfd;
-    curl_easy_getinfo(easy, CURLINFO_ACTIVESOCKET, &ws_sockfd);
+    res = curl_easy_getinfo(easy, CURLINFO_ACTIVESOCKET, &ws_sockfd);
+    if (res != CURLE_OK) {
+        brls::Logger::warning("ws get socket {}", curl_easy_strerror(res));
+        return nullptr;
+    }
 
     fd_set rfds;
     size_t rlen, slen;
