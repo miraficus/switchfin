@@ -203,7 +203,7 @@ void MPVCore::init() {
     };
 #else
     mpv_opengl_init_params gl_init_params{get_proc_address, nullptr};
-    int advanced_control{1};
+    int advanced_control = MPVCore::HARDWARE_DEC ? 1 : 0;
     mpv_render_param params[] = {
         {MPV_RENDER_PARAM_API_TYPE, const_cast<char *>(MPV_RENDER_API_TYPE_OPENGL)},
         {MPV_RENDER_PARAM_OPENGL_INIT_PARAMS, &gl_init_params},

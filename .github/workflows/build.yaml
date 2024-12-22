@@ -311,7 +311,7 @@ jobs:
           --icon-size 100 --icon "Switchfin.app" 200 190 \
           --icon "README.md" 400 100 --hide-extension "Switchfin.app" \
           --app-drop-link 600 185 --volicon ./scripts/macos/dmg.icns \
-          --volname "Switchfin" Switchfin-macOS-${{ matrix.tag }}.dmg "dist/"
+          --volname "Switchfin" Switchfin-macOS-${{ matrix.tag }}-${{ github.run_number }}.dmg "dist/"
     - name: Upload Assets
       uses: actions/upload-artifact@v4
       with:

@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.6.1]
+
+### Fixed
+
+* ignore save resume on m3u playlist
+* ignore save window stat when fullscreen
+* websocket support on switch
+
 ## [0.6.0]
 
 ### Add
