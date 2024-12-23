@@ -45,8 +45,8 @@ jobs:
     - name: Build bootstrap
       if: ${{ matrix.tag == 'Intel_Old' }}
       run: |
-        curl --retry 5 -sSL https://boostorg.jfrog.io/artifactory/main/release/1.85.0/source/boost_1_85_0.tar.gz | tar zxf - -C ${{ runner.temp }}
-        cd ${{ runner.temp }}/boost_1_85_0
+        curl --retry 5 -sSL https://github.com/boostorg/boost/releases/download/boost-1.85.0/boost-1.85.0-b2-nodocs.tar.xz | tar Jxf - -C ${{ runner.temp }}
+        cd ${{ runner.temp }}/boost-1.85.0
         ./bootstrap.sh --with-libraries=filesystem --without-icu -prefix=$CMAKE_PREFIX_PATH
         ./b2 install target-os=darwin variant=release --with-filesystem \
           cxxflags="-arch ${{ matrix.arch }} -mmacosx-version-min=${{ matrix.target }}" \

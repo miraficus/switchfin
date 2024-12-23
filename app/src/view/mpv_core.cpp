@@ -134,18 +134,8 @@ void MPVCore::init() {
 
     // hardware decoding
     if (MPVCore::HARDWARE_DEC) {
-#ifdef __SWITCH__
-        mpv_set_option_string(mpv, "hwdec", "auto");
-        brls::Logger::info("MPV hardware decode: {}", "auto");
-#elif defined(__PS4__)
-        mpv_set_option_string(mpv, "hwdec", "no");
-#elif defined(__PSV__)
-        mpv_set_option_string(mpv, "hwdec", "vita-copy");
-        brls::Logger::info("MPV hardware decode: vita-copy");
-#else
         mpv_set_option_string(mpv, "hwdec", PLAYER_HWDEC_METHOD.c_str());
         brls::Logger::info("MPV hardware decode: {}", PLAYER_HWDEC_METHOD);
-#endif
     } else {
         mpv_set_option_string(mpv, "hwdec", "no");
     }
@@ -203,11 +193,9 @@ void MPVCore::init() {
     };
 #else
     mpv_opengl_init_params gl_init_params{get_proc_address, nullptr};
-    int advanced_control = MPVCore::HARDWARE_DEC ? 1 : 0;
     mpv_render_param params[] = {
         {MPV_RENDER_PARAM_API_TYPE, const_cast<char *>(MPV_RENDER_API_TYPE_OPENGL)},
         {MPV_RENDER_PARAM_OPENGL_INIT_PARAMS, &gl_init_params},
-        {MPV_RENDER_PARAM_ADVANCED_CONTROL, &advanced_control},
         {MPV_RENDER_PARAM_INVALID, nullptr},
     };
 #endif
