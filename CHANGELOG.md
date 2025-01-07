@@ -1,5 +1,11 @@
 # Changelog
 
+## [next]
+
+### Add
+
+* add korean localization (@KimPig)
+
 ## [0.6.1]
 
 ### Fixed

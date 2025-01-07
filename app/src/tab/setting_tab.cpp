@@ -308,6 +308,7 @@ void SettingTab::onCreate() {
             "main/setting/others/language/chinese_s"_i18n,
             "main/setting/others/language/chinese_t"_i18n,
             "main/setting/others/language/japanese"_i18n,
+            "main/setting/others/language/korean"_i18n,
             "main/setting/others/language/german"_i18n,
             "main/setting/others/language/czech"_i18n,
             "main/setting/others/language/ukrainian"_i18n,
