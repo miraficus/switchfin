@@ -178,13 +178,6 @@ void SettingTab::onCreate() {
             AppConfig::instance().setItem(AppConfig::TRANSCODEC, MPVCore::VIDEO_CODEC);
         });
 
-    auto& qualityOption = conf.getOptions(AppConfig::VIDEO_QUALITY);
-    selectorQuality->init("main/setting/playback/video_quality"_i18n, qualityOption.options,
-        conf.getValueIndex(AppConfig::VIDEO_QUALITY), [&qualityOption](int selected) {
-            MPVCore::VIDEO_QUALITY = qualityOption.values[selected];
-            AppConfig::instance().setItem(AppConfig::VIDEO_QUALITY, MPVCore::VIDEO_QUALITY);
-        });
-
     auto& inmemoryOption = conf.getOptions(AppConfig::PLAYER_INMEMORY_CACHE);
     selectorInmemory->init("main/setting/playback/in_memory_cache"_i18n, inmemoryOption.options,
         conf.getValueIndex(AppConfig::PLAYER_INMEMORY_CACHE, 1), [&inmemoryOption](int selected) {

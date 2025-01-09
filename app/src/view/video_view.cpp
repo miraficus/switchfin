@@ -733,17 +733,18 @@ bool VideoView::toggleSpeed() {
 }
 
 bool VideoView::toggleQuality() {
-    auto& qualityOption = AppConfig::instance().getOptions(AppConfig::VIDEO_QUALITY);
-    brls::Dropdown* dropdown = new brls::Dropdown(
-        "main/player/quality"_i18n, qualityOption.options,
-        [&qualityOption](int selected) {
-            if (MPVCore::VIDEO_QUALITY == qualityOption.values[selected]) return false;
-            MPVCore::VIDEO_QUALITY = qualityOption.values[selected];
-            AppConfig::instance().setItem(AppConfig::VIDEO_QUALITY, MPVCore::VIDEO_QUALITY);
-            MPVCore::instance().getCustomEvent()->fire(QUALITY_CHANGE, nullptr);
-            return true;
-        },
-        AppConfig::instance().getValueIndex(AppConfig::VIDEO_QUALITY));
+    std::vector<std::string> options = {
+        "main/player/auto"_i18n, "40 Mbps", "10 Mbps", "6 Mbps", "3 Mbps", "720 kbps", "420 kbps"};
+    std::vector<int64_t> values = {0, 40000000, 10000000, 6000000, 3000000, 1500000, 720000, 420000};
+    auto it = std::find(values.begin(), values.end(), MPVCore::VIDEO_QUALITY);
+    if (it == values.end()) it = values.begin();
+
+    brls::Dropdown* dropdown = new brls::Dropdown("main/player/quality"_i18n, options, [values](int selected) {
+        MPVCore::VIDEO_QUALITY = values[selected];
+        MPVCore::instance().getCustomEvent()->fire(QUALITY_CHANGE, nullptr);
+        return true;
+    }, std::distance(values.begin(), it));
+    
     brls::Application::pushActivity(new brls::Activity(dropdown));
     return true;
 }

@@ -39,8 +39,7 @@ private:
     BRLS_BIND(brls::BooleanCell, btnQuality, "setting/video/low_quality");
     BRLS_BIND(brls::BooleanCell, btnSubFallback, "setting/video/subs_fallback");
     BRLS_BIND(brls::BooleanCell, btnDirectPlay, "setting/video/directplay");
-    BRLS_BIND(brls::SelectorCell, selectorCodec, "setting/video/codec");
-    BRLS_BIND(brls::SelectorCell, selectorQuality, "setting/video/quality");
+    BRLS_BIND(brls::SelectorCell, selectorCodec, "setting/transcode/codec");
     BRLS_BIND(brls::SelectorCell, selectorInmemory, "setting/video/inmemory");
     BRLS_BIND(brls::BooleanCell, btnBottomBar, "setting/player/bottom_bar");
     BRLS_BIND(brls::BooleanCell, btnOSDOnToggle, "setting/player/osd_on_toggle");

@@ -132,6 +132,9 @@
       "video_quality": "视频质量",
       "subsync": "字幕同步"
     },
+    "transcode": {
+      "header": "转码设置"
+    },
     "filter": {
       "mirror": "镜像画面",
       "hflip": "水平镜像",

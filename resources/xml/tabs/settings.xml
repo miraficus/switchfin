@@ -47,12 +47,6 @@
                 <brls:BooleanCell
                     id="setting/video/low_quality" />
                 <brls:SelectorCell
-                    id="setting/video/codec" />
-                <brls:BooleanCell
-                    id="setting/video/directplay" />
-                <brls:SelectorCell
-                    id="setting/video/quality" />
-                <brls:SelectorCell
                     id="setting/video/inmemory" />
                 <brls:BooleanCell
                     id="setting/video/subs_fallback" />
@@ -64,6 +58,24 @@
                     id="setting/player/touch_gesture" />
                 <brls:BooleanCell
                     id="setting/player/clip_point" />
+            </brls:Box>
+
+            <brls:Header
+                width="auto"
+                height="auto"
+                title="@i18n/main/setting/transcode/header"
+                marginBottom="0px" />
+            <brls:Box
+                width="100%"
+                height="auto"
+                axis="column"
+                marginBottom="30px">
+                <brls:BooleanCell
+                    id="setting/video/directplay" />
+                <brls:SelectorCell
+                    id="setting/transcode/codec" />
+                <brls:SelectorCell
+                    id="setting/transcode/width" />
             </brls:Box>
 
             <brls:Header

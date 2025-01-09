@@ -69,7 +69,6 @@ public:
         WINDOW_STATE,
         TRANSCODEC,
         FORCE_DIRECTPLAY,
-        VIDEO_QUALITY,
         OSD_ON_TOGGLE,
         TOUCH_GESTURE,
         CLIP_POINT,

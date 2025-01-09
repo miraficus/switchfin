@@ -168,6 +168,90 @@ bool PlayerView::playIndex(int index) {
 }
 
 void PlayerView::playMedia(const uint64_t seekTicks) {
+    nlohmann::json conditions = {
+        {
+            {"Condition", "LessThanEqual"},
+            {"Property", "Width"},
+#if defined(__PS4__)
+            {"Value", 1920},
+#elif defined(__PSV__)
+            {"Value", 1280},
+#else
+            {"Value", brls::Application::windowWidth},
+#endif
+
+            {"IsRequired", false},
+        },
+    };
+
+    nlohmann::json profile = {
+        {"MaxStreamingBitrate", MPVCore::VIDEO_QUALITY},
+        {
+            "DirectPlayProfiles",
+            {
+                {
+                    {"Type", "Audio"},
+#if defined(__PSV__)
+                    {"AudioCodec", "aac,mp3"},
+#endif
+                },
+                {
+                    {"Type", "Video"},
+#ifdef __SWITCH__
+                    {"VideoCodec", "h264,hevc,av1,vp9"},
+#elif defined(__PSV__)
+                    {"VideoCodec", "h264"},
+#endif
+                },
+            },
+        },
+#if defined(__PSV__)
+        {
+            "CodecProfiles",
+            {
+                {
+                    {"Type", "Video"},
+                    {"Conditions", conditions},
+                },
+            },
+        },
+#endif
+        {
+            "TranscodingProfiles",
+            {
+                {{"Type", "Audio"}},
+                {
+                    {"Container", "ts"},
+                    {"Type", "Video"},
+                    {"VideoCodec", MPVCore::VIDEO_CODEC + ",mpeg4,mpeg2video"},
+                    {"AudioCodec", "aac,mp3,ac3,opus,vorbis"},
+                    {"Protocol", "hls"},
+                    {"Conditions", conditions},
+                },
+            },
+        },
+        {
+            "SubtitleProfiles",
+            {
+                {{"Format", "srt"}, {"Method", "External"}},
+                {{"Format", "srt"}, {"Method", "Embed"}},
+                {{"Format", "ass"}, {"Method", "External"}},
+                {{"Format", "ass"}, {"Method", "Embed"}},
+                {{"Format", "ssa"}, {"Method", "External"}},
+                {{"Format", "ssa"}, {"Method", "Embed"}},
+                {{"Format", "sub"}, {"Method", "External"}},
+                {{"Format", "sub"}, {"Method", "Embed"}},
+                {{"Format", "smi"}, {"Method", "External"}},
+                {{"Format", "smi"}, {"Method", "Embed"}},
+                {{"Format", "vtt"}, {"Method", "External"}},
+                {{"Format", "dvdsub"}, {"Method", "Embed"}},
+                {{"Format", "dvbsub"}, {"Method", "Embed"}},
+                {{"Format", "pgssub"}, {"Method", "Embed"}},
+                {{"Format", "pgs"}, {"Method", "Embed"}},
+            },
+        },
+    };
+
     ASYNC_RETAIN
     jellyfin::postJSON(
         {
@@ -175,57 +259,7 @@ void PlayerView::playMedia(const uint64_t seekTicks) {
             {"AudioStreamIndex", PlayerSetting::selectedAudio},
             {"SubtitleStreamIndex", PlayerSetting::selectedSubtitle},
             {"AllowAudioStreamCopy", true},
-            {
-                "DeviceProfile",
-                {
-                    {"MaxStreamingBitrate", MPVCore::VIDEO_QUALITY ? MPVCore::VIDEO_QUALITY << 20 : 1 << 24},
-                    {
-                        "DirectPlayProfiles",
-                        {
-                            {{"Type", "Audio"}},
-                            {
-                                {"Type", "Video"},
-#ifdef __SWITCH__
-                                {"VideoCodec", "h264,hevc,av1,vp9"},
-#endif
-                            },
-                        },
-                    },
-                    {
-                        "TranscodingProfiles",
-                        {
-                            {{"Type", "Audio"}},
-                            {
-                                {"Container", "ts"},
-                                {"Type", "Video"},
-                                {"VideoCodec", MPVCore::VIDEO_CODEC + ",mpeg4,mpeg2video"},
-                                {"AudioCodec", "aac,mp3,ac3,opus,vorbis"},
-                                {"Protocol", "hls"},
-                            },
-                        },
-                    },
-                    {
-                        "SubtitleProfiles",
-                        {
-                            {{"Format", "srt"}, {"Method", "External"}},
-                            {{"Format", "srt"}, {"Method", "Embed"}},
-                            {{"Format", "ass"}, {"Method", "External"}},
-                            {{"Format", "ass"}, {"Method", "Embed"}},
-                            {{"Format", "ssa"}, {"Method", "External"}},
-                            {{"Format", "ssa"}, {"Method", "Embed"}},
-                            {{"Format", "sub"}, {"Method", "External"}},
-                            {{"Format", "sub"}, {"Method", "Embed"}},
-                            {{"Format", "smi"}, {"Method", "External"}},
-                            {{"Format", "smi"}, {"Method", "Embed"}},
-                            {{"Format", "vtt"}, {"Method", "External"}},
-                            {{"Format", "dvdsub"}, {"Method", "Embed"}},
-                            {{"Format", "dvbsub"}, {"Method", "Embed"}},
-                            {{"Format", "pgssub"}, {"Method", "Embed"}},
-                            {{"Format", "pgs"}, {"Method", "Embed"}},
-                        },
-                    },
-                },
-            },
+            {"DeviceProfile", profile},
         },
         [ASYNC_TOKEN, seekTicks](const jellyfin::PlaybackResult& r) {
             ASYNC_RELEASE
