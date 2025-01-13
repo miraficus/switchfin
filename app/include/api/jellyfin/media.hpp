@@ -146,10 +146,11 @@ struct Source {
     std::string ETag;
     std::vector<Stream> MediaStreams;
     std::vector<Attachment> MediaAttachments;
+    int64_t Bitrate;
 };
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT(Source, Id, Name, Path, DefaultAudioStreamIndex,
     DefaultSubtitleStreamIndex, SupportsDirectPlay, SupportsTranscoding, DirectStreamUrl, TranscodingUrl, ETag,
-    MediaStreams, MediaAttachments, Protocol);
+    MediaStreams, MediaAttachments, Protocol, Bitrate);
 
 struct PlaybackResult {
     std::vector<Source> MediaSources;

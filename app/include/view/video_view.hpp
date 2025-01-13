@@ -57,6 +57,7 @@ public:
 
     void hideVideoProgressSlider();
     void hideVideoQuality();
+    void registerVideoQuality(brls::ActionListener action);
 
     void showOSD(bool autoHide = true);
 
@@ -119,7 +120,6 @@ private:
     void hideOSD();
     bool toggleOSDLock();
     bool toggleSpeed();
-    bool toggleQuality();
     bool toggleVolume(brls::View* view);
     void showHint(const std::string& value);
 

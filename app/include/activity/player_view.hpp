@@ -27,6 +27,7 @@ private:
     void reportStop();
     void reportPlay(bool isPaused = false);
     void requestDanmaku();
+    bool toggleQuality();
 
     // Playinfo
     std::string itemId;

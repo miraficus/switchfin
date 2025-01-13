@@ -304,11 +304,6 @@ VideoView::VideoView() {
         }
         return true;
     });
-    /// 视频质量
-    this->btnVideoQuality->registerClickAction([this](brls::View* view) { return this->toggleQuality(); });
-    this->btnVideoQuality->addGestureRecognizer(new brls::TapGestureRecognizer(this->btnVideoQuality));
-    this->registerAction(
-        "main/player/quality"_i18n, brls::BUTTON_RSB, [this](...) { return this->toggleQuality(); }, true);
 
     /// 视频详情信息
     this->profile = new VideoProfile();
@@ -732,23 +727,6 @@ bool VideoView::toggleSpeed() {
     return true;
 }
 
-bool VideoView::toggleQuality() {
-    std::vector<std::string> options = {
-        "main/player/auto"_i18n, "40 Mbps", "10 Mbps", "6 Mbps", "3 Mbps", "720 kbps", "420 kbps"};
-    std::vector<int64_t> values = {0, 40000000, 10000000, 6000000, 3000000, 1500000, 720000, 420000};
-    auto it = std::find(values.begin(), values.end(), MPVCore::VIDEO_QUALITY);
-    if (it == values.end()) it = values.begin();
-
-    brls::Dropdown* dropdown = new brls::Dropdown("main/player/quality"_i18n, options, [values](int selected) {
-        MPVCore::VIDEO_QUALITY = values[selected];
-        MPVCore::instance().getCustomEvent()->fire(QUALITY_CHANGE, nullptr);
-        return true;
-    }, std::distance(values.begin(), it));
-    
-    brls::Application::pushActivity(new brls::Activity(dropdown));
-    return true;
-}
-
 bool VideoView::toggleVolume(brls::View* view) {
     // 一直显示 OSD
     this->showOSD(false);
@@ -857,4 +835,10 @@ void VideoView::hideVideoProgressSlider() { this->osdSlider->setVisibility(brls:
 void VideoView::hideVideoQuality() {
     this->btnVideoQuality->setVisibility(brls::Visibility::GONE);
     for (brls::View* view : this->btnVideoQuality->getChildren()) view->setVisibility(brls::Visibility::GONE);
+}
+
+void VideoView::registerVideoQuality(brls::ActionListener action) {
+    this->btnVideoQuality->registerClickAction(action);
+    this->btnVideoQuality->addGestureRecognizer(new brls::TapGestureRecognizer(this->btnVideoQuality));
+    this->registerAction("main/player/quality"_i18n, brls::BUTTON_RSB, action, true);
 }

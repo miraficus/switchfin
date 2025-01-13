@@ -8,6 +8,8 @@
 #include "view/video_view.hpp"
 #include "view/video_profile.hpp"
 
+using namespace brls::literals;
+
 PlayerView::PlayerView(const jellyfin::Item& item) : itemId(item.Id) {
     float width = brls::Application::contentWidth;
     float height = brls::Application::contentHeight;
@@ -18,6 +20,7 @@ PlayerView::PlayerView(const jellyfin::Item& item) : itemId(item.Id) {
     view->setId("video");
     this->setDimensions(width, height);
     this->addView(view);
+    view->registerVideoQuality([this](...) { return this->toggleQuality(); });
 
     if (item.Type == jellyfin::mediaTypeTvChannel) {
         view->hideVideoProgressSlider();
@@ -168,18 +171,32 @@ bool PlayerView::playIndex(int index) {
 }
 
 void PlayerView::playMedia(const uint64_t seekTicks) {
+    int maxAllowedHeight = brls::Application::windowHeight;
+    if (MPVCore::VIDEO_QUALITY <= 0) {
+#if defined(__PS4__)
+        maxAllowedHeight = 1080;
+#elif defined(__PSV__)
+        maxAllowedHeight = 720;
+#endif
+    } else if (MPVCore::VIDEO_QUALITY <= 420000) {
+        maxAllowedHeight = 360;
+    } else if (MPVCore::VIDEO_QUALITY <= 720000) {
+        maxAllowedHeight = 480;
+    } else if (MPVCore::VIDEO_QUALITY <= 4000000) {
+        maxAllowedHeight = 720;
+    } else if (MPVCore::VIDEO_QUALITY <= 8000000) {
+        maxAllowedHeight = 1080;
+    } else if (MPVCore::VIDEO_QUALITY <= 15000000) {
+        maxAllowedHeight = 1440;
+    } else if (MPVCore::VIDEO_QUALITY <= 120000000) {
+        maxAllowedHeight = 2160;
+    }
+
     nlohmann::json conditions = {
         {
             {"Condition", "LessThanEqual"},
-            {"Property", "Width"},
-#if defined(__PS4__)
-            {"Value", 1920},
-#elif defined(__PSV__)
-            {"Value", 1280},
-#else
-            {"Value", brls::Application::windowWidth},
-#endif
-
+            {"Property", "Height"},
+            {"Value", maxAllowedHeight},
             {"IsRequired", false},
         },
     };
@@ -211,6 +228,7 @@ void PlayerView::playMedia(const uint64_t seekTicks) {
             {
                 {
                     {"Type", "Video"},
+                    {"Codec", "h264"},
                     {"Conditions", conditions},
                 },
             },
@@ -420,4 +438,41 @@ void PlayerView::requestDanmaku() {
             });
         }
     });
+}
+
+bool PlayerView::toggleQuality() {
+    std::vector<std::string> options = {"main/player/auto"_i18n};
+    std::vector<int64_t> values = {0};
+
+    if (this->stream.Bitrate > 10000000 && brls::Application::windowHeight >= 1440) {
+        options.push_back("2K - 15 Mbps"), values.push_back(15000000);
+        options.push_back("2K - 10 Mbps"), values.push_back(10000000);
+    }
+
+    if (this->stream.Bitrate > 6000000 && brls::Application::windowHeight >= 1080) {
+        options.push_back("1080p - 8 Mbps"), values.push_back(8000000);
+        options.push_back("1080p - 6 Mbps"), values.push_back(6000000);
+    }
+
+    if (this->stream.Bitrate > 4000000) options.push_back("720p - 4 Mbps"), values.push_back(4000000);
+    if (this->stream.Bitrate > 3000000) options.push_back("720p - 3 Mbps"), values.push_back(3000000);
+    if (this->stream.Bitrate > 1500000) options.push_back("720p - 1.5 Mbps"), values.push_back(1500000);
+
+    options.push_back("480p - 720 kbps"), values.push_back(720000);
+    options.push_back("360p - 420 kbps"), values.push_back(420000);
+
+    auto it = std::find(values.begin(), values.end(), MPVCore::VIDEO_QUALITY);
+    if (it == values.end()) it = values.begin();
+
+    brls::Dropdown* dropdown = new brls::Dropdown(
+        "main/player/quality"_i18n, options,
+        [values](int selected) {
+            MPVCore::VIDEO_QUALITY = values[selected];
+            MPVCore::instance().getCustomEvent()->fire(QUALITY_CHANGE, nullptr);
+            return true;
+        },
+        std::distance(values.begin(), it));
+
+    brls::Application::pushActivity(new brls::Activity(dropdown));
+    return true;
 }
