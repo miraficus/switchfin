@@ -46,8 +46,8 @@ libssh2:
 	cmake --install build/libssh2
 
 dav1d:
-	wget -qO- https://downloads.videolan.org/pub/videolan/dav1d/1.5.0/dav1d-1.5.0.tar.xz | tar Jxf - -C /tmp
-	meson setup build/dav1d /tmp/dav1d-1.5.0 --prefix=$(PREFIX) --libdir=lib \
+	wget -qO- https://downloads.videolan.org/pub/videolan/dav1d/1.5.1/dav1d-1.5.1.tar.xz | tar Jxf - -C /tmp
+	meson setup build/dav1d /tmp/dav1d-1.5.1 --prefix=$(PREFIX) --libdir=lib \
 		--buildtype=release --default-library=shared \
 		-Denable_tools=false -Denable_examples=false -Denable_tests=false -Denable_docs=false
 	meson compile -C build/dav1d

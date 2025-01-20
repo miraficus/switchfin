@@ -74,8 +74,6 @@
                     id="setting/video/directplay" />
                 <brls:SelectorCell
                     id="setting/transcode/codec" />
-                <brls:SelectorCell
-                    id="setting/transcode/width" />
             </brls:Box>
 
             <brls:Header

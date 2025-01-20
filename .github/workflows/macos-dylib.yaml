@@ -95,6 +95,7 @@ jobs:
         cmake --build build-libssh2
         cmake --install build-libssh2
     - name: Build libcurl
+      if: ${{ matrix.tag == 'Intel_Old' }}
       run: |
         curl --retry 5 -sSL https://curl.se/download/curl-8.11.1.tar.xz | tar Jxf - -C ${{ runner.temp }}
         cmake -B build-curl -G Ninja -S ${{ runner.temp }}/curl-8.11.1 \
@@ -103,7 +104,7 @@ jobs:
           -DCMAKE_OSX_ARCHITECTURES=${{ matrix.arch }} \
           -DCMAKE_OSX_DEPLOYMENT_TARGET=${{ matrix.target }} \
           -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON \
-          -DHTTP_ONLY=ON -DCURL_DISABLE_PROGRESS_METER=ON -DCURL_USE_SECTRANSP=ON \
+          -DHTTP_ONLY=ON -DCURL_DISABLE_PROGRESS_METER=ON -DCURL_USE_MBEDTLS=ON \
           -DBUILD_CURL_EXE=OFF -DUSE_NGHTTP2=OFF -DBUILD_TESTING=OFF -DBUILD_LIBCURL_DOCS=OFF \
           -DUSE_LIBIDN2=OFF -DCURL_USE_LIBSSH2=OFF -DCURL_USE_LIBPSL=OFF
         cmake --build build-curl
@@ -130,8 +131,8 @@ jobs:
         meson install -C build-freetype
     - name: Build harfbuzz
       run: |
-        curl --retry 5 -sSL https://github.com/harfbuzz/harfbuzz/releases/download/10.1.0/harfbuzz-10.1.0.tar.xz | tar Jxf - -C ${{ runner.temp }}
-        meson setup build-harfbuzz ${{ runner.temp }}/harfbuzz-10.1.0 ${{ matrix.meson }} \
+        curl --retry 5 -sSL https://github.com/harfbuzz/harfbuzz/releases/download/10.2.0/harfbuzz-10.2.0.tar.xz | tar Jxf - -C ${{ runner.temp }}
+        meson setup build-harfbuzz ${{ runner.temp }}/harfbuzz-10.2.0 ${{ matrix.meson }} \
           --prefix=$CMAKE_PREFIX_PATH --buildtype=release --default-library=shared \
           -Dtests=disabled -Ddocs=disabled -Dicu=disabled -Dcairo=disabled \
           -Dglib=disabled -Dgobject=disabled -Dbenchmark=disabled
@@ -154,16 +155,16 @@ jobs:
         meson install -C build-libass
     - name: Build dav1d
       run: |
-        curl --retry 5 -sSL https://downloads.videolan.org/pub/videolan/dav1d/1.5.0/dav1d-1.5.0.tar.xz | tar Jxf - -C ${{ runner.temp }}
-        meson setup build-dav1d ${{ runner.temp }}/dav1d-1.5.0 ${{ matrix.meson }} \
+        curl --retry 5 -sSL https://downloads.videolan.org/pub/videolan/dav1d/1.5.1/dav1d-1.5.1.tar.xz | tar Jxf - -C ${{ runner.temp }}
+        meson setup build-dav1d ${{ runner.temp }}/dav1d-1.5.1 ${{ matrix.meson }} \
           --prefix=$CMAKE_PREFIX_PATH --buildtype=release --default-library=shared \
           -Denable_tools=false -Denable_examples=false -Denable_tests=false -Denable_docs=false
         meson compile -C build-dav1d
         meson install -C build-dav1d
     - name: Build libwebp
       run: |
-        curl --retry 5 -sSL https://github.com/webmproject/libwebp/archive/v1.4.0.tar.gz | tar zxf - -C ${{ runner.temp }}
-        cmake -B build-libwebp -G Ninja -S ${{ runner.temp }}/libwebp-1.4.0 \
+        curl --retry 5 -sSL https://github.com/webmproject/libwebp/archive/v1.5.0.tar.gz | tar zxf - -C ${{ runner.temp }}
+        cmake -B build-libwebp -G Ninja -S ${{ runner.temp }}/libwebp-1.5.0 \
           -DCMAKE_INSTALL_PREFIX=$CMAKE_PREFIX_PATH \
           -DCMAKE_INSTALL_NAME_DIR=$CMAKE_PREFIX_PATH/lib \
           -DCMAKE_OSX_ARCHITECTURES=${{ matrix.arch }} \

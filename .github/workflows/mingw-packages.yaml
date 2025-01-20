@@ -29,7 +29,7 @@ jobs:
         sparse-checkout: scripts/mingw64
     - name: Install dependency
       run: |
-        pacman -S --needed --noconfirm \
+        pacman -Sy --needed --noconfirm \
           ${MINGW_PACKAGE_PREFIX}-make \
           ${MINGW_PACKAGE_PREFIX}-autotools \
           ${MINGW_PACKAGE_PREFIX}-cmake \

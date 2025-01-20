@@ -182,7 +182,14 @@ private:
 #elif defined(BOREALIS_USE_DEKO3D)
     DkFence doneFence;
     DkFence readyFence;
-    mpv_deko3d_fbo mpv_fbo{nullptr, &readyFence, &doneFence, 1280, 720, DkImageFormat_RGBA8_Unorm};
+    mpv_deko3d_fbo mpv_fbo{
+        .tex = nullptr,
+        .ready_fence = &readyFence,
+        .done_fence = &doneFence,
+        .w = 1280,
+        .h = 720,
+        .format = DkImageFormat_RGBA8_Unorm,
+    };
     mpv_render_param mpv_params[3] = {
         {MPV_RENDER_PARAM_DEKO3D_FBO, &mpv_fbo},
         {MPV_RENDER_PARAM_INVALID, nullptr},
