@@ -1,6 +1,7 @@
 #include "api/websocket.hpp"
 #include "utils/config.hpp"
-#include <borealis/core/logger.hpp>
+#include <borealis/core/application.hpp>
+#include <borealis/core/thread.hpp>
 #include <curl/curl.h>
 #ifdef _WIN32
 #include <winsock2.h>
@@ -40,48 +41,50 @@ void* websocket::ws_recv(void* ptr) {
     auto isStopped = p->isStopped;
     CURL* easy = p->easy;
 
-    CURLcode res = curl_easy_perform(easy);
-    if (res != CURLE_OK) {
-        brls::Logger::warning("ws perform failed {}", curl_easy_strerror(res));
-        return nullptr;
-    }
-
-    int ws_sockfd;
-    res = curl_easy_getinfo(easy, CURLINFO_ACTIVESOCKET, &ws_sockfd);
-    if (res != CURLE_OK) {
-        brls::Logger::warning("ws get socket {}", curl_easy_strerror(res));
-        return nullptr;
-    }
-
-    fd_set rfds;
-    size_t rlen, slen;
-    const struct curl_ws_frame* meta;
-    struct timeval tv = {.tv_sec = 10};
-    std::string buf(2048, '\0');
-    const std::string resp = R"({"MessageType":"KeepAlive"})";
-
-    for (;;) {
-        FD_ZERO(&rfds);
-        FD_SET(ws_sockfd, &rfds);
-        int ret = select(1, &rfds, NULL, NULL, &tv);
-        if (ret < 0 || isStopped->load()) break;
-        if (ret == 0) {
-            curl_ws_send(easy, resp.data(), resp.size(), &slen, 0, CURLWS_TEXT);
-            continue;
+    while (!isStopped->load()) {
+        CURLcode res = curl_easy_perform(easy);
+        if (res != CURLE_OK) {
+            brls::Logger::warning("ws perform failed {}", curl_easy_strerror(res));
+            break;
         }
 
-        res = curl_ws_recv(easy, buf.data(), buf.size(), &rlen, &meta);
-        if (res == CURLE_AGAIN) continue;
-        if (res != CURLE_OK) break;
+        int ws_sockfd;
+        res = curl_easy_getinfo(easy, CURLINFO_ACTIVESOCKET, &ws_sockfd);
+        if (res != CURLE_OK) {
+            brls::Logger::warning("ws get socket {}", curl_easy_strerror(res));
+            break;
+        }
 
-        if (meta->flags & CURLWS_CLOSE) break;
-        if (meta->flags & CURLWS_TEXT) on_msg(buf.substr(0, rlen));
+        fd_set rfds;
+        size_t rlen, slen;
+        const struct curl_ws_frame* meta;
+        struct timeval tv = {.tv_sec = 10};
+        std::string buf(2048, '\0');
+        const std::string resp = R"({"MessageType":"KeepAlive"})";
+
+        while (!isStopped->load()) {
+            FD_ZERO(&rfds);
+            FD_SET(ws_sockfd, &rfds);
+
+            if (select(1, &rfds, NULL, NULL, &tv))
+                res = curl_ws_recv(easy, buf.data(), buf.size(), &rlen, &meta);
+            else
+                res = curl_ws_send(easy, resp.data(), resp.size(), &slen, 0, CURLWS_TEXT);
+
+            if (res == CURLE_AGAIN) continue;
+            if (res != CURLE_OK) break;
+
+            if (meta->flags & CURLWS_CLOSE) break;
+            if (meta->flags & CURLWS_TEXT) on_msg(buf.substr(0, rlen));
+        }
+
+        if (res != CURLE_OK) {
+            std::string msg = fmt::format("ws recv failed: {}", curl_easy_strerror(res));
+            brls::sync([msg] { brls::Application::notify(msg); });
+        }
     }
 
-    if (res != CURLE_OK)
-        brls::Logger::warning("ws recv failed: {}", curl_easy_strerror(res));
-    else
-        brls::Logger::info("ws recv exit");
+    brls::Logger::info("ws recv exit");
 #endif
     return nullptr;
 }
@@ -101,5 +104,6 @@ void websocket::on_msg(const std::string& resp) {
             brls::Logger::debug("ws recv: {}", resp);
         }
     } catch (const std::exception& ex) {
+        brls::Logger::warning("parse ws {}", ex.what());
     }
 }
